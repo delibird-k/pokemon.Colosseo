@@ -98,11 +98,17 @@ const MOVES = [
  {id:"confuse",name:"あやしいひかり",type:"status",ailment:"confusion",desc:"相手をこんらんさせる。"},
  {id:"sleep",name:"さいみんじゅつ",type:"status",ailment:"sleep",desc:"相手をねむらせる。"},
  {id:"willowisp",name:"おにび",type:"status",ailment:"burn",desc:"相手をやけどにする。"},
- {id:"thunderwave",name:"でんじは",type:"status",ailment:"paralysis",desc:"相手をまひさせる。"}
+ {id:"thunderwave",name:"でんじは",type:"status",ailment:"paralysis",desc:"相手をまひさせる。"},
+ {id:"protect",name:"まもる",type:"status",effect:"protect",desc:"次に受ける技を1回防ぐ。"},
+ {id:"detect",name:"みきり",type:"status",effect:"protect",desc:"次に受ける技を1回防ぐ。"},
+ {id:"band",name:"ちからのハチマキ",type:"item",effect:"band",desc:"次の物理技の威力+10。"},
+ {id:"glasses",name:"ものしりメガネ",type:"item",effect:"glasses",desc:"次の特殊技の威力+10。"},
+ {id:"potion",name:"きずぐすり",type:"item",effect:"potion",desc:"HPを5回復する。"},
+ {id:"superpotion",name:"いいきずぐすり",type:"item",effect:"superpotion",desc:"HPを10回復する。"}
 ];
 const AILMENTS={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"};
 const state={player:null,enemy:null,turn:"player",ended:false,log:[],selectedMove:null,playerHand:[],enemyHand:[]};
-function newFighter(name,sprite){return{name,sprite,hp:40,maxHp:40,pp:10,maxPp:10,money:20,ailments:{},freezeTurns:0,locked:false};}
+function newFighter(name,sprite){return{name,sprite,hp:40,maxHp:40,pp:10,maxPp:10,money:20,ailments:{},freezeTurns:0,locked:false,protecting:false,physicalBoost:0,specialBoost:0};}
 function drawCard(hand,excludeId=null){
  const candidates=MOVES.filter(m=>m.id!==excludeId&&!hand.some(card=>card.id===m.id));
  if(!candidates.length)return null;
@@ -116,7 +122,7 @@ function renderHand(){
  const box=$("moveButtons");box.innerHTML="";
  state.playerHand.forEach(m=>{
   const b=document.createElement("button");b.className="move";b.dataset.move=m.id;
-  b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":"（PP消費なし）")+'</div>';
+  b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化",item:"アイテム"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":m.type==="item"?"（使用すると消費）":"（PP消費なし）")+'</div>';
   b.addEventListener("click",()=>selectMove(m.id));box.appendChild(b);
  });
 }
@@ -141,12 +147,12 @@ function render(){
  $("playerHpBar").style.background=p.hp<=10?"var(--red)":"var(--green)";$("enemyHpBar").style.background=e.hp<=10?"var(--red)":"var(--green)";
  $("playerSprite").textContent=p.sprite;$("enemySprite").textContent=e.sprite;
  renderStatuses(p,"player");renderStatuses(e,"enemy");
- document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;b.classList.toggle("selected",state.selectedMove===m.id);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(MOVES.find(m=>m.id===state.selectedMove)?.type==="status"?"変化技を承認":"攻撃を承認"):"技を選択";}
+ document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;b.classList.toggle("selected",state.selectedMove===m.id);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(({status:"変化技を承認",item:"アイテムを使用",physical:"攻撃を承認",special:"攻撃を承認"})[MOVES.find(m=>m.id===state.selectedMove)?.type]||"承認"):"技を選択";}
 }
 function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
-function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":"攻撃力 "+move.damage;$("previewDesc").textContent=move.desc; }
-function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
+function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":move.type==="item"?"🎒":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":move.type==="item"?"アイテム":"攻撃力 "+move.damage;$("previewDesc").textContent=move.desc; }
+function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":move.type==="item"?"アイテムを使用":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
 function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
 async function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
@@ -160,10 +166,14 @@ async function performMove(actor,target,move,isPlayer){
   else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;await showBattleEvent("攻撃対象を見失った！",actor.name+"はこんらんしている","こんらん",900);}
   else await showBattleEvent("なんとか技を出した！",actor.name+"はこんらんしている","こんらん",750);
  }
+ if(move.type==="item"){if(move.effect==="potion"||move.effect==="superpotion"){const heal=move.effect==="potion"?5:10;const actual=Math.min(heal,actor.maxHp-actor.hp);actor.hp+=actual;await showBattleEvent(move.name+"を使った！",actor.name+"のHPが"+actual+"回復！","アイテム",900);}else if(move.effect==="band"){actor.physicalBoost+=10;await showBattleEvent("ちからのハチマキ！","次の物理技の威力+10","アイテム",850);}else if(move.effect==="glasses"){actor.specialBoost+=10;await showBattleEvent("ものしりメガネ！","次の特殊技の威力+10","アイテム",850);}return;}
  if(move.type==="status"){actor.pp=Math.max(0,actor.pp-1);log(actor.name+"は "+move.name+" を使った！（PP -1）");}
  else log(actor.name+"の "+move.name+"！");
+ if(move.effect==="protect"){actor.protecting=true;await showBattleEvent(move.name+"！",actor.name+"は次の技を防ぐ構え","変化技",850);return;}
  if(move.type==="status"){applyAilment(actualTarget,move.ailment);return;}
+ if(target.protecting){target.protecting=false;await showBattleEvent("攻撃を防いだ！",target.name+"は"+move.name+"を防いだ","防御",900);return;}
  let damage=move.damage+Math.floor(Math.random()*5)-2;
+ if(move.type==="physical"&&actor.physicalBoost){damage+=actor.physicalBoost;actor.physicalBoost=0;}if(move.type==="special"&&actor.specialBoost){damage+=actor.specialBoost;actor.specialBoost=0;}
  if(actor.ailments.burn&&move.type==="physical"){damage-=10;log("やけどで物理技のダメージが10減った！");}
  damage=Math.max(1,damage);
  actualTarget.hp=Math.max(0,actualTarget.hp-damage);
