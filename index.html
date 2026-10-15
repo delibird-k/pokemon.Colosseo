@@ -120,7 +120,7 @@ function render(){
  const ops=G.P.map((p,i)=>i).filter(i=>i!==me&&!G.P[i].d);
  if(ops.length===1)S.tg=ops[0];else if(!ops.includes(S.tg))S.tg=-1;
  const sc=S.sel.map(j=>C[mp.h[j]]).filter(Boolean),M=sc.find(c=>c.t!=="b"),bs=sc.filter(c=>c.t==="b");
- const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!M.ko)||(M.t==="s")||M.id==="sell");
+ const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all)||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||c.t==="d")return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !!M&&M.t==="a"&&(c.k==="any"||M.k===c.k);return true};
