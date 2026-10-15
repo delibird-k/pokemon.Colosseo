@@ -149,10 +149,17 @@ function performMove(actor,target,move,isPlayer){
 }
 function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);log(f.name+"はやけどで2ダメージ！");}}
 function enemyTurn(){if(state.ended)return;const e=state.enemy,p=state.player;if(p.hp<=0||e.hp<=0){checkEnd();return;}
- // Enemy AI favors attacks, but uses status moves occasionally when the player has no ailment.
+ // 相手もプレイヤーと同様に、技を選んでからカードを表示して実行する。
  let pool=MOVES.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25)pool=MOVES.filter(m=>m.type==="status");
  let move=pool[Math.floor(Math.random()*pool.length)];if(move.type==="status"&&e.pp<1)move=MOVES.find(m=>m.type==="special");
- performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;state.turn="player";$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;render();}
+ state.turn="enemyPreview";
+ showMovePreview(move,"enemy");
+ $("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":"攻撃力 "+move.damage;
+ $("restartBtn").disabled=true;$("restartBtn").textContent="相手が技を選択中…";
+ log("相手は「"+move.name+"」を選択した！","system");
+ render();
+ setTimeout(()=>{if(state.ended)return;performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;$("movePreview").classList.remove("visible");state.turn="player";$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;render();},1200);
+}
 function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
 $("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
 $("helpBtn").addEventListener("click",()=>{$("modalTitle").textContent="ルール";$("modalText").textContent="HPは40、PPは10、所持金は20円で開始。物理・特殊技はPPを消費せず、変化技だけPPを1消費します。やけど：ターン終了時にHP-2、物理技のダメージ-10。まひ：30%で行動不能。こおり：3ターン行動不能。こんらん：攻撃対象が乱れ、自分を攻撃する場合もあります。ねむり：毎ターン20%で目覚めます。";$("modal").classList.remove("hidden");});
