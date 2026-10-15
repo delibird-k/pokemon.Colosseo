@@ -131,8 +131,8 @@ function renderHand(){
 function startBattle(){
  state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.ended=false;state.log=[];state.selectedMove=null;
  state.playerHand=[];state.enemyHand=[];
- while(state.playerHand.length<5&&state.playerHand.length<MOVES.length){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
- while(state.enemyHand.length<5&&state.enemyHand.length<MOVES.length){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
+ while(state.playerHand.length<8&&state.playerHand.length<MOVES.length){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
+ while(state.enemyHand.length<8&&state.enemyHand.length<MOVES.length){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
  $("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;
  renderHand();log("バトル開始！ 相手はライバルだ。","system");render();$("moveButtons").querySelector("button")?.focus();
 }
@@ -155,7 +155,16 @@ function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
 function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":move.type==="item"?"🎒":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;const bonus=state[owner==="enemy"?"enemy":"player"]?.nextMoveBonus;const power=move.damage+(bonus&&bonus.id===move.id?bonus.amount:0);$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":move.type==="item"?"アイテム":(bonus&&bonus.id===move.id?"威力 ":"攻撃力 ")+power;$("previewDesc").textContent=move.desc; }
 function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;const chosen=state.playerHand.find(m=>m.id===state.selectedMove);if(move.type==="item"&&(move.effect==="band"||move.effect==="glasses")&&chosen&&(chosen.type==="physical"||chosen.type==="special")){if((move.effect==="band"&&chosen.type!=="physical")||(move.effect==="glasses"&&chosen.type!=="special")){log(move.name+"は"+(move.effect==="band"?"物理技":"特殊技")+"にだけ追加できます。");return;}state.player.nextMoveBonus={id:chosen.id,amount:10};state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();state.selectedMove=chosen.id;showMovePreview(chosen,"player");$("restartBtn").disabled=false;$("restartBtn").textContent="攻撃を承認";log(move.name+"を"+chosen.name+"に追加！ 威力+10。");render();return;}if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":move.type==="item"?"アイテムを使用":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
-function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
+async function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手の行動中…";render();
+ // 相手は攻撃を受ける前に、防御技またはみがわり人形を割り込ませられる。
+ const isIncomingAttack=move.type==="physical"||move.type==="special";
+ const defense=state.enemyHand.find(m=>m.effect==="protect"||m.effect==="substitute");
+ if(isIncomingAttack&&defense&&Math.random()<0.45){
+  state.enemyHand=state.enemyHand.filter(m=>m.id!==defense.id);refillHand(state.enemyHand,defense);showMovePreview(defense,"enemy");$("previewPower").textContent="攻撃を1回防ぐ";
+  await showBattleEvent("相手は"+defense.name+"！","攻撃を受ける前に防御した","相手の防御",900);
+  state.enemy.protecting=true;log("相手は"+defense.name+"で攻撃を防ぐ構えをとった！","system");render();
+ }
+ await performMove(state.player,state.enemy,move,true);render();if(checkEnd())return;await showTurnBanner("相手のターン",650);if(checkEnd())return;enemyTurn();}
 async function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
  if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;await showBattleEvent("目を覚ました！",actor.name+"は眠りから回復した","ねむり",850);}else{await showBattleEvent("ぐうぐう眠っている……",actor.name+"は動けない","ねむり",1000);return;}}
