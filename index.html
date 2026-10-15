@@ -166,12 +166,12 @@ async function performMove(actor,target,move,isPlayer){
   else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;await showBattleEvent("攻撃対象を見失った！",actor.name+"はこんらんしている","こんらん",900);}
   else await showBattleEvent("なんとか技を出した！",actor.name+"はこんらんしている","こんらん",750);
  }
+ if(move.type!=="item"&&actualTarget.protecting){actualTarget.protecting=false;await showBattleEvent("攻撃を防いだ！",actualTarget.name+"は"+move.name+"を防いだ","防御",900);return;}
  if(move.type==="item"){if(move.effect==="potion"||move.effect==="superpotion"){const heal=move.effect==="potion"?5:10;const actual=Math.min(heal,actor.maxHp-actor.hp);actor.hp+=actual;await showBattleEvent(move.name+"を使った！",actor.name+"のHPが"+actual+"回復！","アイテム",900);}else if(move.effect==="band"){actor.physicalBoost+=10;await showBattleEvent("ちからのハチマキ！","次の物理技の威力+10","アイテム",850);}else if(move.effect==="glasses"){actor.specialBoost+=10;await showBattleEvent("ものしりメガネ！","次の特殊技の威力+10","アイテム",850);}return;}
  if(move.type==="status"){actor.pp=Math.max(0,actor.pp-1);log(actor.name+"は "+move.name+" を使った！（PP -1）");}
  else log(actor.name+"の "+move.name+"！");
  if(move.effect==="protect"){actor.protecting=true;await showBattleEvent(move.name+"！",actor.name+"は次の技を防ぐ構え","変化技",850);return;}
  if(move.type==="status"){applyAilment(actualTarget,move.ailment);return;}
- if(target.protecting){target.protecting=false;await showBattleEvent("攻撃を防いだ！",target.name+"は"+move.name+"を防いだ","防御",900);return;}
  let damage=move.damage+Math.floor(Math.random()*5)-2;
  if(move.type==="physical"&&actor.physicalBoost){damage+=actor.physicalBoost;actor.physicalBoost=0;}if(move.type==="special"&&actor.specialBoost){damage+=actor.specialBoost;actor.specialBoost=0;}
  if(actor.ailments.burn&&move.type==="physical"){damage-=10;log("やけどで物理技のダメージが10減った！");}
