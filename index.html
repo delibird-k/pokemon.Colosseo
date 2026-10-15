@@ -139,11 +139,15 @@ function renderHand(){
 function startBattle(){
  state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.phase="attack";state.ended=false;state.log=[];state.selectedMove=null;state.attachedItem=null;state.defenseChosen=false;
  state.playerHand=[];state.enemyHand=[];
- while(state.playerHand.length<8&&state.playerHand.length<MOVES.length){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
- while(state.enemyHand.length<8&&state.enemyHand.length<MOVES.length){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
+ const initialCards=MOVES.filter(m=>m.type!=="item"||m.effect!=="band"&&m.effect!=="glasses");
+ for(let i=0;i<8;i++){const card=initialCards[Math.floor(Math.random()*initialCards.length)];if(card&&!state.playerHand.some(x=>x.id===card.id))state.playerHand.push(card);}
+ while(state.playerHand.length<8){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
+ for(let i=0;i<8;i++){const card=initialCards[Math.floor(Math.random()*initialCards.length)];if(card&&!state.enemyHand.some(x=>x.id===card.id))state.enemyHand.push(card);}
+ while(state.enemyHand.length<8){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
  $("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;
- renderHand();log("バトル開始！ 相手はライバルだ。","system");render();$("moveButtons").querySelector("button")?.focus();
+ renderHand();render();log("バトル開始！ 初期カードを8枚配りました。","system");
 }
+
 function $(id){return document.getElementById(id)}
 function log(text,kind=""){state.log.push({text,kind});if(state.log.length>80)state.log.shift();const box=$("battleLog");box.innerHTML=state.log.map(x=>'<p class="'+x.kind+'">'+escapeHtml(x.text)+'</p>').join("");box.scrollTop=box.scrollHeight;}
 function showBattleEvent(title,detail,kicker,duration){const o=$("eventOverlay");$("eventKicker").textContent=kicker||"バトル";$("eventTitle").textContent=title;$("eventDetail").textContent=detail||"";o.classList.add("visible");return new Promise(resolve=>setTimeout(()=>{o.classList.remove("visible");resolve();},duration||900));}
