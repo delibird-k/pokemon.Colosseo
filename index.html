@@ -212,7 +212,7 @@ async function act0(a,o,c,bo,bs){
  }
  const d=t!==a?await getDef(t,c,bo):null;
  if(d&&d.b||c.t==="s"&&d&&d.bs)return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
- if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&!bs.some(x=>x.aim)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
+ if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
  if(c.ko){if(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.15)){t.hp=0;await ev(t.n+"はぜったいれいどで一撃でたおれた！",1100)}else await ev("ぜったいれいどは はずれた！",1100);return}
  if(c.all){
   let hitAny=false;
@@ -231,7 +231,7 @@ async function act0(a,o,c,bo,bs){
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?10:t.lightScreen>0&&c.k==="s"?10:0;dm-=rr+screen;dm=Math.max(rr||screen?0:1,dm);
  t.hp=Math.max(0,t.hp-dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
- if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||bs.some(x=>x.aim)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
+ if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
@@ -246,7 +246,7 @@ function bot(p,i){
  else c=hh[0]||pc[0]||sts[0];
  if(!c)return{ps:1,ids:[Math.random()*p.h.length|0],tg};
  const ids=[ix(c)];
- if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
+ if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>!x.aim&&(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i){
  G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);
