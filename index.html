@@ -23,6 +23,38 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 .controls{position:absolute;left:4%;bottom:24%;margin:0;z-index:2}.btn{border:1px solid #a5b9b8;background:#eaf4ef;color:#087d6d;padding:8px 14px;border-radius:9px;font-weight:750;cursor:pointer}.btn.primary{background:#008d91;color:white;border:0;border-radius:10px;min-width:260px;font-size:1.4rem;padding:4px 20px}.btn:hover{filter:brightness(1.1)}.note{display:none}
 .overlay{position:fixed;inset:0;background:#063c35aa;display:grid;place-items:center;padding:20px;z-index:5}.modal{width:min(440px,100%);text-align:center;background:#eafff8;border:1px solid var(--line);border-radius:14px;padding:28px;color:var(--text)}.modal h2{margin-top:0}.modal p{color:#426e6a;line-height:1.7}.hidden{display:none!important}
 @media(max-width:620px){body{padding:0}main{height:100dvh;min-height:560px}.brand{height:36px;padding:0 8px}.brand .eyebrow{display:none}.brand h1{font-size:.95rem}.stats{top:8px;right:6px;gap:3px}.stat{padding:4px 6px;gap:3px}.stat small{font-size:.6rem}.stat strong{font-size:.75rem}.fighter{width:60%;right:3%!important;padding-left:25px}.fighter h2{font-size:.95rem}.fighter .pp-row{font-size:.7rem}.section-title{left:4%;bottom:34%}.section-title h2{font-size:1.15rem}.moves{left:1%;width:98%;bottom:13%;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}.move{height:88px;padding:0 2px 4px}.move-head{font-size:.65rem}.move-desc{font-size:.5rem}.controls{left:4%;bottom:25%}.btn.primary{min-width:0;width:190px;font-size:1.15rem}.log{height:30px;min-height:30px;max-height:30px}}
+
+/* Layout cleanup: keep each control in its own clear zone. */
+.stats{left:12px;right:auto;top:12px;gap:8px}
+.stat{box-shadow:0 1px 2px #315e5520;padding:5px 10px}
+.arena{overflow:visible}
+.fighter:first-child{top:15%;right:5%;width:31%;height:42px;padding:5px 10px 5px 22px;border-radius:22px 0 0 22px;gap:7px}
+.fighter h2{font-size:1rem}
+.pp-row{font-size:.75rem;color:#55717b}
+.section-title{left:4%;bottom:34%;z-index:2}
+.section-title h2{margin:0;font-size:1.2rem}
+.moves{left:1%;bottom:7%;width:78%;height:104px;display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;overflow-y:hidden;align-items:stretch;padding:0 0 3px;scrollbar-width:thin;scrollbar-color:#008e74 #b8eee3}
+.move{flex:0 0 78px;width:78px;height:98px;min-width:0;padding:0 3px 5px;gap:3px}
+.move-head{font-size:.68rem}
+.move-desc{font-size:.54rem}
+.controls{left:4%;bottom:39%;z-index:2}
+.btn.primary{min-width:220px;font-size:1.25rem;padding:5px 18px}
+.log{height:30px;min-height:30px;max-height:30px;padding:4px 12px}
+@media(max-width:620px){
+ .stats{left:7px;right:7px;top:8px;gap:4px}
+ .stat{padding:4px 6px;gap:3px;flex:1;justify-content:center}
+ .stat small{font-size:.58rem}.stat strong{font-size:.72rem}
+ .fighter:first-child{top:16%;right:3%;width:66%;height:40px;padding-left:18px}
+ .fighter h2{font-size:.9rem}.pp-row{font-size:.67rem}
+ .section-title{left:4%;bottom:35%}
+ .section-title h2{font-size:1.05rem}
+ .moves{left:1%;width:98%;bottom:7%;height:94px;gap:3px}
+ .move{flex-basis:68px;width:68px;height:88px}
+ .move-head{font-size:.62rem}.move-desc{font-size:.49rem}
+ .controls{left:4%;bottom:40%}
+ .btn.primary{width:190px;min-width:0;font-size:1.1rem}
+}
+
 </style>
 </head>
 <body>
