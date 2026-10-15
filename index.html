@@ -210,7 +210,7 @@ async function act0(a,o,c,bo,bs){
   }
   return
  }
- const d=t!==a?await getDef(t,c,bo):null;
+ const d=t!==a&&!c.all?await getDef(t,c,bo):null;
  if(d&&d.b||c.t==="s"&&d&&d.bs)return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
  if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
  if(c.ko){if(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.15)){t.hp=0;await ev(t.n+"はぜったいれいどで一撃でたおれた！",1100)}else await ev("ぜったいれいどは はずれた！",1100);return}
