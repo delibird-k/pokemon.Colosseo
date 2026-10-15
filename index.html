@@ -63,6 +63,7 @@ const C=[
 {id:"earthquake",n:"じしん",t:"a",k:"p",d:10,all:1,x:"全体攻撃・物理10ダメージ"},
 {id:"surf",n:"なみのり",t:"a",k:"s",d:10,all:1,x:"全体攻撃・特殊10ダメージ"},
 {id:"sheercold",n:"ぜったいれいど",t:"a",k:"s",d:0,ko:1,ch:.2,x:"20%で相手を即死させる"},
+ {id:"fissure",n:"じわれ",t:"a",k:"p",d:0,ko:1,ch:.2,all:1,x:"自分以外全員を20%で一撃必殺"},
 {id:"band",n:"ちからのハチマキ",t:"b",k:"p",d:10,x:"物理技に重ねて+10"},
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:10,x:"特殊技に重ねて+10"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:15,life:1,x:"どの技でも+15・自分も5ダメージ"},
@@ -197,6 +198,17 @@ async function act0(a,o,c,bo,bs){
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  a.pp--;
+ if(c.ko&&c.all){
+  for(const target of G.P.filter(q=>q!==a&&!q.d)){
+   G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
+   const guard=await getDef(target,c,bo);
+   if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
+   if(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){
+    target.hp=0;await ev(target.n+"はじわれで一撃でたおれた！",700);
+   }else await ev("じわれは "+target.n+"に はずれた！",500);
+  }
+  return
+ }
  const d=t!==a?await getDef(t,c,bo):null;
  if(d&&d.b||c.t==="s"&&d&&d.bs)return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
  if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&!bs.some(x=>x.aim)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
@@ -305,5 +317,5 @@ $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.s
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;S.sel=[];S.sent=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
-$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP20で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。技の追加効果は通常30%。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいどは20%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
+$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP20で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。技の追加効果は通常30%。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいどは20%で一撃必殺。じわれは自分以外全員を対象に20%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
 </script></body></html>
