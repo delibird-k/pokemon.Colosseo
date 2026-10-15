@@ -67,7 +67,7 @@ const C=[
 {id:"band",n:"ちからのハチマキ",t:"b",k:"p",d:10,x:"物理技に重ねて+10"},
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:10,x:"特殊技に重ねて+10"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:15,life:1,x:"どの技でも+15・自分も5ダメージ"},
-{id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"持っている間、相手の技の命中・追加効果が必ず成功"},
+{id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"呪いのアイテム。使用不可。持っている相手には技の追加効果と一撃必殺が必ず成功"},
 {id:"protect",n:"まもる",t:"d",r:10,bs:1,x:"ダメージ-10・変化技無効（PP1）"},
 {id:"detect",n:"みきり",t:"d",r:10,bs:1,x:"ダメージ-10・変化技無効（PP1）"},
 {id:"sub",n:"みがわり人形",t:"d",r:0,b:1,bs:1,x:"攻撃も変化技も全て無効（PP1）"},
@@ -126,7 +126,7 @@ function render(){
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all)||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
-  if(c.t==="b")return !!M&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
+  if(c.t==="b")return !c.aim&&!!M&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'<span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div>').join("");
  const hb=$("hand");hb.innerHTML="";
