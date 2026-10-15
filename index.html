@@ -18,9 +18,9 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 .move{height:100px;padding:0 4px 5px;border:1px solid #c2c2c2;border-radius:0 0 9px 9px;background:linear-gradient(#c3c3c3 0 78%,#d9ffb2 78%);color:#43585b;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;box-shadow:0 2px 3px #477b7150;position:relative;overflow:hidden}
 .move:before{content:"";position:absolute;top:0;left:0;right:0;height:76%;background:linear-gradient(135deg,#d8e8e4,#7fa5a0);z-index:0}
 .move:nth-child(3n+1):before{background:linear-gradient(135deg,#b9d5e2,#5c8f9c)}.move:nth-child(3n+2):before{background:linear-gradient(135deg,#f5e8a8,#b1ad66)}.move:nth-child(3n):before{background:linear-gradient(135deg,#e0e0e0,#929a9b)}
-.move-head,.move-desc{position:relative;z-index:1}.move-head{display:flex;flex-direction:column;align-items:center;gap:0;font-size:.77rem;line-height:1.1}.move-head>span:first-child{font-weight:850;background:#f0f2edc9;border-radius:4px;padding:1px 2px}.kind{font-size:.62rem;padding:1px 4px;border-radius:4px}.physical{background:#d9e6ee;color:#435d6a}.special{background:#f7eaa4;color:#8a7400}.status{background:#d6ffbb;color:#e06d00}.move-desc{font-size:.58rem;line-height:1.1;color:#3c5657;max-height:2.2em;overflow:hidden;margin:0}.move:disabled{opacity:.55}
+.move-head,.move-desc{position:relative;z-index:1}.move-head{display:flex;flex-direction:column;align-items:center;gap:0;font-size:.77rem;line-height:1.1}.move-head>span:first-child{font-weight:850;background:#f0f2edc9;border-radius:4px;padding:1px 2px}.kind{font-size:.62rem;padding:1px 4px;border-radius:4px}.physical{background:#d9e6ee;color:#435d6a}.special{background:#f7eaa4;color:#8a7400}.status{background:#d6ffbb;color:#e06d00}.move-desc{font-size:.58rem;line-height:1.1;color:#3c5657;max-height:2.2em;overflow:hidden;margin:0}.move:disabled{opacity:.55}.move.selected{outline:4px solid #008e74;outline-offset:-4px;filter:brightness(1.08);transform:translateY(-4px}.move.selected:after{content:"選択中";position:absolute;top:4px;left:3px;right:3px;background:#008e74;color:#fff;border-radius:4px;font-size:.62rem;font-weight:800;padding:2px;z-index:2}
 .log{position:absolute;left:0;right:0;bottom:0;height:30px;min-height:30px;max-height:30px;overflow:hidden;border:0;border-radius:0;background:#008e74;color:white;padding:3px 14px;font-size:.85rem;line-height:1.4}.log p{margin:0;white-space:nowrap}.log p:not(:last-child){display:none}.log .system{color:white}
-.controls{position:absolute;left:4%;bottom:24%;margin:0;z-index:2}.btn{border:1px solid #a5b9b8;background:#eaf4ef;color:#087d6d;padding:8px 14px;border-radius:9px;font-weight:750;cursor:pointer}.btn.primary{background:#008d91;color:white;border:0;border-radius:10px;min-width:260px;font-size:1.4rem;padding:4px 20px}.btn:hover{filter:brightness(1.1)}.note{display:none}
+.controls{position:absolute;left:4%;bottom:24%;margin:0;z-index:2}.btn{border:1px solid #a5b9b8;background:#eaf4ef;color:#087d6d;padding:8px 14px;border-radius:9px;font-weight:750;cursor:pointer}.btn.primary{background:#008d91;color:white;border:0;border-radius:10px;min-width:260px;font-size:1.4rem;padding:4px 20px}.btn.primary:disabled{opacity:.45;cursor:not-allowed}.btn:hover{filter:brightness(1.1)}.note{display:none}
 .overlay{position:fixed;inset:0;background:#063c35aa;display:grid;place-items:center;padding:20px;z-index:5}.modal{width:min(440px,100%);text-align:center;background:#eafff8;border:1px solid var(--line);border-radius:14px;padding:28px;color:var(--text)}.modal h2{margin-top:0}.modal p{color:#426e6a;line-height:1.7}.hidden{display:none!important}
 @media(max-width:620px){body{padding:0}main{height:100dvh;min-height:560px}.brand{height:36px;padding:0 8px}.brand .eyebrow{display:none}.brand h1{font-size:.95rem}.stats{top:8px;right:6px;gap:3px}.stat{padding:4px 6px;gap:3px}.stat small{font-size:.6rem}.stat strong{font-size:.75rem}.fighter{width:60%;right:3%!important;padding-left:25px}.fighter h2{font-size:.95rem}.fighter .pp-row{font-size:.7rem}.section-title{left:4%;bottom:34%}.section-title h2{font-size:1.15rem}.moves{left:1%;width:98%;bottom:13%;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}.move{height:88px;padding:0 2px 4px}.move-head{font-size:.65rem}.move-desc{font-size:.5rem}.controls{left:4%;bottom:25%}.btn.primary{min-width:0;width:190px;font-size:1.15rem}.log{height:30px;min-height:30px;max-height:30px}}
 
@@ -73,7 +73,7 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 <div class="section-title"><h2>祈る</h2><span>物理・特殊技はPPを消費しない</span></div>
 <div class="moves" id="moveButtons"></div>
 <div class="log" id="battleLog" aria-live="polite"><p class="system">コロッセオへようこそ！ わざを選んでバトル開始。</p></div>
-<div class="controls"><button class="btn primary" id="restartBtn">祈る</button></div>
+<div class="controls"><button class="btn primary" id="restartBtn" disabled>技を選択</button></div>
 
 </section>
 </main>
@@ -99,12 +99,12 @@ const MOVES = [
  {id:"thunderwave",name:"でんじは",type:"status",ailment:"paralysis",desc:"相手をまひさせる。"}
 ];
 const AILMENTS={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"};
-const state={player:null,enemy:null,turn:"player",ended:false,log:[]};
+const state={player:null,enemy:null,turn:"player",ended:false,log:[],selectedMove:null};
 function newFighter(name,sprite){return{name,sprite,hp:40,maxHp:40,pp:10,maxPp:10,money:20,ailments:{},freezeTurns:0,locked:false};}
 function startBattle(){
- state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.ended=false;state.log=[];
+ state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.ended=false;state.log=[];state.selectedMove=null;$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;
  $("moveButtons").innerHTML="";
- MOVES.forEach(m=>{const b=document.createElement("button");b.className="move";b.dataset.move=m.id;b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":"（PP消費なし）")+'</div>';b.addEventListener("click",()=>playerMove(m.id));$("moveButtons").appendChild(b);});
+ MOVES.forEach(m=>{const b=document.createElement("button");b.className="move";b.dataset.move=m.id;b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":"（PP消費なし）")+'</div>';b.addEventListener("click",()=>selectMove(m.id));$("moveButtons").appendChild(b);});
  log("バトル開始！ 相手はライバルだ。","system");render();$("moveButtons").querySelector("button")?.focus();
 }
 function $(id){return document.getElementById(id)}
@@ -118,11 +118,12 @@ function render(){
  $("playerHpBar").style.background=p.hp<=10?"var(--red)":"var(--green)";$("enemyHpBar").style.background=e.hp<=10?"var(--red)":"var(--green)";
  $("playerSprite").textContent=p.sprite;$("enemySprite").textContent=e.sprite;
  renderStatuses(p,"player");renderStatuses(e,"enemy");
- document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;});
+ document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;b.classList.toggle("selected",state.selectedMove===m.id);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(MOVES.find(m=>m.id===state.selectedMove)?.type==="status"?"変化技を承認":"攻撃を承認"):"技を選択";}
 }
 function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
 function applyAilment(target,type){if(!type)return;if(target.ailments[type]){log(target.name+"はすでに"+AILMENTS[type]+"だ。");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
-function playerMove(id){if(state.ended||state.turn!=="player")return;const move=MOVES.find(m=>m.id===id);if(!move)return;state.turn="resolving";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
+function selectMove(id){if(state.ended||state.turn!=="player")return;const move=MOVES.find(m=>m.id===id);if(!move)return;if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":"攻撃を承認";$("section-title");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
+function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=MOVES.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
 function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
  if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;log(actor.name+"は目を覚ました！");}else{log(actor.name+"はぐうぐう眠っている……");return;}}
@@ -150,9 +151,9 @@ function enemyTurn(){if(state.ended)return;const e=state.enemy,p=state.player;if
  // Enemy AI favors attacks, but uses status moves occasionally when the player has no ailment.
  let pool=MOVES.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25)pool=MOVES.filter(m=>m.type==="status");
  let move=pool[Math.floor(Math.random()*pool.length)];if(move.type==="status"&&e.pp<1)move=MOVES.find(m=>m.type==="special");
- performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;state.turn="player";render();}
+ performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;state.turn="player";$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;render();}
 function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
-$("restartBtn").addEventListener("click",startBattle);$("modalBtn").addEventListener("click",()=>$("modal").classList.add("hidden"));
+$("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
 $("helpBtn").addEventListener("click",()=>{$("modalTitle").textContent="ルール";$("modalText").textContent="HPは40、PPは10、所持金は20円で開始。物理・特殊技はPPを消費せず、変化技だけPPを1消費します。やけど：ターン終了時にHP-2、物理技のダメージ-10。まひ：30%で行動不能。こおり：3ターン行動不能。こんらん：攻撃対象が乱れ、自分を攻撃する場合もあります。ねむり：毎ターン20%で目覚めます。";$("modal").classList.remove("hidden");});
 startBattle();
 </script>
