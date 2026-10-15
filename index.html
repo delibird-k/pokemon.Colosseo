@@ -96,11 +96,11 @@ const C=[
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（PP1・成功75%）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（PP1・成功75%）"}];
 C.forEach((c,i)=>c.i=i);
-// 32枠の抽選表：攻撃13、通常変化3、回復5、防御6、商売5。
+// 32枠の抽選表：攻撃12、通常変化3、回復5、防御7、商売5。
 const byType=t=>C.filter(c=>c.t===t);
 const PICK_CATEGORIES=[
- ...Array(13).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
- ...Array(6).fill("d"),...Array(5).fill("m")
+ ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
+ ...Array(7).fill("d"),...Array(5).fill("m")
 ];
 const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);return rd(group).i};
 const pr=c=>c.t==="b"?10:5;
@@ -110,7 +110,7 @@ const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const draw=p=>{while(p.h.length<9)p.h.push(pick())};
-const mk=(n,id,bot)=>({id,n,hp:40,pp:20,mo:20,h:[],al:null,fz:0,bot,d:0});
+const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0});
 const newGame=P=>{P.forEach(draw);return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
@@ -317,5 +317,5 @@ $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.s
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;S.sel=[];S.sent=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
-$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP20で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。攻撃技の追加効果は通常30%。変化技は通常75%で成功。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいど・じわれは自分以外全員を対象に15%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
+$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP10で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。攻撃技の追加効果は通常30%。変化技は通常75%で成功。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいど・じわれは自分以外全員を対象に15%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
 </script></body></html>
