@@ -117,8 +117,12 @@ function drawCard(hand,excludeId=null){
  return candidates[Math.floor(Math.random()*candidates.length)];
 }
 function refillHand(hand,usedMove){
- const replacement=drawCard(hand,usedMove.id);
+ const wasDefense=usedMove&&(usedMove.effect==="protect"||usedMove.effect==="substitute");
+ let replacement=null;
+ if(wasDefense)replacement=MOVES.find(m=>(m.effect==="protect"||m.effect==="substitute")&&!hand.some(card=>card.id===m.id));
+ if(!replacement)replacement=drawCard(hand,usedMove?.id);
  if(replacement)hand.push(replacement);
+ renderHand();
 }
 function renderHand(){
  const box=$("moveButtons");box.innerHTML="";
@@ -142,6 +146,12 @@ function startBattle(){
  const initialCards=MOVES.filter(m=>m.type!=="item"||m.effect!=="band"&&m.effect!=="glasses");
  for(let i=0;i<8;i++){const card=initialCards[Math.floor(Math.random()*initialCards.length)];if(card&&!state.playerHand.some(x=>x.id===card.id))state.playerHand.push(card);}
  while(state.playerHand.length<8){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
+ // 初期手札に防御カードを必ず1枚用意する。
+ if(!state.playerHand.some(m=>m.effect==="protect"||m.effect==="substitute")){
+  const defense=MOVES.find(m=>m.effect==="protect");
+  const replaceIndex=state.playerHand.findIndex(m=>m.effect!=="protect"&&m.effect!=="substitute");
+  if(defense&&replaceIndex>=0)state.playerHand[replaceIndex]=defense;
+ }
  for(let i=0;i<8;i++){const card=initialCards[Math.floor(Math.random()*initialCards.length)];if(card&&!state.enemyHand.some(x=>x.id===card.id))state.enemyHand.push(card);}
  while(state.enemyHand.length<8){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
  $("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;
@@ -236,7 +246,10 @@ async function enemyTurn(){
  state.turn="resolving";state.phase="resolving";renderHand();
  await performMove(e,p,move,false);await endTurnEffects(p);await endTurnEffects(e);if(checkEnd())return;
  $("movePreview").classList.remove("visible");await showTurnBanner("あなたのターン",650);
- state.turn="player";state.phase="attack";state.defenseChosen=false;$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;renderHand();render();
+ state.turn="player";state.phase="attack";state.defenseChosen=false;state.selectedMove=null;
+ $("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;
+ renderHand();render();
+ log("あなたのターン！ 技を選んで行動できます。","system");
 }
 function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
 $("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
