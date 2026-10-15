@@ -102,7 +102,7 @@ const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
  ...Array(7).fill("d"),...Array(5).fill("m")
 ];
-const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);return rd(group).i};
+const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
 const pr=c=>c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
