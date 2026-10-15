@@ -242,9 +242,7 @@ function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;s
 $("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
 $("helpBtn").addEventListener("click",()=>{$("modalTitle").textContent="ルール";$("modalText").textContent="HPは40、PPは10、所持金は20円で開始。物理・特殊技はPPを消費せず、変化技だけPPを1消費します。やけど：ターン終了時にHP-2、物理技のダメージ-10。まひ：30%で行動不能。こおり：3ターン行動不能。こんらん：攻撃対象が乱れ、自分を攻撃する場合もあります。ねむり：毎ターン20%で目覚めます。";$("modal").classList.remove("hidden");});
 startBattle();
-</script>
-</body>
-</htmlasync function playerMove(){
+async function playerMove(){
  if(state.ended){startBattle();$("modal").classList.add("hidden");return;}
  if(state.phase==="defense"&&state.defenseChosen){return;}
  if(state.turn!=="player"||state.phase!=="attack"||!state.selectedMove)return;
