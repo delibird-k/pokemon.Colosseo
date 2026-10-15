@@ -126,7 +126,7 @@ function render(){
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all)||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
-  if(c.t==="b")return !c.aim&&!!M&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
+  if(c.t==="b")return !c.aim&&!!M&&!M.ko&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'<span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div>').join("");
  const hb=$("hand");hb.innerHTML="";
@@ -245,7 +245,7 @@ function bot(p,i){
  else c=hh[0]||pc[0]||sts[0];
  if(!c)return{ps:1,ids:[Math.random()*p.h.length|0],tg};
  const ids=[ix(c)];
- if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>!x.aim&&(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
+ if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>!c.ko&&!x.aim&&(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i){
  G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);
@@ -255,7 +255,7 @@ async function turn(p,i){
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
  if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
- else{const bs=cs.filter(b=>b.t==="b"&&(m.t==="a"||m.t==="s")&&(b.k==="any"||b.k===m.k));p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p);await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
+ else{const bs=cs.filter(b=>b.t==="b"&&!m.ko&&(m.t==="a"||m.t==="s")&&(b.k==="any"||b.k===m.k));p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p);await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
  chk()}
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
