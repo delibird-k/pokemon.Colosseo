@@ -171,7 +171,12 @@ function render(){
  $("playerHpBar").style.background=p.hp<=10?"var(--red)":"var(--green)";$("enemyHpBar").style.background=e.hp<=10?"var(--red)":"var(--green)";
  $("playerSprite").textContent=p.sprite;$("enemySprite").textContent=e.sprite;
  renderStatuses(p,"player");renderStatuses(e,"enemy");
- document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);if(!m)return;const defense=m.effect==="protect"||m.effect==="substitute";const booster=m.effect==="band"||m.effect==="glasses";b.disabled=state.ended||p.hp<=0||((state.phase==="defense")?(!defense||state.turn!=="player"||state.defenseChosen):(state.turn!=="player"||defense))||(m.type==="status"&&p.pp<1)||(booster&&!state.selectedMove);b.classList.toggle("selected",state.selectedMove===m.id);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(({status:"変化技を承認",item:"アイテムを使用",physical:"攻撃を承認",special:"攻撃を承認"})[MOVES.find(m=>m.id===state.selectedMove)?.type]||"承認"):"技を選択";}
+ if(state.turn==="player"&&!state.ended){
+  $("restartBtn").disabled=state.phase!=="attack"||!state.selectedMove;
+  $("restartBtn").textContent=state.phase==="defense"?"防御カードを選択できます":state.selectedMove?(({status:"変化技を承認",item:"アイテムを使用",physical:"攻撃を承認",special:"攻撃を承認"})[MOVES.find(m=>m.id===state.selectedMove)?.type]||"承認"):"技を選択";
+ }
+ // カードの有効/無効状態は現在のフェイズから毎回作り直す。
+ renderHand();
 }
 function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
