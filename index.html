@@ -76,8 +76,8 @@ const C=[
 {id:"amnesia",n:"ドわすれ",t:"d",k:"s",r:10,x:"特防+2：特殊技-10（PP1）"},
 {id:"calm",n:"めいそう",t:"d",k:"s",r:5,x:"特防+1：特殊技-5（PP1）"},
 {id:"cosmic",n:"コスモパワー",t:"d",r:5,x:"防御・特防+1：どちらも-5（PP1）"},
-{id:"light",n:"ひかりのかべ",t:"d",k:"s",r:10,x:"特殊技の威力-10（PP1）"},
-{id:"wall",n:"リフレクター",t:"d",k:"p",r:10,x:"物理技の威力-10（PP1）"},
+{id:"light",n:"ひかりのかべ",t:"d",k:"s",r:10,wall:1,x:"攻撃フェイズで使用：3ターン特殊技の被ダメージ-10（PP1）"},
+{id:"wall",n:"リフレクター",t:"d",k:"p",r:10,wall:1,x:"攻撃フェイズで使用：3ターン物理技の被ダメージ-10（PP1）"},
 {id:"iron",n:"てっぺき",t:"d",k:"p",r:10,x:"防御+2：物理技-10（PP1）"},
 {id:"potion",n:"きずぐすり",t:"h",d:5,x:"HP+5"},
 {id:"super",n:"いいきずぐすり",t:"h",d:10,x:"HP+10"},
@@ -110,7 +110,7 @@ const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const draw=p=>{while(p.h.length<9)p.h.push(pick())};
-const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0});
+const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0});
 const newGame=P=>{P.forEach(draw);return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
@@ -124,7 +124,7 @@ function render(){
  if(ops.length===1)S.tg=ops[0];else if(!ops.includes(S.tg))S.tg=-1;
  const sc=S.sel.map(j=>C[mp.h[j]]).filter(Boolean),M=sc.find(c=>c.t!=="b"),bs=sc.filter(c=>c.t==="b");
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all)||(M.t==="s")||M.id==="sell");
- const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||c.t==="d")return false;
+ const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !!M&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
@@ -191,6 +191,7 @@ async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
  if(!await can(a))return;
  if(c.t==="m")return market(a,o,c);
+ if(c.wall){if(c.id==="wall")a.reflect=3;else a.lightScreen=3;a._screenUsed=1;a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを10減らす！",900)}
  if(c.t==="h"){
   if(c.cure){const had=a.al;a.al=null;return ev(had?a.n+"の"+AIL[had]+"が治った！":"しかし何も起こらなかった…")}
   if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;return ev(a.n+"は"+c.n+"！ PP+"+g)}
@@ -220,15 +221,15 @@ async function act0(a,o,c,bo,bs){
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
-   let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;dm=Math.max(rr?0:1,dm-rr);
-   target.hp=Math.max(0,target.hp-dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr?"（軽減）":""),500);
+   let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?10:target.lightScreen>0&&c.k==="s"?10:0;dm=Math.max(rr||screen?0:1,dm-rr-screen);
+   target.hp=Math.max(0,target.hp-dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
  let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;
- const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;dm-=rr;dm=Math.max(rr?0:1,dm);
- t.hp=Math.max(0,t.hp-dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr?"（軽減）":""),800);
+ const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?10:t.lightScreen>0&&c.k==="s"?10:0;dm-=rr+screen;dm=Math.max(rr||screen?0:1,dm);
+ t.hp=Math.max(0,t.hp-dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||bs.some(x=>x.aim)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
 function bot(p,i){
@@ -247,11 +248,11 @@ function bot(p,i){
  if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i){
- G.bd=null;G.ask=null;await ev(p.n+"のターン",600);
+ G.bd=null;G.ask=null;if(p._screenUsed){p._screenUsed=0}else{if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;}await ev(p.n+"のターン",600);
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
- if(r.ps||!m||m.t==="d"||(m.t==="s"||m.t==="a")&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
+ if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
  else{const bs=cs.filter(b=>b.t==="b"&&(m.t==="a"||m.t==="s")&&(b.k==="any"||b.k===m.k));p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p);await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
  chk()}
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return}i=(i+1)%G.P.length}}
