@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pokémon Colosseo</title>
+<meta name="theme-color" content="#111827">
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--line:#34415b;--text:#f4f7ff;--muted:#a9b5ca;--gold:#f4c95d;--red:#fb7185;--blue:#60a5fa;--green:#4ade80}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#263858 0,transparent 55%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;min-height:100vh}
+main{max-width:980px;margin:auto;padding:24px 16px 48px}.brand{text-align:center;margin:12px 0 24px}.eyebrow{font-size:.72rem;letter-spacing:.25em;color:var(--gold);font-weight:800}.brand h1{font-size:clamp(1.8rem,5vw,3.1rem);letter-spacing:.04em;margin:8px 0}.brand p{color:var(--muted);margin:0}.panel{background:linear-gradient(145deg,#19243b,#111827);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 12px 35px #0003}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.stat{background:#0c1323;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.stat small{display:block;color:var(--muted);font-size:.75rem}.stat strong{font-size:1.35rem}.arena{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fighter{min-width:0;background:#0c1323;border:1px solid var(--line);border-radius:14px;padding:16px}.fighter h2{font-size:1rem;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}.sprite{font-size:clamp(3rem,9vw,5rem);text-align:center;padding:12px 0;filter:drop-shadow(0 8px 8px #0004)}.hp-label{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin-bottom:6px}.bar{height:10px;background:#293449;border-radius:20px;overflow:hidden}.bar span{display:block;height:100%;width:100%;background:var(--green);transition:width .25s}.pp-row{display:flex;justify-content:space-between;color:var(--muted);font-size:.8rem;margin-top:10px}.status-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;min-height:25px}.tag{font-size:.72rem;font-weight:800;padding:4px 8px;border-radius:6px;background:#27334a;color:#dce6f8}.tag.burn{background:#7c2d12;color:#ffedd5}.tag.paralysis{background:#854d0e;color:#fef3c7}.tag.freeze{background:#164e63;color:#cffafe}.tag.confusion{background:#581c87;color:#f3e8ff}.tag.sleep{background:#334155;color:#e2e8f0}.section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:22px 0 10px}.section-title h2{font-size:1rem;margin:0}.section-title span{color:var(--muted);font-size:.78rem}.moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.move{border:1px solid var(--line);background:#1b2941;color:var(--text);padding:13px;border-radius:12px;text-align:left;cursor:pointer;transition:.15s;min-width:0}.move:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold);background:#263651}.move:disabled{opacity:.4;cursor:not-allowed}.move-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800}.kind{font-size:.68rem;padding:3px 6px;border-radius:5px;white-space:nowrap}.physical{background:#7f1d1d;color:#fee2e2}.special{background:#1e40af;color:#dbeafe}.status{background:#166534;color:#dcfce7}.move-desc{font-size:.78rem;color:var(--muted);margin-top:7px;line-height:1.5}.log{margin-top:16px;background:#080d18;border:1px solid var(--line);border-radius:12px;padding:14px;min-height:130px;max-height:240px;overflow:auto;font-size:.88rem;line-height:1.7}.log p{margin:0 0 5px}.log p:last-child{margin-bottom:0}.log .system{color:var(--gold)}.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.btn{border:1px solid var(--line);background:#26334b;color:var(--text);padding:10px 14px;border-radius:10px;font-weight:750;cursor:pointer}.btn.primary{background:var(--gold);color:#201a08;border-color:var(--gold)}.btn:hover{filter:brightness(1.1)}.note{color:var(--muted);font-size:.8rem;line-height:1.7;margin-top:18px}.overlay{position:fixed;inset:0;background:#060914df;display:grid;place-items:center;padding:20px;z-index:5}.modal{width:min(440px,100%);text-align:center;background:#151d31;border:1px solid var(--line);border-radius:18px;padding:28px}.modal h2{margin-top:0}.modal p{color:var(--muted);line-height:1.7}.hidden{display:none!important}
+@media(max-width:620px){main{padding:16px 12px 32px}.panel{padding:12px}.arena{gap:8px}.fighter{padding:10px}.fighter h2{font-size:.9rem}.moves{gap:8px}.move{padding:11px}.move-head{align-items:flex-start;flex-direction:column;gap:5px}.stats{gap:6px}.stat{padding:9px 4px}.stat strong{font-size:1.1rem}}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><div class="eyebrow">A POKÉMON-INSPIRED BATTLE GAME</div><h1>POKÉMON COLOSSEO</h1><p>読み合いと状態異常で勝ち抜け。</p></header>
+<section class="panel">
+<div class="stats">
+<div class="stat"><small>あなたのHP</small><strong id="playerHpTop">40 / 40</strong></div>
+<div class="stat"><small>PP（変化技用）</small><strong id="playerPpTop">10 / 10</strong></div>
+<div class="stat"><small>所持金</small><strong id="playerMoneyTop">20円</strong></div>
+</div>
+<div class="arena">
+<article class="fighter"><h2><span id="enemyName">ライバル</span><span id="enemyStatusShort"></span></h2><div class="sprite" id="enemySprite">👾</div><div class="hp-label"><span>HP</span><span id="enemyHpText">40 / 40</span></div><div class="bar"><span id="enemyHpBar"></span></div><div class="pp-row"><span>PP</span><span id="enemyPpText">10 / 10</span></div><div class="status-list" id="enemyStatuses"></div></article>
+<article class="fighter"><h2><span>あなた</span><span id="playerStatusShort"></span></h2><div class="sprite" id="playerSprite">⚔️</div><div class="hp-label"><span>HP</span><span id="playerHpText">40 / 40</span></div><div class="bar"><span id="playerHpBar"></span></div><div class="pp-row"><span>PP</span><span id="playerPpText">10 / 10</span></div><div class="status-list" id="playerStatuses"></div></article>
+</div>
+<div class="section-title"><h2>わざを選ぶ</h2><span>物理・特殊技はPPを消費しない</span></div>
+<div class="moves" id="moveButtons"></div>
+<div class="log" id="battleLog" aria-live="polite"><p class="system">コロッセオへようこそ！ わざを選んでバトル開始。</p></div>
+<div class="controls"><button class="btn primary" id="restartBtn">もう一度バトル</button><button class="btn" id="helpBtn">ルール</button></div>
+<p class="note">初期設定：HP 40 / PP 10 / 所持金 20円。技は下のデータ一覧に追加するだけで拡張できる構成です。お金の使い道・ショップ・技ごとの細かな威力は、今後のルール決定に合わせて追加できます。</p>
+</section>
+</main>
+<div class="overlay hidden" id="modal"><div class="modal"><h2 id="modalTitle">バトル終了</h2><p id="modalText"></p><button class="btn primary" id="modalBtn">閉じる</button></div></div>
+<script>
+/*
+ * 技の追加方法：MOVES 配列にデータを追加してください。
+ * type: physical / special / status
+ * damage: 物理・特殊技の基礎ダメージ。status技では不要
+ * ailment: burn / paralysis / freeze / confusion / sleep
+ * status技だけPPを1消費します。
+ */
+const MOVES = [
+ {id:"tackle",name:"たいあたり",type:"physical",damage:8,desc:"安定した物理攻撃。"},
+ {id:"quick",name:"でんこうせっか",type:"physical",damage:6,desc:"小さなダメージを与える。"},
+ {id:"flame",name:"ほのおのパンチ",type:"physical",damage:9,ailment:"burn",chance:.35,desc:"35%でやけどにする。"},
+ {id:"spark",name:"10まんボルト",type:"special",damage:9,ailment:"paralysis",chance:.3,desc:"30%でまひにする。"},
+ {id:"ice",name:"れいとうビーム",type:"special",damage:8,ailment:"freeze",chance:.25,desc:"25%でこおりにする。"},
+ {id:"shadow",name:"シャドーボール",type:"special",damage:10,desc:"威力重視の特殊攻撃。"},
+ {id:"confuse",name:"あやしいひかり",type:"status",ailment:"confusion",desc:"相手をこんらんさせる。"},
+ {id:"sleep",name:"さいみんじゅつ",type:"status",ailment:"sleep",desc:"相手をねむらせる。"},
+ {id:"willowisp",name:"おにび",type:"status",ailment:"burn",desc:"相手をやけどにする。"},
+ {id:"thunderwave",name:"でんじは",type:"status",ailment:"paralysis",desc:"相手をまひさせる。"}
+];
+const AILMENTS={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"};
+const state={player:null,enemy:null,turn:"player",ended:false,log:[]};
+function newFighter(name,sprite){return{name,sprite,hp:40,maxHp:40,pp:10,maxPp:10,money:20,ailments:{},freezeTurns:0,locked:false};}
+function startBattle(){
+ state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.ended=false;state.log=[];
+ $("moveButtons").innerHTML="";
+ MOVES.forEach(m=>{const b=document.createElement("button");b.className="move";b.dataset.move=m.id;b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":"（PP消費なし）")+'</div>';b.addEventListener("click",()=>playerMove(m.id));$("moveButtons").appendChild(b);});
+ log("バトル開始！ 相手はライバルだ。","system");render();$("moveButtons").querySelector("button")?.focus();
+}
+function $(id){return document.getElementById(id)}
+function log(text,kind=""){state.log.push({text,kind});if(state.log.length>80)state.log.shift();const box=$("battleLog");box.innerHTML=state.log.map(x=>'<p class="'+x.kind+'">'+escapeHtml(x.text)+'</p>').join("");box.scrollTop=box.scrollHeight;}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function render(){
+ const p=state.player,e=state.enemy;if(!p||!e)return;
+ $("playerHpTop").textContent=p.hp+" / "+p.maxHp;$("playerPpTop").textContent=p.pp+" / "+p.maxPp;$("playerMoneyTop").textContent=p.money+"円";
+ $("playerHpText").textContent=p.hp+" / "+p.maxHp;$("enemyHpText").textContent=e.hp+" / "+e.maxHp;$("playerPpText").textContent=p.pp+" / "+p.maxPp;$("enemyPpText").textContent=e.pp+" / "+e.maxPp;
+ $("playerHpBar").style.width=Math.max(0,p.hp/p.maxHp*100)+"%";$("enemyHpBar").style.width=Math.max(0,e.hp/e.maxHp*100)+"%";
+ $("playerHpBar").style.background=p.hp<=10?"var(--red)":"var(--green)";$("enemyHpBar").style.background=e.hp<=10?"var(--red)":"var(--green)";
+ $("playerSprite").textContent=p.sprite;$("enemySprite").textContent=e.sprite;
+ renderStatuses(p,"player");renderStatuses(e,"enemy");
+ document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;});
+}
+function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
+function applyAilment(target,type){if(!type)return;if(target.ailments[type]){log(target.name+"はすでに"+AILMENTS[type]+"だ。");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
+function playerMove(id){if(state.ended||state.turn!=="player")return;const move=MOVES.find(m=>m.id===id);if(!move)return;state.turn="resolving";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
+function performMove(actor,target,move,isPlayer){
+ if(actor.hp<=0)return;
+ if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;log(actor.name+"は目を覚ました！");}else{log(actor.name+"はぐうぐう眠っている……");return;}}
+ if(actor.ailments.freeze){actor.freezeTurns--;log(actor.name+"はこおっていて動けない！");if(actor.freezeTurns<=0){delete actor.ailments.freeze;log(actor.name+"のこおりがとけた！");}return;}
+ if(actor.ailments.paralysis&&Math.random()<.3){log(actor.name+"はまひして動けない！");return;}
+ let actualTarget=target;
+ if(actor.ailments.confusion){
+  const r=Math.random();
+  if(r<.25){actualTarget=actor;log(actor.name+"はこんらんして自分を攻撃した！");}
+  else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;log(actor.name+"はこんらんして攻撃対象を見失った！");}
+  else log(actor.name+"はこんらんしているが、なんとか技を出した！");
+ }
+ if(move.type==="status"){actor.pp=Math.max(0,actor.pp-1);log(actor.name+"は "+move.name+" を使った！（PP -1）");}
+ else log(actor.name+"の "+move.name+"！");
+ if(move.type==="status"){applyAilment(actualTarget,move.ailment);return;}
+ let damage=move.damage+Math.floor(Math.random()*5)-2;
+ if(actor.ailments.burn&&move.type==="physical"){damage-=10;log("やけどで物理技のダメージが10減った！");}
+ damage=Math.max(1,damage);
+ actualTarget.hp=Math.max(0,actualTarget.hp-damage);
+ log(actualTarget.name+"に "+damage+" ダメージ！");
+ if(actualTarget.hp>0&&move.ailment&&Math.random()<(move.chance||0))applyAilment(actualTarget,move.ailment);
+}
+function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);log(f.name+"はやけどで2ダメージ！");}}
+function enemyTurn(){if(state.ended)return;const e=state.enemy,p=state.player;if(p.hp<=0||e.hp<=0){checkEnd();return;}
+ // Enemy AI favors attacks, but uses status moves occasionally when the player has no ailment.
+ let pool=MOVES.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25)pool=MOVES.filter(m=>m.type==="status");
+ let move=pool[Math.floor(Math.random()*pool.length)];if(move.type==="status"&&e.pp<1)move=MOVES.find(m=>m.type==="special");
+ performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;state.turn="player";render();}
+function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
+$("restartBtn").addEventListener("click",startBattle);$("modalBtn").addEventListener("click",()=>$("modal").classList.add("hidden"));
+$("helpBtn").addEventListener("click",()=>{$("modalTitle").textContent="ルール";$("modalText").textContent="HPは40、PPは10、所持金は20円で開始。物理・特殊技はPPを消費せず、変化技だけPPを1消費します。やけど：ターン終了時にHP-2、物理技のダメージ-10。まひ：30%で行動不能。こおり：3ターン行動不能。こんらん：攻撃対象が乱れ、自分を攻撃する場合もあります。ねむり：毎ターン20%で目覚めます。";$("modal").classList.remove("hidden");});
+startBattle();
+</script>
+</body>
+</html>
