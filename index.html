@@ -181,8 +181,16 @@ async function getDef(t,c,bo){
 async function market(a,o,c){
  await ev(a.n+"は"+c.n+"！",700);const ai=G.P.indexOf(a);
  if(c.id==="exchange"){
-  const choice=a.bot?null:await ask(ai,"exchange",{hp:a.hp,pp:a.pp,mo:a.mo});
-  if(a.bot)return ev(a.n+"は両替しなかった");
+  let choice;
+  if(a.bot){
+   if(a.mo>0&&a.hp<30)choice={from:"mo",to:"hp",amount:Math.min(a.mo,30-a.hp,10)};
+   else if(a.mo>0&&a.pp<5)choice={from:"mo",to:"pp",amount:Math.min(a.mo,5-a.pp,10)};
+   else if(a.hp>30&&a.pp<6)choice={from:"hp",to:"pp",amount:Math.min(a.hp-30,6-a.pp,10)};
+   else if(a.pp>6&&a.hp<25)choice={from:"pp",to:"hp",amount:Math.min(a.pp-6,25-a.hp,10)};
+   else if(a.hp>30&&a.mo<10)choice={from:"hp",to:"mo",amount:Math.min(a.hp-30,10-a.mo,10)};
+   else if(a.pp>6&&a.mo<10)choice={from:"pp",to:"mo",amount:Math.min(a.pp-6,10-a.mo,10)};
+   else return ev(a.n+"は両替する必要がなかった");
+  }else choice=await ask(ai,"exchange",{hp:a.hp,pp:a.pp,mo:a.mo});
   if(!choice||choice.cancel)return ev(a.n+"は両替をキャンセルした");
   const vals={hp:a.hp,pp:a.pp,mo:a.mo},max={hp:99,pp:99,mo:Infinity},names={hp:"HP",pp:"PP",mo:"お金"},from=choice.from,to=choice.to,amount=Math.floor(Number(choice.amount));
   if(!Object.prototype.hasOwnProperty.call(vals,from)||!Object.prototype.hasOwnProperty.call(vals,to)||from===to||!Number.isFinite(amount)||amount<1||amount>vals[from]||vals[to]+amount>max[to])return ev("両替できませんでした（所持数・上限を確認してください）");
@@ -243,7 +251,7 @@ async function act0(a,o,c,bo,bs){
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
- const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
+ const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
  if(screens.length&&Math.random()<.35)c=rd(screens);
  else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
  else if(p.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
