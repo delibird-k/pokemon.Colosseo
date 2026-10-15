@@ -235,8 +235,9 @@ async function act0(a,o,c,bo,bs){
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
- const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:T.mo>=5&&H.length>1);let c;
- if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
+ const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
+ if(screens.length&&Math.random()<.35)c=rd(screens);
+ else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
  else if(p.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
  else if(p.pp<=1&&pc.length&&Math.random()<.6)c=pc[0];
  else if(ms.length&&Math.random()<.35)c=rd(ms);
