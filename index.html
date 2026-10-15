@@ -18,7 +18,7 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 .move{height:100px;padding:0 4px 5px;border:1px solid #c2c2c2;border-radius:0 0 9px 9px;background:linear-gradient(#c3c3c3 0 78%,#d9ffb2 78%);color:#43585b;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;box-shadow:0 2px 3px #477b7150;position:relative;overflow:hidden}
 .move:before{content:"";position:absolute;top:0;left:0;right:0;height:76%;background:linear-gradient(135deg,#d8e8e4,#7fa5a0);z-index:0}
 .move:nth-child(3n+1):before{background:linear-gradient(135deg,#b9d5e2,#5c8f9c)}.move:nth-child(3n+2):before{background:linear-gradient(135deg,#f5e8a8,#b1ad66)}.move:nth-child(3n):before{background:linear-gradient(135deg,#e0e0e0,#929a9b)}
-.move-head,.move-desc{position:relative;z-index:1}.move-head{display:flex;flex-direction:column;align-items:center;gap:0;font-size:.77rem;line-height:1.1}.move-head>span:first-child{font-weight:850;background:#f0f2edc9;border-radius:4px;padding:1px 2px}.kind{font-size:.62rem;padding:1px 4px;border-radius:4px}.physical{background:#d9e6ee;color:#435d6a}.special{background:#f7eaa4;color:#8a7400}.status{background:#d6ffbb;color:#e06d00}.move-desc{font-size:.58rem;line-height:1.1;color:#3c5657;max-height:2.2em;overflow:hidden;margin:0}.move:disabled{opacity:.55}.move.selected{outline:4px solid #008e74;outline-offset:-4px;filter:brightness(1.08);transform:translateY(-4px)}.move.selected:after{content:"選択中";position:absolute;top:4px;left:3px;right:3px;background:#008e74;color:#fff;border-radius:4px;font-size:.62rem;font-weight:800;padding:2px;z-index:2}
+.move-head,.move-desc{position:relative;z-index:1}.move-head{display:flex;flex-direction:column;align-items:center;gap:0;font-size:.77rem;line-height:1.1}.move-head>span:first-child{font-weight:850;background:#f0f2edc9;border-radius:4px;padding:1px 2px}.kind{font-size:.62rem;padding:1px 4px;border-radius:4px}.physical{background:#d9e6ee;color:#435d6a}.special{background:#f7eaa4;color:#8a7400}.status{background:#d6ffbb;color:#e06d00}.attached-item{display:block;margin-top:3px;padding:3px 5px;border:2px solid #e0c54a;border-radius:5px;background:#fff4a6;color:#5c4a00;font-size:.68rem;font-weight:800;box-shadow:0 1px 3px #5555}.move-desc{font-size:.58rem;line-height:1.1;color:#3c5657;max-height:2.2em;overflow:hidden;margin:0}.move:disabled{opacity:.55}.move.selected{outline:4px solid #008e74;outline-offset:-4px;filter:brightness(1.08);transform:translateY(-4px)}.move.selected:after{content:"選択中";position:absolute;top:4px;left:3px;right:3px;background:#008e74;color:#fff;border-radius:4px;font-size:.62rem;font-weight:800;padding:2px;z-index:2}
 .log{position:absolute;left:0;right:0;bottom:0;height:30px;min-height:30px;max-height:30px;overflow:hidden;border:0;border-radius:0;background:#008e74;color:white;padding:3px 14px;font-size:.85rem;line-height:1.4}.log p{margin:0;white-space:nowrap}.log p:not(:last-child){display:none}.log .system{color:white}
 .controls{position:absolute;left:4%;bottom:24%;margin:0;z-index:2}.btn{border:1px solid #a5b9b8;background:#eaf4ef;color:#087d6d;padding:8px 14px;border-radius:9px;font-weight:750;cursor:pointer}.btn.primary{background:#008d91;color:white;border:0;border-radius:10px;min-width:260px;font-size:1.4rem;padding:4px 20px}.btn.primary:disabled{opacity:.45;cursor:not-allowed}.btn:hover{filter:brightness(1.1)}.note{display:none}
 .overlay{position:fixed;inset:0;background:#063c35aa;display:grid;place-items:center;padding:20px;z-index:5}.modal{width:min(440px,100%);text-align:center;background:#eafff8;border:1px solid var(--line);border-radius:14px;padding:28px;color:var(--text)}.modal h2{margin-top:0}.modal p{color:#426e6a;line-height:1.7}.hidden{display:none!important}
@@ -72,7 +72,7 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 <article class="fighter"><h2><span id="enemyName">ライバル</span><span id="enemyStatusShort"></span></h2><div class="sprite" id="enemySprite">👾</div><div class="hp-label"><span>HP</span><span id="enemyHpText">40 / 40</span></div><div class="bar"><span id="enemyHpBar"></span></div><div class="pp-row"><span>PP</span><span id="enemyPpText">10 / 10</span></div><div class="status-list" id="enemyStatuses"></div></article>
 <article class="fighter"><h2><span>あなた</span><span id="playerStatusShort"></span></h2><div class="sprite" id="playerSprite">⚔️</div><div class="hp-label"><span>HP</span><span id="playerHpText">40 / 40</span></div><div class="bar"><span id="playerHpBar"></span></div><div class="pp-row"><span>PP</span><span id="playerPpText">10 / 10</span></div><div class="status-list" id="playerStatuses"></div></article>
 </div>
-<div id="eventOverlay" aria-live="assertive"><div class="event-card"><div class="event-kicker" id="eventKicker"></div><div class="event-title" id="eventTitle"></div><div class="event-detail" id="eventDetail"></div></div></div><div id="turnBanner"></div><div class="move-preview" id="movePreview" aria-live="polite"><div class="preview-art" id="previewArt">⚔️</div><div class="preview-info"><div class="preview-name" id="previewName">技を選択</div><div class="preview-power" id="previewPower"></div><div class="preview-desc" id="previewDesc"></div></div></div>\n<div class="section-title"><h2>祈る</h2><span>物理・特殊技はPPを消費しない</span></div>
+<div id="eventOverlay" aria-live="assertive"><div class="event-card"><div class="event-kicker" id="eventKicker"></div><div class="event-title" id="eventTitle"></div><div class="event-detail" id="eventDetail"></div></div></div><div id="turnBanner"></div><div class="move-preview" id="movePreview" aria-live="polite"><div class="preview-art" id="previewArt">⚔️</div><div class="preview-info"><div class="preview-name" id="previewName">技を選択</div><div class="preview-power" id="previewPower"></div><div class="preview-desc" id="previewDesc"></div></div></div>\n<div class="section-title"><h2>行動カード</h2><span id="phaseLabel">攻撃フェイズ</span></div>
 <div class="moves" id="moveButtons"></div>
 <div class="log" id="battleLog" aria-live="polite"><p class="system">コロッセオへようこそ！ わざを選んでバトル開始。</p></div>
 <div class="controls"><button class="btn primary" id="restartBtn" disabled>技を選択</button></div>
@@ -109,7 +109,7 @@ const MOVES = [
  {id:"substitute",name:"みがわり人形",type:"item",effect:"substitute",desc:"次に受ける攻撃・変化技を1回防ぐ。"}
 ];
 const AILMENTS={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"};
-const state={player:null,enemy:null,turn:"player",ended:false,log:[],selectedMove:null,playerHand:[],enemyHand:[]};
+const state={player:null,enemy:null,turn:"player",phase:"attack",ended:false,log:[],selectedMove:null,playerHand:[],enemyHand:[],attachedItem:null,defenseChosen:false};
 function newFighter(name,sprite){return{name,sprite,hp:40,maxHp:40,pp:10,maxPp:10,money:20,ailments:{},freezeTurns:0,locked:false,protecting:false,physicalBoost:0,specialBoost:0};}
 function drawCard(hand,excludeId=null){
  const candidates=MOVES.filter(m=>m.id!==excludeId&&!hand.some(card=>card.id===m.id));
@@ -124,12 +124,20 @@ function renderHand(){
  const box=$("moveButtons");box.innerHTML="";
  state.playerHand.forEach(m=>{
   const b=document.createElement("button");b.className="move";b.dataset.move=m.id;
+  const defenseCard=m.effect==="protect"||m.effect==="substitute";
+  const attackPhase=state.phase==="attack";
+  const booster=m.effect==="band"||m.effect==="glasses";
+  const canSelect=state.turn==="player"&&!state.ended&&((attackPhase&&!defenseCard)||(state.phase==="defense"&&defenseCard));
+  b.disabled=!canSelect||(m.type==="status"&&state.player.pp<1)||(booster&&!state.selectedMove);
+  b.classList.toggle("selected",state.selectedMove===m.id);
   b.innerHTML='<div class="move-head"><span>'+m.name+'</span><span class="kind '+m.type+'">'+({physical:"物理",special:"特殊",status:"変化",item:"アイテム"}[m.type])+'</span></div><div class="move-desc">'+m.desc+(m.type==="status"?"（PP 1消費）":m.type==="item"?"（使用すると消費）":"（PP消費なし）")+'</div>';
+  if(state.attachedItem&&state.selectedMove===m.id){const tag=document.createElement("div");tag.className="attached-item";tag.textContent="＋ "+state.attachedItem.name+"（威力＋10）";b.appendChild(tag);}
   b.addEventListener("click",()=>selectMove(m.id));box.appendChild(b);
  });
+ $("phaseLabel").textContent=state.phase==="defense"?"防御フェイズ":state.phase==="resolving"?"処理中":"攻撃フェイズ";
 }
 function startBattle(){
- state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.ended=false;state.log=[];state.selectedMove=null;
+ state.player=newFighter("あなた","🧢");state.enemy=newFighter("ライバル","👾");state.turn="player";state.phase="attack";state.ended=false;state.log=[];state.selectedMove=null;state.attachedItem=null;state.defenseChosen=false;
  state.playerHand=[];state.enemyHand=[];
  while(state.playerHand.length<8&&state.playerHand.length<MOVES.length){const card=drawCard(state.playerHand);if(!card)break;state.playerHand.push(card);}
  while(state.enemyHand.length<8&&state.enemyHand.length<MOVES.length){const card=drawCard(state.enemyHand);if(!card)break;state.enemyHand.push(card);}
@@ -154,17 +162,107 @@ function render(){
 function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
 function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":move.type==="item"?"🎒":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;const bonus=state[owner==="enemy"?"enemy":"player"]?.nextMoveBonus;const power=move.damage+(bonus&&bonus.id===move.id?bonus.amount:0);$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":move.type==="item"?"アイテム":(bonus&&bonus.id===move.id?"威力 ":"攻撃力 ")+power;$("previewDesc").textContent=move.desc; }
-function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;const chosen=state.playerHand.find(m=>m.id===state.selectedMove);if(move.type==="item"&&(move.effect==="band"||move.effect==="glasses")&&chosen&&(chosen.type==="physical"||chosen.type==="special")){if((move.effect==="band"&&chosen.type!=="physical")||(move.effect==="glasses"&&chosen.type!=="special")){log(move.name+"は"+(move.effect==="band"?"物理技":"特殊技")+"にだけ追加できます。");return;}state.player.nextMoveBonus={id:chosen.id,amount:10};state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();state.selectedMove=chosen.id;showMovePreview(chosen,"player");$("restartBtn").disabled=false;$("restartBtn").textContent="攻撃を承認";log(move.name+"を"+chosen.name+"に追加！ 威力+10。");render();return;}if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":move.type==="item"?"アイテムを使用":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
-async function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手の行動中…";render();
- // 相手は攻撃を受ける前に、防御技またはみがわり人形を割り込ませられる。
+function selectMove(id){
+ if(state.ended||state.turn!=="player")return;
+ const move=state.playerHand.find(m=>m.id===id);if(!move)return;
+ const defenseCard=move.effect==="protect"||move.effect==="substitute";
+ if(state.phase==="attack"&&defenseCard){log("防御カードは防御フェイズでのみ使用できます。");return;}
+ if(state.phase==="defense"){
+  if(!defenseCard)return;
+  state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);
+  state.player.protecting=true;state.defenseChosen=true;state.phase="resolving";renderHand();
+  showMovePreview(move,"player");$("previewPower").textContent="攻撃を1回防ぐ";
+  $("restartBtn").disabled=true;$("restartBtn").textContent="防御を使用！";
+  log("あなたは"+move.name+"を使い、相手の攻撃に備えた！","system");
+  showBattleEvent(move.name+"！","相手の攻撃を1回防ぐ","防御フェイズ",900).then(()=>{render();});
+  return;
+ }
+ const chosen=state.playerHand.find(m=>m.id===state.selectedMove);
+ if(move.type==="item"&&(move.effect==="band"||move.effect==="glasses")&&chosen&&(chosen.type==="physical"||chosen.type==="special")){
+  if((move.effect==="band"&&chosen.type!=="physical")||(move.effect==="glasses"&&chosen.type!=="special")){log(move.name+"は"+(move.effect==="band"?"物理技":"特殊技")+"にだけ追加できます。");return;}
+  state.player.attachedItem=move;state.attachedItem=move;
+  state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();
+  state.selectedMove=chosen.id;showMovePreview(chosen,"player");$("restartBtn").disabled=false;$("restartBtn").textContent="攻撃を承認";
+  log(move.name+"を"+chosen.name+"の下に装備！ 威力+10。");render();return;
+ }
+ if(move.type==="status"&&state.player.pp<1)return;
+ state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));
+ $("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":move.type==="item"?"アイテムを使用":"攻撃を承認";
+ showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");renderHand();render();
+}
+async function performMove(actor,target,move,isPlayer){
+ if(actor.hp<=0)return;
+ if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;await showBattleEvent("目を覚ました！",actor.name+"は眠りから回復した","ねむり",850);}else{await showBattleEvent("ぐうぐう眠っている……",actor.name+"は動けない","ねむり",1000);return;}}
+ if(actor.ailments.freeze){actor.freezeTurns--;await showBattleEvent("こおって動けない！",actor.name+"は行動できない","こおり",1000);if(actor.freezeTurns<=0){delete actor.ailments.freeze;await showBattleEvent("こおりがとけた！",actor.name+"は再び動ける","状態異常",800);}return;}
+ if(actor.ailments.paralysis&&Math.random()<.3){await showBattleEvent("まひして動けない！",actor.name+"は行動できない","まひ",1000);return;}
+ let actualTarget=target;
+ if(actor.ailments.confusion){
+  const r=Math.random();
+  if(r<.25){actualTarget=actor;await showBattleEvent("こんらん！",actor.name+"は自分を攻撃した！","こんらん",900);}
+  else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;await showBattleEvent("攻撃対象を見失った！",actor.name+"はこんらんしている","こんらん",900);}
+  else await showBattleEvent("なんとか技を出した！",actor.name+"はこんらんしている","こんらん",750);
+ }
+ if(actualTarget.protecting){actualTarget.protecting=false;await showBattleEvent("攻撃を防いだ！",actualTarget.name+"は"+move.name+"を防いだ","防御",900);return;}
+ if(move.type==="item"){if(move.effect==="potion"||move.effect==="superpotion"||move.effect==="hyperpotion"){const heal=move.effect==="potion"?5:move.effect==="superpotion"?10:15;const actual=Math.min(heal,actor.maxHp-actor.hp);actor.hp+=actual;await showBattleEvent(move.name+"を使った！",actor.name+"のHPが"+actual+"回復！","アイテム",900);}else if(move.effect==="substitute"){actor.protecting=true;await showBattleEvent("みがわり人形！",actor.name+"は次に受ける攻撃・変化技を防ぐ","アイテム",850);}else if(move.effect==="band"||move.effect==="glasses"){await showBattleEvent(move.name+"！","先に物理技または特殊技を選んでください","アイテム",850);}return;}
+ if(move.type==="status"){actor.pp=Math.max(0,actor.pp-1);log(actor.name+"は "+move.name+" を使った！（PP -1）");}
+ else log(actor.name+"の "+move.name+"！");
+ if(move.effect==="protect"){actor.protecting=true;await showBattleEvent(move.name+"！",actor.name+"は次に受ける技を防ぐ構え","変化技",850);return;}
+ if(move.type==="status"){applyAilment(actualTarget,move.ailment);return;}
+ const bonus=actor.nextMoveBonus&&actor.nextMoveBonus.id===move.id?actor.nextMoveBonus.amount:0;if(bonus)actor.nextMoveBonus=null;let damage=move.damage+bonus+Math.floor(Math.random()*5)-2;
+ if(move.type==="physical"&&actor.physicalBoost){damage+=actor.physicalBoost;actor.physicalBoost=0;}if(move.type==="special"&&actor.specialBoost){damage+=actor.specialBoost;actor.specialBoost=0;}
+ if(actor.ailments.burn&&move.type==="physical"){damage-=10;log("やけどで物理技のダメージが10減った！");}
+ damage=Math.max(1,damage);
+ actualTarget.hp=Math.max(0,actualTarget.hp-damage);
+ log(actualTarget.name+"に "+damage+" ダメージ！");
+ if(actualTarget.hp>0&&move.ailment&&Math.random()<(move.chance||0))applyAilment(actualTarget,move.ailment);
+}
+async function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);await showBattleEvent("やけど！",f.name+"は2ダメージ！","ターン終了",1000);render();}}
+async function enemyTurn(){
+ if(state.ended)return;const e=state.enemy,p=state.player;if(p.hp<=0||e.hp<=0){checkEnd();return;}
+ let pool=state.enemyHand.filter(m=>m.type!=="status"&&m.effect!=="protect"&&m.effect!=="substitute"&&m.effect!=="band"&&m.effect!=="glasses");
+ if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25){const statusPool=state.enemyHand.filter(m=>m.type==="status"&&m.effect!=="protect");if(statusPool.length)pool=statusPool;}
+ if(!pool.length)pool=state.enemyHand.filter(m=>m.effect!=="band"&&m.effect!=="glasses");
+ let move=pool[Math.floor(Math.random()*pool.length)];if(!move){state.turn="player";state.phase="attack";renderHand();render();return;}
+ if(move.type==="physical"||move.type==="special"){const boostId=move.type==="physical"?"band":"glasses";const boost=state.enemyHand.find(m=>m.effect===boostId);if(boost){e.nextMoveBonus={id:move.id,amount:10};state.enemyHand=state.enemyHand.filter(m=>m.id!==boost.id);refillHand(state.enemyHand,boost);log("相手は"+boost.name+"を"+move.name+"に追加した！","system");}}
+ state.turn="enemyPreview";state.phase="defense";state.defenseChosen=false;
+ showMovePreview(move,"enemy");$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":move.type==="item"?"アイテム":"攻撃力 "+move.damage;
+ $("restartBtn").disabled=true;$("restartBtn").textContent="防御カードを選択できます";log("相手は「"+move.name+"」を選択した！ 防御するなら防御カードを選んでください。","system");renderHand();render();
+ await new Promise(resolve=>setTimeout(resolve,1500));if(state.ended)return;
+ state.enemyHand=state.enemyHand.filter(m=>m.id!==move.id);refillHand(state.enemyHand,move);
+ state.turn="resolving";state.phase="resolving";renderHand();
+ await performMove(e,p,move,false);await endTurnEffects(p);await endTurnEffects(e);if(checkEnd())return;
+ $("movePreview").classList.remove("visible");await showTurnBanner("あなたのターン",650);
+ state.turn="player";state.phase="attack";state.defenseChosen=false;$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;renderHand();render();
+}
+function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
+$("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
+$("helpBtn").addEventListener("click",()=>{$("modalTitle").textContent="ルール";$("modalText").textContent="HPは40、PPは10、所持金は20円で開始。物理・特殊技はPPを消費せず、変化技だけPPを1消費します。やけど：ターン終了時にHP-2、物理技のダメージ-10。まひ：30%で行動不能。こおり：3ターン行動不能。こんらん：攻撃対象が乱れ、自分を攻撃する場合もあります。ねむり：毎ターン20%で目覚めます。";$("modal").classList.remove("hidden");});
+startBattle();
+</script>
+</body>
+</htmlasync function playerMove(){
+ if(state.ended){startBattle();$("modal").classList.add("hidden");return;}
+ if(state.phase==="defense"&&state.defenseChosen){return;}
+ if(state.turn!=="player"||state.phase!=="attack"||!state.selectedMove)return;
+ const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;
+ if(move.effect==="band"||move.effect==="glasses")return;
+ state.turn="resolving";state.phase="resolving";state.selectedMove=null;
+ state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();
+ $("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手の行動中…";render();
  const isIncomingAttack=move.type==="physical"||move.type==="special";
  const defense=state.enemyHand.find(m=>m.effect==="protect"||m.effect==="substitute");
  if(isIncomingAttack&&defense&&Math.random()<0.45){
-  state.enemyHand=state.enemyHand.filter(m=>m.id!==defense.id);refillHand(state.enemyHand,defense);showMovePreview(defense,"enemy");$("previewPower").textContent="攻撃を1回防ぐ";
-  await showBattleEvent("相手は"+defense.name+"！","攻撃を受ける前に防御した","相手の防御",900);
-  state.enemy.protecting=true;log("相手は"+defense.name+"で攻撃を防ぐ構えをとった！","system");render();
+  state.enemyHand=state.enemyHand.filter(m=>m.id!==defense.id);refillHand(state.enemyHand,defense);
+  showMovePreview(defense,"enemy");$("previewPower").textContent="攻撃を1回防ぐ";
+  state.enemy.protecting=true;
+  await showBattleEvent("相手は"+defense.name+"！","あなたの攻撃を受ける前に防御した","相手の防御",900);
+  log("相手は"+defense.name+"で攻撃を防いだ！","system");render();
  }
- await performMove(state.player,state.enemy,move,true);render();if(checkEnd())return;await showTurnBanner("相手のターン",650);if(checkEnd())return;enemyTurn();}
+ await performMove(state.player,state.enemy,move,true);
+ state.player.attachedItem=null;state.attachedItem=null;
+ render();if(checkEnd())return;
+ await showTurnBanner("相手のターン",650);if(checkEnd())return;enemyTurn();
+}
 async function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
  if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;await showBattleEvent("目を覚ました！",actor.name+"は眠りから回復した","ねむり",850);}else{await showBattleEvent("ぐうぐう眠っている……",actor.name+"は動けない","ねむり",1000);return;}}
