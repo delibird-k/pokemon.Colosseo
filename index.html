@@ -39,6 +39,7 @@ header{background:var(--ac);color:#fff;display:flex;justify-content:space-betwee
 <h2>Pokémon Colosseo</h2>
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button></div>
+<div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
 <button class="btn w" id="bk" hidden>戻る</button>
@@ -105,7 +106,7 @@ function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div cl
 const draw=p=>{while(p.h.length<9)p.h.push(pick())};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:20,mo:20,h:[],al:null,fz:0,bot,d:0});
 const newGame=P=>{P.forEach(draw);return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
-let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null;const S={sel:[],tg:-1,n:0,sent:0,es:0};
+let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
 function render(){
@@ -222,7 +223,7 @@ async function turn(p,i){
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
 const nm=()=>$("nm").value.trim().slice(0,8)||"プレイヤー";
-function startCpu(){W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];G=newGame([mk(nm(),"me",0),mk("ライバル","bot",1)]);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
+function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];for(let i=2;i<=CPU_COUNT;i++)P.push(mk("CPU"+(i-1),"bot"+i,1));G=newGame(P);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
 function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)));host=true;$("ti").hidden=true;pub();loop()}
 function onP(){
@@ -271,12 +272,12 @@ function makeRoomService(){
 }
 
 let CODE="";
-$("bc").onclick=startCpu;
+$("bc").onclick=()=>{$("t1").hidden=true;$("tc").hidden=false;$("bk").hidden=false;const g=$("cpuCounts");g.innerHTML="";for(let n=2;n<=9;n++){const b=document.createElement("button");b.className="btn"+(n===CPU_COUNT?" pri":"");b.textContent=n+"人";b.onclick=()=>startCpu(n);g.appendChild(b)}};
 $("bn").onclick=()=>{R0=makeRoomService();$("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent="6桁の同じ部屋番号を2台で入力してください。接続にはインターネットが必要です。";$("bj").disabled=false};
 $("bj").onclick=async()=>{const c=$("cd").value.trim();if(!/^\d{6}$/.test(c)){$("te").textContent="6桁の数字を入力してください";return}
  try{R=await R0.join("g"+c)}catch(e){$("te").textContent="入室できませんでした";return}
  CODE=c;MODE="net";await R.presence({nm:nm(),t:Date.now()});R.onPeers(onP);$("t2").hidden=true;$("t3").hidden=false;onP()};
-$("st").onclick=startNet;$("bk").onclick=()=>location.reload();
+$("st").onclick=startNet;$("bk").onclick=()=>{if(!$("tc").hidden){$("tc").hidden=true;$("t1").hidden=false;$("bk").hidden=true}else location.reload()};
 $("fs").onclick=e=>{const el=e.target.closest(".pl");if(!el||!G)return;const i=+el.dataset.i;if(!G.P[i].d&&G.P[i].id!==MY){S.tg=i;render()}};
 $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.sel],tg:S.tg})};
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
