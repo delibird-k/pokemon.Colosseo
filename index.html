@@ -146,9 +146,9 @@ function render(){
  $("use").textContent=def?"防御する":"使う";$("sing").disabled=!turn||mp.pp>0;
  $("use").disabled=def?!S.sel.length:!(M&&(!needTg||S.tg>=0));$("pass").disabled=S.sel.length!==1;
  $("ph").textContent=turn?"あなたのターン："+(ops.length>1?"カードを選び、相手の名前をタップして「使う」":"カードを選んで「使う」"):def?"防御フェイズ：防御カードを選び「防御する」":me<0||mp.d?"観戦中…":G.ph==="over"?"":G.P[G.t].n+"の行動中…";
- const ch=A&&(A.k==="shop"||A.k==="sell");$("sh").hidden=!ch;
- if(ch){const sh=A.k==="shop",ids=sh?A.d.o:mp.h;$("sht").textContent=sh?"ショップ":"売る";$("shm").textContent=sh?"所持金 ¥"+mp.mo+"（強化は¥10・他は¥5）":"売るカードを選ぼう（相手が代金を支払う）";
-  const g=$("shg");g.innerHTML="";ids.forEach((k,j)=>{const c=C[k],b=document.createElement("button");b.className="c "+c.t;b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+" ¥"+pr(c)+"</span><small>"+c.x+"</small>";b.disabled=sh&&mp.mo<pr(c);b.onclick=()=>send(A,j);g.appendChild(b)});$("shn").onclick=()=>send(A,-1)}
+ const ch=A&&(A.k==="shop"||A.k==="sell"||A.k==="exchange");$("sh").hidden=!ch;
+ if(ch){const sh=A.k==="shop",ex=A.k==="exchange",ids=sh?A.d.o:mp.h;$("sht").textContent=sh?"ショップ":ex?"両替":"売る";$("shm").textContent=sh?"所持金 ¥"+mp.mo+"（強化は¥10・他は¥5）":ex?"HP・PP・お金を1:1で交換します。HP・PPは最大99。":"売るカードを選ぼう（相手が代金を支払う）";
+  const g=$("shg");g.innerHTML="";if(ex){g.innerHTML='<label>支払う数値<select id="exfrom"><option value="hp">HP（現在 '+mp.hp+'）</option><option value="pp">PP（現在 '+mp.pp+'）</option><option value="mo">お金（現在 ¥'+mp.mo+'）</option></select></label><label>交換先<select id="exto"><option value="hp">HP</option><option value="pp">PP</option><option value="mo">お金</option></select></label><label>交換する量<input id="examount" type="number" min="1" step="1" value="1"></label><p id="expreview"></p><button class="btn pri" id="exconfirm">両替する</button>';const update=()=>{const f=$("exfrom").value,t=$("exto").value,n=Math.floor(Number($("examount").value)||0),v={hp:mp.hp,pp:mp.pp,mo:mp.mo},max={hp:99,pp:99,mo:Infinity};$("expreview").textContent=f===t?"交換元と交換先を別々に選んでください":n<1||n>v[f]||v[t]+n>max[t]?"交換できない数値です":v[f]+" → "+(v[f]-n)+"、"+v[t]+" → "+(v[t]+n)+"（1:1）";$("exconfirm").disabled=f===t||n<1||n>v[f]||v[t]+n>max[t]};$("exfrom").onchange=update;$("exto").onchange=update;$("examount").oninput=update;$("exconfirm").onclick=()=>send(A,{from:$("exfrom").value,to:$("exto").value,amount:Number($("examount").value)});update()}else{ids.forEach((k,j)=>{const c=C[k],b=document.createElement("button");b.className="c "+c.t;b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+" ¥"+pr(c)+"</span><small>"+c.x+"</small>";b.disabled=sh&&mp.mo<pr(c);b.onclick=()=>send(A,j);g.appendChild(b)})}$("shn").textContent=ex?"キャンセル":"やめる";$("shn").onclick=()=>send(A,ex?{cancel:true}:-1)}
  $("log").innerHTML=G.L.map(x=>"<div>"+esc(x)+"</div>").join("");
  if(G.e&&G.e.s!==S.es){S.es=G.e.s;const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),850)}
  if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").hidden=false}
@@ -181,11 +181,12 @@ async function getDef(t,c,bo){
 async function market(a,o,c){
  await ev(a.n+"は"+c.n+"！",700);const ai=G.P.indexOf(a);
  if(c.id==="exchange"){
-  const rs=[{id:"hp",n:"HP",v:()=>a.hp,max:()=>99,set:v=>a.hp=v},{id:"pp",n:"PP",v:()=>a.pp,max:()=>99,set:v=>a.pp=v},{id:"mo",n:"お金",v:()=>a.mo,max:()=>Infinity,set:v=>a.mo=v}];
-  let from,to,amount;
-  if(a.bot){from=rs.find(x=>x.id==="mo"&&a.mo>0)||rs.find(x=>x.id==="pp"&&a.pp>0)||rs.find(x=>x.id==="hp"&&a.hp>20);to=rs.find(x=>x.id==="hp"&&a.hp<60)||rs.find(x=>x.id==="pp"&&a.pp<10)||rs.find(x=>x.id==="mo");if(!from||!to||from.id===to.id)return ev(a.n+"は両替しなかった");amount=Math.min(from.v(),to.max()-to.v());}
-  else {const opts=rs.map((x,i)=>(i+1)+"="+x.n+"（現在 "+x.v()+"）").join("\\n");const f=prompt("何を支払いますか？\\n"+opts);if(f===null)return ev(a.n+"は両替をキャンセルした");from=rs[Number(f)-1];const t=prompt("何に交換しますか？\\n"+opts);if(t===null)return ev(a.n+"は両替をキャンセルした");to=rs[Number(t)-1];if(!from||!to||from.id===to.id)return ev("両替先を正しく選んでください");const raw=prompt("何ポイント交換しますか？（1ポイント＝1）");if(raw===null)return ev(a.n+"は両替をキャンセルした");amount=Math.floor(Number(raw));}
-  if(!from||!to||from.id===to.id||!Number.isFinite(amount)||amount<1||amount>from.v()||to.v()+amount>to.max())return ev("両替できませんでした（所持数・上限を確認してください）");from.set(from.v()-amount);to.set(to.v()+amount);return ev(a.n+"は"+from.n+" "+amount+"を"+to.n+" "+amount+"に両替した！");
+  const choice=a.bot?null:await ask(ai,"exchange",{hp:a.hp,pp:a.pp,mo:a.mo});
+  if(a.bot)return ev(a.n+"は両替しなかった");
+  if(!choice||choice.cancel)return ev(a.n+"は両替をキャンセルした");
+  const vals={hp:a.hp,pp:a.pp,mo:a.mo},max={hp:99,pp:99,mo:Infinity},names={hp:"HP",pp:"PP",mo:"お金"},from=choice.from,to=choice.to,amount=Math.floor(Number(choice.amount));
+  if(!Object.prototype.hasOwnProperty.call(vals,from)||!Object.prototype.hasOwnProperty.call(vals,to)||from===to||!Number.isFinite(amount)||amount<1||amount>vals[from]||vals[to]+amount>max[to])return ev("両替できませんでした（所持数・上限を確認してください）");
+  a[from]=vals[from]-amount;a[to]=vals[to]+amount;return ev(a.n+"は"+names[from]+" "+amount+"を"+names[to]+" "+amount+"に両替した！");
  }
  if(c.id==="shop"){const op=[];while(op.length<4){const x=pick();if(C[x].t!=="m")op.push(x)}
   let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{i=op.findIndex(x=>C[x].t==="a"&&a.mo>=pr(C[x]));if(i<0)i=op.findIndex(x=>(C[x].t==="h"||C[x].t==="d")&&a.mo>=pr(C[x]))}
