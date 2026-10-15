@@ -143,7 +143,7 @@ function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
 function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":"攻撃力 "+move.damage;$("previewDesc").textContent=move.desc; }
 function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
-function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=MOVES.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
+function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
 function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
  if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;log(actor.name+"は目を覚ました！");}else{log(actor.name+"はぐうぐう眠っている……");return;}}
@@ -169,15 +169,16 @@ function performMove(actor,target,move,isPlayer){
 function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);log(f.name+"はやけどで2ダメージ！");}}
 function enemyTurn(){if(state.ended)return;const e=state.enemy,p=state.player;if(p.hp<=0||e.hp<=0){checkEnd();return;}
  // 相手もプレイヤーと同様に、技を選んでからカードを表示して実行する。
- let pool=MOVES.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25)pool=MOVES.filter(m=>m.type==="status");
- let move=pool[Math.floor(Math.random()*pool.length)];if(move.type==="status"&&e.pp<1)move=MOVES.find(m=>m.type==="special");
+ let pool=state.enemyHand.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25){const statusPool=state.enemyHand.filter(m=>m.type==="status");if(statusPool.length)pool=statusPool;}
+ if(!pool.length)pool=state.enemyHand;
+ let move=pool[Math.floor(Math.random()*pool.length)];if(move.type==="status"&&e.pp<1){const attacks=state.enemyHand.filter(m=>m.type!=="status");if(attacks.length)move=attacks[Math.floor(Math.random()*attacks.length)];}
  state.turn="enemyPreview";
  showMovePreview(move,"enemy");
  $("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":"攻撃力 "+move.damage;
  $("restartBtn").disabled=true;$("restartBtn").textContent="相手が技を選択中…";
  log("相手は「"+move.name+"」を選択した！","system");
  render();
- setTimeout(()=>{if(state.ended)return;state.enemyHand=state.enemyHand.filter(m=>m.id!==move.id);refillHand(state.enemyHand,move);performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;$("movePreview").classList.remove("visible");state.turn="player";$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;render();},1200);
+ setTimeout(()=>{if(state.ended)return;state.enemyHand=state.enemyHand.filter(m=>m.id!==move.id);refillHand(state.enemyHand,move);performMove(e,p,move,false);endTurnEffects(p);endTurnEffects(e);if(checkEnd())return;$("movePreview").classList.remove("visible");state.turn="player";$("restartBtn").textContent="技を選択";$("restartBtn").disabled=true;render();},1500);
 }
 function checkEnd(){if(state.player.hp<=0||state.enemy.hp<=0){state.ended=true;state.turn="ended";const win=state.enemy.hp<=0&&state.player.hp>0;log(win?"勝利！ ライバルを倒した！":"敗北…… 次は作戦を変えてみよう。","system");$("modalTitle").textContent=win?"YOU WIN!":"YOU LOSE";$("modalText").textContent=win?"勝利！ 初期所持金は20円です。":"HPが0になった。もう一度挑戦しよう。";$("modal").classList.remove("hidden");render();return true;}render();return false;}
 $("restartBtn").addEventListener("click",playerMove);$("modalBtn").addEventListener("click",()=>{if(state.ended){$("modal").classList.add("hidden");startBattle();}else $("modal").classList.add("hidden");});
