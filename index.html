@@ -157,7 +157,7 @@ function render(){
  $("playerHpBar").style.background=p.hp<=10?"var(--red)":"var(--green)";$("enemyHpBar").style.background=e.hp<=10?"var(--red)":"var(--green)";
  $("playerSprite").textContent=p.sprite;$("enemySprite").textContent=e.sprite;
  renderStatuses(p,"player");renderStatuses(e,"enemy");
- document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;b.classList.toggle("selected",state.selectedMove===m.id);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(({status:"変化技を承認",item:"アイテムを使用",physical:"攻撃を承認",special:"攻撃を承認"})[MOVES.find(m=>m.id===state.selectedMove)?.type]||"承認"):"技を選択";}
+ document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);b.disabled=state.ended||state.turn!=="player"||(m.type==="status"&&p.pp<1)||p.hp<=0;b.classList.toggle("selected",state.selectedMove===m.id);});document.querySelectorAll(".move").forEach(b=>{const m=MOVES.find(x=>x.id===b.dataset.move);if(!m)return;const defense=m.effect==="protect"||m.effect==="substitute";b.disabled=state.ended||((state.phase==="defense")?(!defense||state.turn!=="player"||state.defenseChosen):(state.turn!=="player"||defense))||(m.type==="status"&&p.pp<1);});if(state.turn==="player"&&!state.ended){$("restartBtn").disabled=!state.selectedMove;$("restartBtn").textContent=state.selectedMove?(({status:"変化技を承認",item:"アイテムを使用",physical:"攻撃を承認",special:"攻撃を承認"})[MOVES.find(m=>m.id===state.selectedMove)?.type]||"承認"):"技を選択";}
 }
 function renderStatuses(f,side){const el=$(side+"Statuses");el.innerHTML=Object.keys(f.ailments).filter(k=>f.ailments[k]).map(k=>'<span class="tag '+k+'">'+AILMENTS[k]+'</span>').join("");$(side+"StatusShort").textContent=Object.keys(f.ailments).some(k=>f.ailments[k])?"状態異常":"";}
 function applyAilment(target,type){if(!type)return;const existing=Object.keys(target.ailments).find(k=>target.ailments[k]);if(existing){log(target.name+"はすでに"+AILMENTS[existing]+"なので、状態異常は重ねがけできない！");return;}target.ailments[type]=true;if(type==="freeze")target.freezeTurns=3;log(target.name+"は"+AILMENTS[type]+"になった！","system");}
@@ -224,7 +224,7 @@ async function enemyTurn(){
  if(!pool.length)pool=state.enemyHand.filter(m=>m.effect!=="band"&&m.effect!=="glasses");
  let move=pool[Math.floor(Math.random()*pool.length)];if(!move){state.turn="player";state.phase="attack";renderHand();render();return;}
  if(move.type==="physical"||move.type==="special"){const boostId=move.type==="physical"?"band":"glasses";const boost=state.enemyHand.find(m=>m.effect===boostId);if(boost){e.nextMoveBonus={id:move.id,amount:10};state.enemyHand=state.enemyHand.filter(m=>m.id!==boost.id);refillHand(state.enemyHand,boost);log("相手は"+boost.name+"を"+move.name+"に追加した！","system");}}
- state.turn="enemyPreview";state.phase="defense";state.defenseChosen=false;
+ state.turn="player";state.phase="defense";state.defenseChosen=false;
  showMovePreview(move,"enemy");$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":move.type==="item"?"アイテム":"攻撃力 "+move.damage;
  $("restartBtn").disabled=true;$("restartBtn").textContent="防御カードを選択できます";log("相手は「"+move.name+"」を選択した！ 防御するなら防御カードを選んでください。","system");renderHand();render();
  await new Promise(resolve=>setTimeout(resolve,1500));if(state.ended)return;
