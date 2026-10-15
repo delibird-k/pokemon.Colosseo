@@ -96,11 +96,11 @@ const C=[
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（PP1・成功75%）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（PP1・成功75%）"}];
 C.forEach((c,i)=>c.i=i);
-// 抽選表：攻撃10、通常変化3、回復5、防御12、商売4、強化4。防御カードの出現率を引き上げ。
+// 抽選表：攻撃12、通常変化3、回復5、防御9、商売4、強化5。
 const byType=t=>C.filter(c=>c.t===t);
 const PICK_CATEGORIES=[
- ...Array(10).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
- ...Array(12).fill("d"),...Array(4).fill("m"),...Array(4).fill("b")
+ ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
+ ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b")
 ];
 const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
 const pr=c=>c.t==="b"?10:5;
