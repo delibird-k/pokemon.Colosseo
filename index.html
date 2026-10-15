@@ -91,14 +91,11 @@ const C=[
 C.forEach((c,i)=>c.i=i);
 // 32枠の抽選表：攻撃13、通常変化3、回復5、防御6、商売5。
 const byType=t=>C.filter(c=>c.t===t);
-const PICK_GROUPS=[
- ...Array.from({length:13},(_,i)=>byType("a")[i%byType("a").length]),
- ...Array.from({length:3},(_,i)=>byType("s")[i%byType("s").length]),
- ...Array.from({length:5},(_,i)=>byType("h")[i%byType("h").length]),
- ...Array.from({length:6},(_,i)=>byType("d")[i%byType("d").length]),
- ...Array.from({length:5},(_,i)=>byType("m")[i%byType("m").length])
+const PICK_CATEGORIES=[
+ ...Array(13).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
+ ...Array(6).fill("d"),...Array(5).fill("m")
 ];
-const pick=()=>PICK_GROUPS[Math.random()*PICK_GROUPS.length|0].i;
+const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);return rd(group).i};
 const pr=c=>c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
