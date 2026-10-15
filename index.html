@@ -46,6 +46,7 @@ header{background:var(--ac);color:#fff;display:flex;justify-content:space-betwee
 <div class="ov" id="sh" hidden><div class="md"><h2 id="sht"></h2><p id="shm"></p><div class="sg" id="shg"></div><button class="btn" id="shn">やめる</button></div></div>
 <div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button></div></div>
 </main>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),sl=ms=>new Promise(r=>setTimeout(r,ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"},KL={p:"物理",s:"特殊"};
@@ -88,8 +89,16 @@ const C=[
 {id:"wisp",n:"おにび",t:"s",al:"burn",x:"やけど（PP1・成功75%）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",x:"まひ（PP1・成功75%）"}];
 C.forEach((c,i)=>c.i=i);
-const CP={a:1.875,s:.375,h:1.5,d:1.5,b:.75,m:2},rel=c=>c.id==="sub"?.25:1,cs={};C.forEach(c=>cs[c.t]=(cs[c.t]||0)+rel(c));
-const pick=()=>{let r=Math.random()*8,f;for(const c of C){f=c;r-=CP[c.t]*rel(c)/cs[c.t];if(r<0)break}return f.i};
+// 32枠の抽選表：攻撃13、通常変化3、回復5、防御6、商売5。
+const byType=t=>C.filter(c=>c.t===t);
+const PICK_GROUPS=[
+ ...Array.from({length:13},(_,i)=>byType("a")[i%byType("a").length]),
+ ...Array.from({length:3},(_,i)=>byType("s")[i%byType("s").length]),
+ ...Array.from({length:5},(_,i)=>byType("h")[i%byType("h").length]),
+ ...Array.from({length:6},(_,i)=>byType("d")[i%byType("d").length]),
+ ...Array.from({length:5},(_,i)=>byType("m")[i%byType("m").length])
+];
+const pick=()=>PICK_GROUPS[Math.random()*PICK_GROUPS.length|0].i;
 const pr=c=>c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
@@ -229,10 +238,44 @@ function onP(){
   if(G.ask){const pe=ps.find(p=>p.peer===G.P[G.ask.to].id);if(pe&&pe.presence.cmd&&pe.presence.cmd.a===G.ask.n)reply(G.ask.n,pe.presence.cmd.v)}
   G.P.forEach((p,i)=>{if(!p.bot&&p.id!==MY&&!ps.some(q=>q.peer===p.id)){p.bot=1;p.n=p.n.slice(0,6)+"(AI)";if(G.ask&&G.ask.to===i)reply(G.ask.n,DEF[G.ask.k])}})
  }else{const hp=ps.find(p=>p.presence.g);if(hp){G=JSON.parse(JSON.stringify(hp.presence.g));render()}else{G.ph="over";G.w=-1;render()}}}
+
+/* GitHub Pages 用の対人通信。PeerJS のデータ接続を使い、ホストがゲーム状態を管理する。 */
+function makeRoomService(){
+ const makeGuest=roomId=>new Promise((resolve,reject)=>{
+  const peer=new Peer();let done=false,conn=null,local={peer:"",presence:{},sameTab:true},remote={peer:roomId,presence:{},sameTab:false},players={},cb=()=>{},isOpen=false;
+  const finishErr=e=>{if(done)return;done=true;try{peer.destroy()}catch(_){}reject(e instanceof Error?e:new Error("部屋に接続できませんでした"))};
+  peer.on("error",e=>{if(e.type==="peer-unavailable"||e.type==="network"||e.type==="server-error")finishErr(e)});
+  peer.on("open",id=>{local.peer=id;conn=peer.connect(roomId,{reliable:true});conn.on("open",()=>{isOpen=true;done=true;resolve(roomObject())});conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="host-state"){remote.presence=msg.host||{};players=msg.players||{};if(msg.g)local.presence.g=msg.g;cb()}else if(msg.type==="host-presence"){remote.presence=msg.host||{};players=msg.players||{};cb()}});conn.on("close",()=>{finishErr(new Error("ホストとの接続が切れました"))});});
+  const roomObject=()=>({
+   presence:async data=>{local.presence={...local.presence,...data};if(conn&&conn.open)conn.send({type:"guest-presence",data});return true},
+   onPeers:fn=>{cb=fn||(()=>{});if(isOpen)cb()},
+   peers:()=>{const arr=[{peer:local.peer,presence:local.presence,sameTab:true}];if(remote.presence)arr.push({peer:roomId,presence:remote.presence,sameTab:false});for(const [id,pres] of Object.entries(players||{})){if(id!==local.peer&&id!==roomId)arr.push({peer:id,presence:pres,sameTab:false})}return arr},
+   close:()=>{try{conn&&conn.close();peer.destroy()}catch(_){}}
+  });
+  setTimeout(()=>{if(!done)finishErr(new Error("部屋が見つかりません。ホストが先に同じ6桁の番号で入室してください。"))},15000);
+ });
+ const makeHost=roomId=>new Promise((resolve,reject)=>{
+  const peer=new Peer(roomId);let done=false,local={peer:roomId,presence:{},sameTab:true},remotes={},connections={},cb=()=>{};
+  const roster=()=>Object.fromEntries(Object.entries(remotes).map(([id,p])=>[id,p.presence||{}]));
+  const broadcast=()=>{const msg={type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}})};
+  const onChange=()=>{broadcast();cb()};
+  const attach=conn=>{conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{delete remotes[conn.peer];delete connections[conn.peer];onChange()});};
+  peer.on("open",()=>{if(done)return;done=true;resolve(roomObject())});
+  peer.on("connection",conn=>{connections[conn.peer]=conn;remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
+  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){}makeGuest(roomId).then(resolve,reject)}else{done=true;reject(e)}}});
+  const roomObject=()=>({
+   presence:async data=>{local.presence={...local.presence,...data};const msg=data.g?{type:"host-state",host:local.presence,players:roster(),g:data.g}:{type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}});return true},
+   onPeers:fn=>{cb=fn||(()=>{});cb()},
+   peers:()=>[{peer:roomId,presence:local.presence,sameTab:true},...Object.values(remotes)],
+   close:()=>{try{peer.destroy()}catch(_){}}
+  });
+ });
+ return {join:roomId=>makeHost(roomId)};
+}
+
 let CODE="";
 $("bc").onclick=startCpu;
-$("bn").onclick=async()=>{try{R0=window.claude?await claude.use("room"):null}catch(e){R0=null}
- $("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent=R0?"":"対人戦はこの環境では使えません（共有された閲覧環境が必要です）";$("bj").disabled=!R0};
+$("bn").onclick=()=>{$("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent="6桁の同じ部屋番号を2台で入力してください。接続にはインターネットが必要です。";$("bj").disabled=false};
 $("bj").onclick=async()=>{const c=$("cd").value.trim();if(!/^\d{6}$/.test(c)){$("te").textContent="6桁の数字を入力してください";return}
  try{R=await R0.join("g"+c)}catch(e){$("te").textContent="入室できませんでした";return}
  CODE=c;MODE="net";await R.presence({nm:nm(),t:Date.now()});R.onPeers(onP);$("t2").hidden=true;$("t3").hidden=false;onP()};
