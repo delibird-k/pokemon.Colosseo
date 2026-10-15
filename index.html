@@ -55,6 +55,8 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
  .btn.primary{width:190px;min-width:0;font-size:1.1rem}
 }
 
+
+#eventOverlay{position:absolute;inset:0;z-index:8;display:none;place-items:center;background:#244a631c;pointer-events:none}#eventOverlay.visible{display:grid}.event-card{width:min(440px,84%);padding:18px 22px;border-radius:22px;background:#6689a8;color:white;text-align:center;box-shadow:0 6px 20px #233b5540;border:2px solid #ffffff80}.event-kicker{font-size:.8rem;letter-spacing:.12em}.event-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.25;text-shadow:2px 2px 0 #3b4c5e;margin:10px 0}.event-detail{font-size:1rem;font-weight:750}#turnBanner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;display:none;padding:12px 30px;background:#008e74;color:white;border-radius:12px;font-weight:900;font-size:1.4rem;box-shadow:0 4px 14px #254b4250;pointer-events:none}#turnBanner.visible{display:block}
 </style>
 </head>
 <body>
@@ -70,7 +72,7 @@ main{width:min(1080px,100%);height:min(720px,calc(100vh - 16px));min-height:610p
 <article class="fighter"><h2><span id="enemyName">ライバル</span><span id="enemyStatusShort"></span></h2><div class="sprite" id="enemySprite">👾</div><div class="hp-label"><span>HP</span><span id="enemyHpText">40 / 40</span></div><div class="bar"><span id="enemyHpBar"></span></div><div class="pp-row"><span>PP</span><span id="enemyPpText">10 / 10</span></div><div class="status-list" id="enemyStatuses"></div></article>
 <article class="fighter"><h2><span>あなた</span><span id="playerStatusShort"></span></h2><div class="sprite" id="playerSprite">⚔️</div><div class="hp-label"><span>HP</span><span id="playerHpText">40 / 40</span></div><div class="bar"><span id="playerHpBar"></span></div><div class="pp-row"><span>PP</span><span id="playerPpText">10 / 10</span></div><div class="status-list" id="playerStatuses"></div></article>
 </div>
-<div class="move-preview" id="movePreview" aria-live="polite"><div class="preview-art" id="previewArt">⚔️</div><div class="preview-info"><div class="preview-name" id="previewName">技を選択</div><div class="preview-power" id="previewPower"></div><div class="preview-desc" id="previewDesc"></div></div></div>\n<div class="section-title"><h2>祈る</h2><span>物理・特殊技はPPを消費しない</span></div>
+<div id="eventOverlay" aria-live="assertive"><div class="event-card"><div class="event-kicker" id="eventKicker"></div><div class="event-title" id="eventTitle"></div><div class="event-detail" id="eventDetail"></div></div></div><div id="turnBanner"></div><div class="move-preview" id="movePreview" aria-live="polite"><div class="preview-art" id="previewArt">⚔️</div><div class="preview-info"><div class="preview-name" id="previewName">技を選択</div><div class="preview-power" id="previewPower"></div><div class="preview-desc" id="previewDesc"></div></div></div>\n<div class="section-title"><h2>祈る</h2><span>物理・特殊技はPPを消費しない</span></div>
 <div class="moves" id="moveButtons"></div>
 <div class="log" id="battleLog" aria-live="polite"><p class="system">コロッセオへようこそ！ わざを選んでバトル開始。</p></div>
 <div class="controls"><button class="btn primary" id="restartBtn" disabled>技を選択</button></div>
@@ -128,6 +130,8 @@ function startBattle(){
 }
 function $(id){return document.getElementById(id)}
 function log(text,kind=""){state.log.push({text,kind});if(state.log.length>80)state.log.shift();const box=$("battleLog");box.innerHTML=state.log.map(x=>'<p class="'+x.kind+'">'+escapeHtml(x.text)+'</p>').join("");box.scrollTop=box.scrollHeight;}
+function showBattleEvent(title,detail,kicker,duration){const o=$("eventOverlay");$("eventKicker").textContent=kicker||"バトル";$("eventTitle").textContent=title;$("eventDetail").textContent=detail||"";o.classList.add("visible");return new Promise(resolve=>setTimeout(()=>{o.classList.remove("visible");resolve();},duration||900));}
+function showTurnBanner(text,duration){const e=$("turnBanner");e.textContent=text;e.classList.add("visible");return new Promise(resolve=>setTimeout(()=>{e.classList.remove("visible");resolve();},duration||650));}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function render(){
  const p=state.player,e=state.enemy;if(!p||!e)return;
@@ -144,17 +148,17 @@ function applyAilment(target,type){if(!type)return;const existing=Object.keys(ta
 function showMovePreview(move,owner){const box=$("movePreview");box.classList.add("visible");$("previewArt").textContent=move.type==="physical"?"⚔️":move.type==="special"?"✨":"🔮";$("previewName").textContent=(owner==="enemy"?"相手の技：":"")+move.name;$("previewPower").textContent=move.type==="status"?"変化技・PP 1消費":"攻撃力 "+move.damage;$("previewDesc").textContent=move.desc; }
 function selectMove(id){if(state.ended||state.turn!=="player")return;const move=state.playerHand.find(m=>m.id===id);if(!move)return;if(move.type==="status"&&state.player.pp<1)return;state.selectedMove=id;document.querySelectorAll(".move").forEach(b=>b.classList.toggle("selected",b.dataset.move===id));$("restartBtn").disabled=false;$("restartBtn").textContent=move.type==="status"?"変化技を承認":"攻撃を承認";showMovePreview(move,"player");log("「"+move.name+"」を選択中。下のボタンで承認すると行動します。");render();}
 function playerMove(){if(state.ended){startBattle();$("modal").classList.add("hidden");return;}if(state.turn!=="player"||!state.selectedMove)return;const move=state.playerHand.find(m=>m.id===state.selectedMove);if(!move)return;state.turn="resolving";state.selectedMove=null;state.playerHand=state.playerHand.filter(m=>m.id!==move.id);refillHand(state.playerHand,move);renderHand();document.querySelectorAll(".move").forEach(b=>b.classList.remove("selected"));$("movePreview").classList.remove("visible");$("restartBtn").disabled=true;$("restartBtn").textContent="相手のターン…";performMove(state.player,state.enemy,move,true);if(checkEnd())return;render();setTimeout(enemyTurn,550);}
-function performMove(actor,target,move,isPlayer){
+async function performMove(actor,target,move,isPlayer){
  if(actor.hp<=0)return;
- if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;log(actor.name+"は目を覚ました！");}else{log(actor.name+"はぐうぐう眠っている……");return;}}
- if(actor.ailments.freeze){actor.freezeTurns--;log(actor.name+"はこおっていて動けない！");if(actor.freezeTurns<=0){delete actor.ailments.freeze;log(actor.name+"のこおりがとけた！");}return;}
- if(actor.ailments.paralysis&&Math.random()<.3){log(actor.name+"はまひして動けない！");return;}
+ if(actor.ailments.sleep){if(Math.random()<.2){delete actor.ailments.sleep;await showBattleEvent("目を覚ました！",actor.name+"は眠りから回復した","ねむり",850);}else{await showBattleEvent("ぐうぐう眠っている……",actor.name+"は動けない","ねむり",1000);return;}}
+ if(actor.ailments.freeze){actor.freezeTurns--;await showBattleEvent("こおって動けない！",actor.name+"は行動できない","こおり",1000);if(actor.freezeTurns<=0){delete actor.ailments.freeze;await showBattleEvent("こおりがとけた！",actor.name+"は再び動ける","状態異常",800);}return;}
+ if(actor.ailments.paralysis&&Math.random()<.3){await showBattleEvent("まひして動けない！",actor.name+"は行動できない","まひ",1000);return;}
  let actualTarget=target;
  if(actor.ailments.confusion){
   const r=Math.random();
-  if(r<.25){actualTarget=actor;log(actor.name+"はこんらんして自分を攻撃した！");}
-  else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;log(actor.name+"はこんらんして攻撃対象を見失った！");}
-  else log(actor.name+"はこんらんしているが、なんとか技を出した！");
+  if(r<.25){actualTarget=actor;await showBattleEvent("こんらん！",actor.name+"は自分を攻撃した！","こんらん",900);}
+  else if(r<.5){actualTarget=target===state.player?state.enemy:state.player;await showBattleEvent("攻撃対象を見失った！",actor.name+"はこんらんしている","こんらん",900);}
+  else await showBattleEvent("なんとか技を出した！",actor.name+"はこんらんしている","こんらん",750);
  }
  if(move.type==="status"){actor.pp=Math.max(0,actor.pp-1);log(actor.name+"は "+move.name+" を使った！（PP -1）");}
  else log(actor.name+"の "+move.name+"！");
@@ -166,7 +170,7 @@ function performMove(actor,target,move,isPlayer){
  log(actualTarget.name+"に "+damage+" ダメージ！");
  if(actualTarget.hp>0&&move.ailment&&Math.random()<(move.chance||0))applyAilment(actualTarget,move.ailment);
 }
-function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);log(f.name+"はやけどで2ダメージ！");}}
+async function endTurnEffects(f){if(f.ailments.burn&&f.hp>0){f.hp=Math.max(0,f.hp-2);await showBattleEvent("やけど！",f.name+"は2ダメージ！","ターン終了",1000);render();}}
 function enemyTurn(){if(state.ended)return;const e=state.enemy,p=state.player;if(p.hp<=0||e.hp<=0){checkEnd();return;}
  // 相手もプレイヤーと同様に、技を選んでからカードを表示して実行する。
  let pool=state.enemyHand.filter(m=>m.type!=="status");if(!Object.keys(p.ailments).some(k=>p.ailments[k])&&e.pp>0&&Math.random()<.25){const statusPool=state.enemyHand.filter(m=>m.type==="status");if(statusPool.length)pool=statusPool;}
