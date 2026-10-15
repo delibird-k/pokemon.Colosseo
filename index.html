@@ -69,10 +69,11 @@ const C=[
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",x:"ねむり（PP1）"},
 {id:"wisp",n:"おにび",t:"s",al:"burn",x:"やけど（PP1）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",x:"まひ（PP1）"}];
-const pool=C.flatMap(c=>Array(c.id==="sub"?1:c.t==="a"?8:4).fill(c));
+const CP={a:2.5,s:.5,h:2,d:2,b:1},rel=c=>c.id==="sub"?.25:1,cs={};C.forEach(c=>cs[c.t]=(cs[c.t]||0)+rel(c));
+const pick=()=>{let r=Math.random()*8,f;for(const c of C){f=c;r-=CP[c.t]*rel(c)/cs[c.t];if(r<0)break}return f};
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化"}[c.t];
-let S;const mk=n=>({n,hp:40,pp:5,mo:20,hand:[],al:null,fz:0});
-const draw=f=>{while(f.hand.length<9)f.hand.push(rd(pool))};
+let S;const mk=n=>({n,hp:40,pp:20,mo:20,hand:[],al:null,fz:0});
+const draw=f=>{while(f.hand.length<9)f.hand.push(pick())};
 const main=()=>{const i=S.sel.find(i=>S.p.hand[i].t!=="b");return i==null?null:S.p.hand[i]};
 function log(t){S.L.push(t);$("log").innerHTML=S.L.slice(-2).map(x=>"<div>"+x+"</div>").join("")}
 function ev(t,ms=850){log(t);const o=$("toast");o.textContent=t;o.classList.add("on");return sl(ms).then(()=>o.classList.remove("on"))}
@@ -83,7 +84,7 @@ function show(a,c,bo,ds){board(a.n+"の"+(c.t==="a"?"攻撃":"行動"),[c,...(S.
 function selShow(){const m=main();if(!m){$("pv").innerHTML="";return}const bs=S.sel.map(i=>S.p.hand[i]).filter(c=>c.t==="b");S.bc=bs;show(S.p,m,bs.reduce((s,c)=>s+c.d,0),null)}
 function pv(a,c,bo){$("pv").innerHTML="<b>"+a.n+"の "+c.n+"</b> "+(c.t==="a"?"威力 "+(c.d+bo):lab(c))+"<br><small>"+c.x+"</small>"}
 function ok(c,i){if(S.mode==="def")return c.t==="d"&&(S.sel.includes(i)||S.p.pp>S.sel.length);if(S.mode!=="atk"||c.t==="d")return false;
- if(c.t==="s"&&S.p.pp<1)return false;if(c.t==="b"){const m=main();return !!m&&m.t==="a"&&m.k===c.k}return true}
+ if((c.t==="s"||c.t==="a")&&S.p.pp<1)return false;if(c.t==="b"){const m=main();return !!m&&m.t==="a"&&m.k===c.k}return true}
 function click(i){const c=S.p.hand[i];if(!c||!ok(c,i))return;if(S.mode==="def"){S.sel=S.sel.includes(i)?S.sel.filter(x=>x!==i):[...S.sel,i];render();return}
  if(c.t==="b")S.sel=S.sel.includes(i)?S.sel.filter(x=>x!==i):[...S.sel,i];
  else S.sel=S.sel.length===1&&S.sel[0]===i?[]:[i];render()}
@@ -91,7 +92,7 @@ function render(){
  $("fs").innerHTML=["e","p"].map(k=>{const f=S[k];return '<div class="pl '+k+'"><i></i><b class="n">'+f.n+'</b>'+(f.al?'<span class="tag">'+AIL[f.al]+'</span>':'')+'<span>HP<b class="'+(f.hp<=10?"lo":"")+'">'+f.hp+'</b></span><span>PP<b>'+f.pp+'</b></span><span>¥<b>'+f.mo+'</b></span></div>'}).join("");
  const hb=$("hand");hb.innerHTML="";
  S.p.hand.forEach((c,i)=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(i)?" on":"");b.disabled=!ok(c,i);
-  b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+"</span><small>"+c.x+"</small>";b.onclick=()=>click(i);hb.appendChild(b)});
+  b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+"</span><small>"+c.x+(c.t==="a"?"（PP1）":"")+"</small>";b.onclick=()=>click(i);hb.appendChild(b)});
  $("ph").textContent={atk:"あなたのターン：カードを選んで「使う」（攻撃には強化カードを重ねられます）",def:"防御フェイズ：防御カードを選び（重ねがけOK）「防御する」",idle:"…"}[S.mode];
  $("use").hidden=!(S.mode==="atk"||S.mode==="def");$("pass").hidden=S.mode!=="atk";$("use").textContent=S.mode==="def"?"防御する":"使う";$("skip").hidden=S.mode!=="def";
  $("use").disabled=S.mode==="def"?!S.sel.length:!main();if(S.mode==="atk")selShow();else if(S.mode==="def")show(S.inc.a,S.inc.c,S.inc.bo,S.sel.map(i=>S.p.hand[i]));$("pass").disabled=S.sel.length!==1}
@@ -104,7 +105,7 @@ async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);render(
 async function apply(t,al){if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;render();await ev(t.n+"は"+AIL[al]+"になった！")}
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 async function getDef(t,c,bo){let d=null;
- if(t===S.e){const ds=t.hand.filter(x=>x.t==="d"&&(!x.k||x.k===c.k)).slice(0,Math.min(t.pp,1+(Math.random()<.4)));if(ds.length&&Math.random()<.5){ds.forEach(x=>t.hand.splice(t.hand.indexOf(x),1));t.pp-=ds.length;draw(t);d=comb(ds);show(S.inc.a,S.inc.c,S.inc.bo,ds)}}
+ if(t===S.e){const P0=c.t==="a"?c.d+bo:1,ds=[];let s=0;for(const x of t.hand.filter(x=>x.t==="d"&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b.b?99:b.r)-(a.b?99:a.r))){if(ds.length>=Math.min(t.pp,2)||s>=P0)break;ds.push(x);s+=x.b?99:x.r}if(ds.length&&(c.t==="s"||P0>=7)&&Math.random()<.7){ds.forEach(x=>t.hand.splice(t.hand.indexOf(x),1));t.pp-=ds.length;draw(t);d=comb(ds);show(S.inc.a,S.inc.c,S.inc.bo,ds)}}
  else{S.mode="def";S.sel=[];render();const ix=await new Promise(r=>S.wait=r);S.mode="idle";S.sel=[];if(ix.length){const ds=ix.map(i=>S.p.hand[i]);S.p.hand=S.p.hand.filter((_,i)=>!ix.includes(i));S.p.pp-=ds.length;draw(S.p);d=comb(ds);show(S.inc.a,S.inc.c,S.inc.bo,ds)}render()}
  if(d)await ev(t.n+"は "+d.n+"！",800);return d}
 async function act(a,o,c,bo){await act0(a,o,c,bo);await burn(a)}
@@ -113,7 +114,7 @@ async function act0(a,o,c,bo){
  if(c.t==="h"){if(c.cure){const had=a.al;a.al=null;render();return ev(had?a.n+"の"+AIL[had]+"が治った！":"しかし何も起こらなかった…")}if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;render();return ev(a.n+"は"+c.n+"！ PP+"+g)}const g=Math.min(c.d,99-a.hp);a.hp+=g;render();return ev(a.n+"は"+c.n+"！ HP+"+g)}
  S.inc={a,c,bo};show(a,c,bo,null);await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
- if(c.t==="s")a.pp--;
+ if(c.t==="s"||c.t==="a")a.pp--;
  const d=t!==a?await getDef(t,c,bo):null;
  if(d&&d.b||c.t==="s"&&d&&d.bs){render();return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！")}
  if(c.t==="s"){render();return apply(t,c.al)}
@@ -130,11 +131,11 @@ async function turnP(pass){
  if(pass){if(await can(P))await ev("あなたはカードを捨てて様子を見た");await burn(P)}else await act(P,E,m,bo);
  if(end())return;await ev("相手のターン",600);await turnE()}
 async function turnE(){
- const E=S.e,P=S.p,h=E.hand,has=t=>h.filter(c=>c.t===t),sts=has("s").filter(()=>E.pp>0);let c,bo=0;
- const hh=has("h").filter(x=>x.d),pc=has("h").filter(x=>x.pp),cu=has("h").filter(x=>x.cure);if(E.al&&cu.length&&Math.random()<.8)c=cu[0];else if(E.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
+ const E=S.e,P=S.p,h=E.hand,has=t=>h.filter(c=>c.t===t&&(c.t!=="a"||E.pp>0)),sts=has("s").filter(()=>E.pp>0&&!P.al);let c,bo=0;
+ const hh=has("h").filter(x=>x.d&&E.hp<99),pc=has("h").filter(x=>x.pp&&E.pp<=6),cu=has("h").filter(x=>x.cure);if(E.al&&cu.length&&Math.random()<.8)c=cu[0];else if(E.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
  else if(E.pp<=1&&pc.length&&Math.random()<.6)c=pc[0];
- else if(!P.al&&sts.length&&Math.random()<.25)c=rd(sts);
- else if(has("a").length)c=rd(has("a"));
+ else if(sts.length&&Math.random()<.12)c=rd(sts);
+ else if(has("a").length){const sc=x=>x.d+(has("b").some(b=>b.k===x.k)?10:0)-(E.al==="burn"&&x.k==="p"?10:0)+Math.random()*2;c=has("a").sort((a,b)=>sc(b)-sc(a))[0]}
  else c=hh[0]||pc[0]||sts[0];
  if(!c){const x=rd(h);h.splice(h.indexOf(x),1);draw(E);if(await can(E))await ev("相手はカードを捨てた");await burn(E)}
  else{S.bc=[];h.splice(h.indexOf(c),1);
@@ -146,6 +147,6 @@ $("use").onclick=()=>{if(S.mode==="def"){if(S.sel.length)S.wait([...S.sel])}else
 $("pass").onclick=()=>{if(S.mode==="atk"&&S.sel.length===1)turnP(true)};
 $("skip").onclick=()=>{if(S.mode==="def")S.wait([])};
 $("mb").onclick=()=>{$("md").hidden=true;if(S.over)start()};
-$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP5で開始（HP・PPの上限は99）、手札は常に9枚（使うと1枚補充）。自分のターンは①カードを使う（攻撃に強化カードを重ねられる）か、②1枚捨てて交代。相手の攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。リフレクターは物理技、ひかりのかべは特殊技の威力-10。まもる・みきりは変化技も完全に無効化。みがわり人形は攻撃も変化技も全て無効化（出現率は低め）。変化技・防御カードはPPを1消費。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。";$("mb").textContent="閉じる";$("md").hidden=false};
+$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP20で開始（HP・PPの上限は99）、手札は常に9枚（使うと1枚補充）。自分のターンは①カードを使う（攻撃に強化カードを重ねられる）か、②1枚捨てて交代。相手の攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。リフレクターは物理技、ひかりのかべは特殊技の威力-10。まもる・みきりは変化技も完全に無効化。みがわり人形は攻撃も変化技も全て無効化（出現率は低め）。攻撃・変化技・防御カードはPPを1消費。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。";$("mb").textContent="閉じる";$("md").hidden=false};
 start();
 </script></body></html>
