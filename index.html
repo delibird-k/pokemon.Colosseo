@@ -102,16 +102,16 @@ const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b")
 ];
-const pick=()=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]);const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
+const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
 const pr=c=>c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
-const draw=p=>{while(p.h.length<9)p.h.push(pick())};
+const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0});
-const newGame=P=>{P.forEach(draw);return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
+const newGame=P=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
