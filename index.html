@@ -91,6 +91,7 @@ const C=[
 {id:"cure",n:"なんでもなおし",t:"h",cure:1,x:"状態異常を治す"},
 {id:"shop",n:"ショップ",t:"m",x:"ランダム4枚から1枚を買う（強化は¥10）"},
 {id:"sell",n:"売る",t:"m",x:"手札1枚を相手に売りつける"},
+{id:"exchange",n:"両替",t:"m",x:"HP・PP・お金を1:1で交換（HP・PP上限99）"},
 {id:"confuse",n:"あやしいひかり",t:"s",al:"confusion",ch:.75,x:"こんらん（PP1・成功75%）"},
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",ch:.75,x:"ねむり（PP1・成功75%）"},
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（PP1・成功75%）"},
@@ -179,6 +180,13 @@ async function getDef(t,c,bo){
  const d=comb(ds);await ev(t.n+"は "+d.n+"！",800);return d}
 async function market(a,o,c){
  await ev(a.n+"は"+c.n+"！",700);const ai=G.P.indexOf(a);
+ if(c.id==="exchange"){
+  const rs=[{id:"hp",n:"HP",v:()=>a.hp,max:()=>99,set:v=>a.hp=v},{id:"pp",n:"PP",v:()=>a.pp,max:()=>99,set:v=>a.pp=v},{id:"mo",n:"お金",v:()=>a.mo,max:()=>Infinity,set:v=>a.mo=v}];
+  let from,to,amount;
+  if(a.bot){from=rs.find(x=>x.id==="mo"&&a.mo>0)||rs.find(x=>x.id==="pp"&&a.pp>0)||rs.find(x=>x.id==="hp"&&a.hp>20);to=rs.find(x=>x.id==="hp"&&a.hp<60)||rs.find(x=>x.id==="pp"&&a.pp<10)||rs.find(x=>x.id==="mo");if(!from||!to||from.id===to.id)return ev(a.n+"は両替しなかった");amount=Math.min(from.v(),to.max()-to.v());}
+  else {const opts=rs.map((x,i)=>(i+1)+"="+x.n+"（現在 "+x.v()+"）").join("\\n");const f=prompt("何を支払いますか？\\n"+opts);if(f===null)return ev(a.n+"は両替をキャンセルした");from=rs[Number(f)-1];const t=prompt("何に交換しますか？\\n"+opts);if(t===null)return ev(a.n+"は両替をキャンセルした");to=rs[Number(t)-1];if(!from||!to||from.id===to.id)return ev("両替先を正しく選んでください");const raw=prompt("何ポイント交換しますか？（1ポイント＝1）");if(raw===null)return ev(a.n+"は両替をキャンセルした");amount=Math.floor(Number(raw));}
+  if(!from||!to||from.id===to.id||!Number.isFinite(amount)||amount<1||amount>from.v()||to.v()+amount>to.max())return ev("両替できませんでした（所持数・上限を確認してください）");from.set(from.v()-amount);to.set(to.v()+amount);return ev(a.n+"は"+from.n+" "+amount+"を"+to.n+" "+amount+"に両替した！");
+ }
  if(c.id==="shop"){const op=[];while(op.length<4){const x=pick();if(C[x].t!=="m")op.push(x)}
   let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{i=op.findIndex(x=>C[x].t==="a"&&a.mo>=pr(C[x]));if(i<0)i=op.findIndex(x=>(C[x].t==="h"||C[x].t==="d")&&a.mo>=pr(C[x]))}
   i=Number(i);if(!(i>=0&&i<4)||a.mo<pr(C[op[i]]))return ev(a.n+"は何も買わなかった");
