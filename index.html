@@ -141,7 +141,7 @@ function render(){
  else if(G.bd){const b=G.bd,c=C[b.c],ds=def?sc:b.ds?b.ds.map(i=>C[i]):null;
   bd=[G.P[b.a].n+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],c.t==="a"?"攻"+(c.d+b.bo):lab(c),ds?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";
- $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!(turn&&mp.pp<1);$("skip").hidden=!def;
+ $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;
  $("use").textContent=def?"防御する":"使う";$("sing").disabled=!turn||mp.pp>0;
  $("use").disabled=def?!S.sel.length:!(M&&(!needTg||S.tg>=0));$("pass").disabled=S.sel.length!==1;
  $("ph").textContent=turn?"あなたのターン："+(ops.length>1?"カードを選び、相手の名前をタップして「使う」":"カードを選んで「使う」"):def?"防御フェイズ：防御カードを選び「防御する」":me<0||mp.d?"観戦中…":G.ph==="over"?"":G.P[G.t].n+"の行動中…";
