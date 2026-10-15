@@ -191,7 +191,7 @@ async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
  if(!await can(a))return;
  if(c.t==="m")return market(a,o,c);
- if(c.wall){if(c.id==="wall")a.reflect=3;else a.lightScreen=3;a._screenUsed=1;a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを10減らす！",900)}
+ if(c.wall){if(c.id==="wall")a.reflect=3;else a.lightScreen=3;a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを10減らす！",900)}
  if(c.t==="h"){
   if(c.cure){const had=a.al;a.al=null;return ev(had?a.n+"の"+AIL[had]+"が治った！":"しかし何も起こらなかった…")}
   if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;return ev(a.n+"は"+c.n+"！ PP+"+g)}
@@ -248,7 +248,7 @@ function bot(p,i){
  if(c.t==="a"||c.t==="s"){const b=has("b").filter(x=>(x.k===c.k||x.k==="any")&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i){
- G.bd=null;G.ask=null;if(p._screenUsed){p._screenUsed=0}else{if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;}await ev(p.n+"のターン",600);
+ G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
