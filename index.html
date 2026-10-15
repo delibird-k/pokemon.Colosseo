@@ -208,13 +208,13 @@ async function act0(a,o,c,bo,bs){
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
-   let dm=c.d+bo+(Math.random()*5|0)-2;if(a.al==="burn"&&c.k==="p")dm-=10;dm=Math.max(rr?0:1,dm-rr);
+   let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;dm=Math.max(rr?0:1,dm-rr);
    target.hp=Math.max(0,target.hp-dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr?"（軽減）":""),500);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
- let dm=c.d+bo+(Math.random()*5|0)-2;if(a.al==="burn"&&c.k==="p")dm-=10;
+ let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;dm-=rr;dm=Math.max(rr?0:1,dm);
  t.hp=Math.max(0,t.hp-dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
