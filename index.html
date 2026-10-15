@@ -169,7 +169,7 @@ async function apply(t,al){if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ�
 async function getDef(t,c,bo){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
-  const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
+  const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
   for(const [x,j] of cand){if(ix.length>=Math.min(t.pp,2)||s>=P0)break;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
@@ -259,7 +259,7 @@ async function turn(p,i){
  chk()}
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
-const nm=()=>$("nm").value.trim().slice(0,8)||"プレイヤー";
+const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
 function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
 function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)));host=true;$("ti").hidden=true;pub();loop()}
