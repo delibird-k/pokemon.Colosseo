@@ -356,8 +356,8 @@ async function act0(a,o,c,bo,bs){
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  a.pp--;
- // 命中不安の技は、防御フェイズに入る前に命中判定する
- if(c.miss&&Math.random()<c.miss)return ev(c.n+"は はずれた！",800);
+ // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
+ if(c.miss&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);
  if(c.ko&&c.all){
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
@@ -377,6 +377,7 @@ async function act0(a,o,c,bo,bs){
   let hitAny=false;
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
+   if(c.miss&&Math.random()<Number(c.miss)){await ev(c.n+"は "+target.n+"に はずれた！",500);continue}
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
