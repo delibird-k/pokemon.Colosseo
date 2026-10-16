@@ -282,13 +282,31 @@ async function summonHelper(p){
  else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 50！");
 }
 async function helperAction(owner){
- const h=owner.helper;if(!h||h.dead||h.hp<=0||Math.random()>=.3)return;
+ const h=owner.helper;if(!h||h.dead||h.hp<=0||Math.random()>=.25)return;
+ const ownerIndex=G.P.indexOf(owner);
+ async function helperHit(t,dmg,kind,move){
+  const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
+  const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
+  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti};
+  await ev(h.name+"の"+move+"！",500);
+  const guard=await getDef(t,card,bo);
+  if(guard&&(guard.b||guard.bs)){await ev(t.n+"はお助けポケモンの攻撃を防いだ！",500);return}
+  const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
+  const screen=t.reflect>0&&kind==="p"?5:t.lightScreen>0&&kind==="s"?5:0;
+  const actual=Math.max(reduction||screen?0:1,dmg-reduction-screen);
+  t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
+  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);
+ }
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
-  const dmg=rd(h.values);for(const t of G.P.filter(x=>x!==owner&&!x.d)){if(Math.random()>=.75){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}t.hp=Math.max(0,t.hp-dmg);hurtHelper(t,dmg);await ev(h.name+"の"+h.move+"！ "+t.n+"に"+dmg+"ダメージ！",400)}
+  const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);
+  for(const t of G.P.filter(x=>x!==owner&&!x.d)){
+   if(Math.random()>=.75){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}
+   await helperHit(t,dmg,kind,h.move);
+  }
  }else if(h.kind==="singlePhysical"){
   const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);
   if(Math.random()>=.75)await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
-  else{t.hp=Math.max(0,t.hp-dmg);hurtHelper(t,dmg);await ev(h.name+"の"+h.move+"！ "+t.n+"に"+dmg+"ダメージ！")}
+  else await helperHit(t,dmg,"p",h.move);
  }else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-owner.hp);owner.hp+=v;await ev("ハピナスが"+owner.n+"のHPを"+v+"回復した！")}
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
 }
