@@ -167,7 +167,7 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
-const END_SPRITES={"バンギラス":248,"カイリュー":149,"ミュウツー":150,"グラードン":383,"カイオーガ":382,"レックウザ":384,"ギラティナ":487,"イベルタル":717,"アルセウス":493,"ニャース":52,"ニューラ":215,"ハピナス":242};
+const END_SPRITES={"イベルタル":717,"ウルトラネクロズマ":800,"ムゲンダイマックスムゲンダイナ":890,"アルセウス":493,"ニャース":52,"ニューラ":215,"ハピナス":242};
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
 const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
@@ -391,12 +391,12 @@ async function turn(p,i){
  if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
  else{const bs=cs.filter(b=>b.t==="b"&&!m.ko&&(m.t==="a"||m.t==="s")&&(b.k==="any"||b.k===m.k));p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p);await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
  chk()}
-const END_POKEMON=["バンギラス","カイリュー","ミュウツー","グラードン","カイオーガ","レックウザ","ギラティナ","イベルタル"];
+const END_POKEMON=["イベルタル","ウルトラネクロズマ","ムゲンダイマックスムゲンダイナ"];
 async function endEvent(p){
  const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
  const roll=Math.random();
  if(roll<.45){
-  const name=rd(END_POKEMON),rawDamage=[10,20,30][Math.random()*3|0],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
+  const name=rd(END_POKEMON),rawDamage=({"イベルタル":10,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
   await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
