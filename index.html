@@ -190,7 +190,7 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
-const END_SPRITES={"イベルタル":717,"ウルトラネクロズマ":800,"ムゲンダイマックスムゲンダイナ":890,"アルセウス":493,"ニャース":52,"ニューラ":215,"ハピナス":242};
+const END_SPRITES={"イベルタル":717,"ネクロズマ":800,"ムゲンダイナ":890,"アルセウス":493,"ニャース":52,"ニューラ":215,"ハピナス":242};
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
 const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
