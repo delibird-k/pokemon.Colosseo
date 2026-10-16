@@ -111,6 +111,7 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
+const END_SPRITES={"バンギラス":248,"カイリュー":149,"ミュウツー":150,"グラードン":383,"カイオーガ":382,"レックウザ":384,"ギラティナ":487,"イベルタル":717};
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0});
 const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
@@ -143,7 +144,7 @@ function render(){
  if(turn){if(M)bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],M.t==="a"?"攻"+(M.d+bs.reduce((s,c)=>s+c.d,0)):lab(M),"",[],""]}
  else if(G.bd){const b=G.bd,c=C[b.c],ds=def?sc:b.ds?b.ds.map(i=>C[i]):null;
   bd=[G.P[b.a].n+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],c.t==="a"?"攻"+(c.d+b.bo):lab(c),ds?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
- if(bd)board(...bd);else $("pv").innerHTML="";
+ if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon;$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+"の攻撃</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+END_SPRITES[em.name]+".png' style='width:88px;height:88px;image-rendering:pixelated;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>防御不可のイベントダメージ</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>HP −"+em.damage+"</div></div></div>"}
  $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;
  $("use").textContent=def?"防御する":"使う";$("sing").disabled=!turn||mp.pp>0;
  $("use").disabled=def?!S.sel.length:!(M&&(!needTg||S.tg>=0));$("pass").disabled=S.sel.length!==1;
@@ -281,8 +282,8 @@ async function endEvent(p){
  const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
  const roll=Math.random();
  if(roll<.45){
-  const damage=10+(Math.random()*21|0);p.hp-=damage;
-  await ev("終末の時！ "+rd(END_POKEMON)+"が現れた！ "+p.n+"はHPを"+damage+"失った！");
+  const name=rd(END_POKEMON),damage=[10,20,30][Math.random()*3|0];p.hp-=damage;G.eventMon={name,target:p.n,damage};
+  await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");
  }else if(roll<.75){
   const effect=Math.random()*3|0;
   if(effect===0){const n=Math.min(10,99-p.hp);p.hp+=n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のHPが"+n+"回復した！")}
@@ -295,15 +296,15 @@ async function endEvent(p){
 }
 async function afterAction(p){
  G.actions=(G.actions||0)+1;
- if(!G.endStarted&&G.actions>=G.endAt){G.endStarted=true;await ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！");}
+ if(!G.endStarted&&G.actions>=G.endAt){G.endStarted=true;G.eventMon=null;await ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！");}
  else if(G.endStarted&&Math.random()<.25)await endEvent(p);
 }
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return;await afterAction(p);if(chk())return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
 const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
-function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
+function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);if(G.endAt===1){G.endStarted=true;G.e={s:++SEQ,t:"終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！"};G.L.push(G.e.t)}$("ti").hidden=true;$("md").hidden=true;pub();loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
-function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);host=true;$("ti").hidden=true;pub();loop()}
+function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);if(G.endAt===1){G.endStarted=true;G.e={s:++SEQ,t:"終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！"};G.L.push(G.e.t)}host=true;$("ti").hidden=true;pub();loop()}
 function onP(){
  const ps=R.peers(),me=ps.find(p=>p.sameTab);MY=me?me.peer:"";
  if(!G){const hp=ps.find(p=>p.presence.g&&!p.sameTab);
