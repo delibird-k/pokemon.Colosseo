@@ -30,7 +30,7 @@ header{background:var(--ac);color:#fff;display:flex;justify-content:space-betwee
 .ov{position:absolute;inset:0;background:#063c35aa;display:grid;place-items:center;z-index:9}.md{background:var(--pn);border-radius:14px;padding:22px;width:min(420px,90%);text-align:center;line-height:1.7;max-height:92%;overflow:auto}
 #lb{list-style:none;padding:0;margin:6px 0}#lb li{padding:3px 0}
 </style></head><body><main>
-<header><h1>Pokémon Colosseo</h1><button class="btn" id="hb">ルール</button></header>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><button class="btn" id="hb">ルール</button></header>
 <div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="hand"></div>
@@ -119,6 +119,7 @@ const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
 function render(){
  if(!G)return;
+ const tc=$("turnCount");if(tc)tc.textContent="ターン "+Math.max(1,(G.actions||0)+1);
  const me=G.P.findIndex(p=>p.id===MY),mp=G.P[me]||{h:[],pp:0,mo:0,n:"観戦"};
  const A=G.ask&&G.ask.to===me&&S.sent!==G.ask.n?G.ask:null;CA=A;
  if(A?A.n!==S.n:S.n){S.n=A?A.n:0;S.sel=[]}
