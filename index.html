@@ -189,7 +189,7 @@ function render(){
   if(c.t==="b")return !c.aim&&!!M&&!M.ko&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'<span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div>').join("");
- const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs)hs.innerHTML=G.P.filter(p=>p.helper).map(p=>"<div class='rule-card' style='display:flex;align-items:center;gap:8px;margin:4px 0'><img src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png' alt='' style='width:44px;height:44px;image-rendering:pixelated'><div><b>"+esc(p.n)+"のお助け："+esc(p.helper.name)+(p.helper.dead?"（瀕死）":"")+"</b><div>HP "+p.helper.hp+"/50</div></div></div>").join("");
+ const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/50</span></div>").join("");}
  const groups=[["a","わざカード"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(!items.length)return;
   const head=document.createElement("div");head.className="group-title";head.textContent=title;hb.appendChild(head);
@@ -368,7 +368,7 @@ function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
  const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"&&!p.masterUsed&&!p.helper),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
- if(masters.length&&Math.random()<.25)c=masters[0];
+ if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
  else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
  else if(p.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
