@@ -253,12 +253,12 @@ async function getDef(t,c,bo){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
-  for(const [x,j] of cand){if(ix.length>=2||s>=P0)break;if(x.id!=="sub"&&ix.filter(k=>C[t.h[k]].id!=="sub").length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
+  for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&ix.filter(k=>C[t.h[k]].id!=="sub").length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
  ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d");
  if(!ix.length)return null;
- const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost;if(valid.length>=2)break}ix=valid;
+ const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost}ix=valid;
  if(!ix.length)return null;
  const ds=ix.map(j=>C[t.h[j]]);t.h=t.h.filter((_,j)=>!ix.includes(j));t.pp-=ppCost;draw(t);G.bd.ds=ds.map(x=>x.i);
  const d=comb(ds);await ev(t.n+"は "+d.n+"！",800);return d}
