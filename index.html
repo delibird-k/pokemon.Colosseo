@@ -143,7 +143,7 @@ const C=[
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:5,x:"特殊技に重ねて+5"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:10,life:1,x:"どの技でも+10・自分も5ダメージ"},
 {id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"呪いのアイテム。使用不可。持っている相手には技の追加効果と一撃必殺が必ず成功"},
-{id:"masterball",n:"マスターボール",t:"u",x:"ポケモンを呼び出す（1回限り）"},
+{id:"masterball",n:"マスターボール",t:"u",x:"ポケモンを呼び出す（複数回使用可能）"},
 {id:"protect",n:"まもる",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"detect",n:"みきり",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"sub",n:"みがわり人形",t:"d",r:0,b:1,bs:1,x:"攻撃も変化技も全て無効"},
@@ -299,8 +299,8 @@ const MASTER_HELPERS=[
 {name:"アルセウス",weight:2,sprite:493,kind:"burst"}];
 function rollHelper(){let n=Math.random()*100;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
- if(p.masterUsed||p.helper){await ev(p.n+"はマスターボールを使えない！");return}
- p.masterUsed=true;const h=rollHelper();p.helper={...h,hp:50,owner:p.id,dead:false};
+ if(p.helper&&!p.helper.dead&&p.helper.hp>0){await ev(p.n+"はすでに仲間のポケモンがいる！");return}
+ p.masterUsed=false;const h=rollHelper();p.helper={...h,hp:50,owner:p.id,dead:false};
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp);p.hp+=v;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"回復！")}
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
@@ -394,7 +394,7 @@ async function act0(a,o,c,bo,bs){
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
- const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"&&!p.masterUsed&&!p.helper),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
+ const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"&&(!p.helper||p.helper.dead||p.helper.hp<=0)),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
  if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
  else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
