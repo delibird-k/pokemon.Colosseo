@@ -334,7 +334,7 @@ async function act0(a,o,c,bo,bs){
  }
  let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen;dm=Math.max(rr||screen?0:1,dm);
- t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！+(rr||screen?"（軽減）":""),800);
+ t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
 function bot(p,i){
