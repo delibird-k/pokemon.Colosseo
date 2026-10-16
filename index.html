@@ -107,7 +107,7 @@ header{padding:9px 16px}
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),sl=ms=>new Promise(r=>setTimeout(r,ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
-const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり"},KL={p:"物理",s:"特殊"};
+const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり",poison:"どく"},KL={p:"物理",s:"特殊"};
 // t: a=攻撃 b=強化 d=防御 h=回復 s=変化 m=商売  k: p物理 s特殊 any両方  d:威力/回復量  b:完全防御 bs:変化技無効 r:軽減量
 const C=[
 {id:"tackle",n:"たいあたり",t:"a",k:"p",d:3,x:"安定した物理攻撃"},
@@ -116,10 +116,29 @@ const C=[
 {id:"spark",n:"10まんボルト",t:"a",k:"s",d:4,al:"paralysis",ch:.3,x:"30%でまひ"},
 {id:"ice",n:"れいとうビーム",t:"a",k:"s",d:3,al:"freeze",ch:.3,x:"30%でこおり"},
 {id:"shadow",n:"シャドーボール",t:"a",k:"s",d:5,x:"威力重視"},
-{id:"earthquake",n:"じしん",t:"a",k:"p",d:5,all:1,x:"全体攻撃・物理5ダメージ"},
+{id:"earthquake",n:"じしん",t:"a",k:"p",d:8,all:1,x:"全体攻撃・物理威力8"},
 {id:"surf",n:"なみのり",t:"a",k:"s",d:5,all:1,x:"全体攻撃・特殊5ダメージ"},
 {id:"sheercold",n:"ぜったいれいど",t:"a",k:"s",d:0,ko:1,ch:.2,all:1,x:"自分以外全員を20%で一撃必殺"},
  {id:"fissure",n:"じわれ",t:"a",k:"p",d:0,ko:1,ch:.2,all:1,x:"自分以外全員を20%で一撃必殺"},
+{id:"closecombat",n:"インファイト",t:"a",k:"p",d:10,x:"物理威力10"},
+{id:"flareblitz",n:"フレアドライブ",t:"a",k:"p",d:12,recoil:5,x:"威力12・反動5"},
+{id:"bravebird",n:"ブレイブバード",t:"a",k:"p",d:12,recoil:5,x:"威力12・反動5"},
+{id:"outrage",n:"げきりん",t:"a",k:"p",d:8,hits:2,x:"威力8・2回攻撃"},
+{id:"stoneedge",n:"ストーンエッジ",t:"a",k:"p",d:7,boostChance:.3,boostD:14,x:"30%で威力14"},
+{id:"playrough",n:"じゃれつく",t:"a",k:"p",d:7,x:"物理威力7"},
+{id:"doubleedge",n:"すてみタックル",t:"a",k:"p",d:12,recoil:5,x:"威力12・反動5"},
+{id:"gunkshot",n:"ダストシュート",t:"a",k:"p",d:10,al:"poison",ch:.3,x:"30%でどく"},
+{id:"flamethrower",n:"かえんほうしゃ",t:"a",k:"s",d:7,al:"burn",ch:.3,x:"30%でやけど"},
+{id:"psychic",n:"サイコキネシス",t:"a",k:"s",d:7,x:"特殊威力7"},
+{id:"moonblast",n:"ムーンフォース",t:"a",k:"s",d:9,x:"特殊威力9"},
+{id:"dracometeor",n:"りゅうせいぐん",t:"a",k:"s",d:15,randomTarget:1,x:"威力15・対象はランダム"},
+{id:"focusblast",n:"きあいだま",t:"a",k:"s",d:15,miss:.3,x:"威力15・30%で外れる"},
+{id:"sludgebomb",n:"ヘドロばくだん",t:"a",k:"s",d:8,al:"poison",ch:.3,x:"30%でどく"},
+{id:"rockslide",n:"いわなだれ",t:"a",k:"p",d:5,all:1,x:"全体攻撃・物理威力5"},
+{id:"blizzard",n:"ふぶき",t:"a",k:"s",d:10,all:1,miss:.3,al:"freeze",ch:.3,x:"全体威力10・30%で外れ、命中時30%でこおり"},
+{id:"heatwave",n:"ねっぷう",t:"a",k:"s",d:8,all:1,al:"burn",ch:.3,x:"全体攻撃・30%でやけど"},
+{id:"hypervoice",n:"ハイパーボイス",t:"a",k:"s",d:6,all:1,x:"全体攻撃・特殊威力6"},
+{id:"discharge",n:"ほうでん",t:"a",k:"s",d:6,all:1,al:"paralysis",ch:.3,x:"全体攻撃・30%でまひ"},
 {id:"band",n:"ちからのハチマキ",t:"b",k:"p",d:5,x:"物理技に重ねて+5"},
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:5,x:"特殊技に重ねて+5"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:10,life:1,x:"どの技でも+10・自分も5ダメージ"},
@@ -224,7 +243,7 @@ async function can(a){
  if(a.al==="freeze"){if(--a.fz<=0){a.al=null;await ev(a.n+"のこおりがとけた！")}else{await ev(a.n+"はこおって動けない！");return false}}
  if(a.al==="paralysis"&&Math.random()<.3){await ev(a.n+"はまひして動けない！");return false}
  return true}
-async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}}
+async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
 async function apply(t,al){if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo){
  let ix;
@@ -343,7 +362,7 @@ async function act0(a,o,c,bo,bs){
   return
  }
  const d=t!==a&&!c.all?await getDef(t,c,bo):null;
- if(d&&d.b||c.t==="s"&&d&&d.bs)return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
+ if(d&&(d.b||(c.t==="s"&&d.bs)))return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
  if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
  if(c.ko){if(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はぜったいれいどで一撃でたおれた！",1100)}else await ev("ぜったいれいどは はずれた！",1100);return}
  if(c.all){
@@ -363,7 +382,8 @@ async function act0(a,o,c,bo,bs){
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen+helperDamageReduction(t);dm=Math.max(0,dm);
  t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
- if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
+ if(dm>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}
+ if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
