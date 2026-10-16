@@ -355,6 +355,7 @@ async function act0(a,o,c,bo,bs){
   const g=Math.min(c.d,99-a.hp);a.hp+=g;return ev(a.n+"は"+c.n+"！ HP+"+g)}
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
+ if(c.randomTarget){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev("対象はランダムに決まった！ "+t.n+"！",500)}}
  a.pp--;
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
  if(c.miss&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);
