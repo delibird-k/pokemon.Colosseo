@@ -39,6 +39,7 @@ header{background:var(--ac);color:#fff;display:flex;justify-content:space-betwee
 <div class="ov" id="ti"><div class="md">
 <h2>Pokémon Colosseo</h2>
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
+<label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="20" placeholder="行動回数（例：20）">
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button></div>
 <div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
@@ -112,7 +113,7 @@ const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>"
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0});
-const newGame=P=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1}};
+const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
@@ -274,12 +275,34 @@ async function turn(p,i){
  if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
  else{const bs=cs.filter(b=>b.t==="b"&&!m.ko&&(m.t==="a"||m.t==="s")&&(b.k==="any"||b.k===m.k));p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p);await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
  chk()}
-async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return}i=(i+1)%G.P.length}}
+const END_POKEMON=["バンギラス","カイリュー","ミュウツー","グラードン","カイオーガ","レックウザ","ギラティナ","イベルタル"];
+async function endEvent(p){
+ const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
+ const roll=Math.random();
+ if(roll<.45){
+  const damage=10+(Math.random()*21|0);p.hp-=damage;
+  await ev("終末の時！ "+rd(END_POKEMON)+"が現れた！ "+p.n+"はHPを"+damage+"失った！");
+ }else if(roll<.75){
+  const effect=Math.random()*3|0;
+  if(effect===0){const n=Math.min(10,99-p.hp);p.hp+=n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のHPが"+n+"回復した！")}
+  else if(effect===1){const n=Math.min(10,99-p.pp);p.pp+=n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のPPが"+n+"回復した！")}
+  else{p.mo+=10;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のお金が10円増えた！")}
+ }else{
+  const n=Math.min(2,p.h.length);p.h.splice(0,n);await ev("終末の時！ ニャースが現れた！ "+p.n+"のカードを"+n+"枚盗んだ！");
+ }
+ chk();
+}
+async function afterAction(p){
+ G.actions=(G.actions||0)+1;
+ if(!G.endStarted&&G.actions>=G.endAt){G.endStarted=true;await ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！");}
+ else if(G.endStarted&&Math.random()<.25)await endEvent(p);
+}
+async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return;await afterAction(p);if(chk())return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
 const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
-function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
+function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);$("ti").hidden=true;$("md").hidden=true;pub();loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
-function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)));host=true;$("ti").hidden=true;pub();loop()}
+function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);host=true;$("ti").hidden=true;pub();loop()}
 function onP(){
  const ps=R.peers(),me=ps.find(p=>p.sameTab);MY=me?me.peer:"";
  if(!G){const hp=ps.find(p=>p.presence.g&&!p.sameTab);
