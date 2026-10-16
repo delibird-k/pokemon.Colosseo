@@ -199,7 +199,7 @@ function render(){
  let bd=null;
  if(turn){if(M)bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],M.t==="a"?"攻"+(M.d+bs.reduce((s,c)=>s+c.d,0)):lab(M),"",[],""]}
  else if(G.bd){const b=G.bd,c=C[b.c],ds=def?sc:b.ds?b.ds.map(i=>C[i]):null;
-  bd=[G.P[b.a].n+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],c.t==="a"?"攻"+(c.d+b.bo):lab(c),ds?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
+  bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?(b.moveName+"・威力 "+(c.d+b.bo)):c.t==="a"?"攻"+(c.d+b.bo):lab(c),ds?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon,desc=em.damage!==undefined?"防御不可のイベントダメージ":"イベント効果";$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+(em.name==="アルセウス"?"の奇跡":(em.name==="ニャース"||em.name==="ニューラ")?"のどろぼう":"の攻撃")+"</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+END_SPRITES[em.name]+".png' style='width:88px;height:88px;image-rendering:pixelated;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>"+desc+"</div><div>"+esc(em.detail||"")+"</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>"+(em.damage!==undefined?"HP −"+em.damage:esc(em.detail||"効果発動"))+"</div></div></div>"}
  $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;
  $("use").textContent=def?"防御する":"使う";$("sing").disabled=!turn||mp.pp>0;
@@ -287,7 +287,7 @@ async function helperAction(owner){
  async function helperHit(t,dmg,kind,move){
   const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
-  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti};
+  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move};
   await ev(h.name+"の"+move+"！",500);
   const guard=await getDef(t,card,bo);
   if(guard&&(guard.b||guard.bs)){await ev(t.n+"はお助けポケモンの攻撃を防いだ！",500);return}
