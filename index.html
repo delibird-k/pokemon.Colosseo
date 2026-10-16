@@ -283,7 +283,7 @@ async function endEvent(p){
  const roll=Math.random();
  if(roll<.45){
   const name=rd(END_POKEMON),damage=[10,20,30][Math.random()*3|0];p.hp-=damage;G.eventMon={name,target:p.n,damage};
-  await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");
+  await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
   if(effect===0){const n=Math.min(10,99-p.hp);p.hp+=n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のHPが"+n+"回復した！")}
