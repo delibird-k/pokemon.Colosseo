@@ -304,7 +304,7 @@ async function summonHelper(p){
  if(!p.helpers)p.helpers=[];
  const summoned={...h,hp:50,owner:p.id,dead:false};p.helpers.push(summoned);p.helper=summoned;
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
- else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp);p.hp+=v;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"回復！")}
+ else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp),q=Math.min(n,99-p.pp);p.hp+=v;p.pp+=q;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"、PPが"+q+"回復！")}
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
  else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−10！");
  else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋10！");
