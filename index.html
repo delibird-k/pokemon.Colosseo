@@ -190,8 +190,8 @@ function render(){
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'<span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div>').join("");
  const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs)hs.innerHTML=G.P.filter(p=>p.helper).map(p=>"<div class='rule-card' style='display:flex;align-items:center;gap:8px;margin:4px 0'><img src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png' alt='' style='width:44px;height:44px;image-rendering:pixelated'><div><b>"+esc(p.n)+"のお助け："+esc(p.helper.name)+(p.helper.dead?"（瀕死）":"")+"</b><div>HP "+p.helper.hp+"/50</div></div></div>").join("");
- const groups=[["a","わざカード"],["u","特別なアイテム"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
- groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":x.c.t===type);if(!items.length)return;
+ const groups=[["a","わざカード"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
+ groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(!items.length)return;
   const head=document.createElement("div");head.className="group-title";head.textContent=title;hb.appendChild(head);
   items.forEach(({k,j,c})=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(j)?" on":"");b.disabled=!ok(c,j);
    b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+"</span><small>"+c.x+(c.t==="a"?"（PP1）":"")+"</small>";
