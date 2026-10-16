@@ -387,12 +387,17 @@ async function act0(a,o,c,bo,bs){
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
- let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
- const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen+helperDamageReduction(t);dm=Math.max(0,dm);
- t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
- if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
- if(dm>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}
- if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
+ const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;
+ const hits=Math.max(1,Number(c.hits)||1);let total=0;
+ for(let hit=1;hit<=hits&&t.hp>0;hit++){
+  let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
+  dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
+  t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
+  await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
+  if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
+ }
+ if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
+ if(total>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
  const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
