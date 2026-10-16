@@ -230,12 +230,14 @@ async function getDef(t,c,bo){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
-  for(const [x,j] of cand){if(ix.length>=Math.min(t.pp,2)||s>=P0)break;ix.push(j);s+=x.b?99:x.r}
+  for(const [x,j] of cand){if(ix.length>=2||s>=P0)break;if(x.id!=="sub"&&ix.filter(k=>C[t.h[k]].id!=="sub").length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
- ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d").slice(0,t.pp);
+ ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d");
  if(!ix.length)return null;
- const ds=ix.map(j=>C[t.h[j]]);t.h=t.h.filter((_,j)=>!ix.includes(j));t.pp-=ds.length;draw(t);G.bd.ds=ds.map(x=>x.i);
+ const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost;if(valid.length>=2)break}ix=valid;
+ if(!ix.length)return null;
+ const ds=ix.map(j=>C[t.h[j]]);t.h=t.h.filter((_,j)=>!ix.includes(j));t.pp-=ppCost;draw(t);G.bd.ds=ds.map(x=>x.i);
  const d=comb(ds);await ev(t.n+"は "+d.n+"！",800);return d}
 async function market(a,o,c){
  await ev(a.n+"は"+c.n+"！",700);const ai=G.P.indexOf(a);
@@ -273,11 +275,11 @@ const MASTER_HELPERS=[
 function rollHelper(){let n=Math.random()*100;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
  if(p.masterUsed||p.helper){await ev(p.n+"はマスターボールを使えない！");return}
- p.masterUsed=true;const h=rollHelper();p.helper={...h,hp:100,owner:p.id,dead:false};
+ p.masterUsed=true;const h=rollHelper();p.helper={...h,hp:50,owner:p.id,dead:false};
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp);p.hp+=v;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"回復！")}
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
- else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 100！");
+ else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 50！");
 }
 async function helperAction(owner){
  const h=owner.helper;if(!h||h.dead||h.hp<=0||Math.random()>=.3)return;
