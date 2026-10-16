@@ -124,7 +124,7 @@ const C=[
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:5,x:"特殊技に重ねて+5"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:10,life:1,x:"どの技でも+10・自分も5ダメージ"},
 {id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"呪いのアイテム。使用不可。持っている相手には技の追加効果と一撃必殺が必ず成功"},
-{id:"masterball",n:"マスターボール",t:"u",x:"お助けポケモンを呼び出す（1回限り）"},
+{id:"masterball",n:"マスターボール",t:"u",x:"ポケモンを呼び出す（1回限り）"},
 {id:"protect",n:"まもる",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"detect",n:"みきり",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"sub",n:"みがわり人形",t:"d",r:0,b:1,bs:1,x:"攻撃も変化技も全て無効"},
@@ -266,9 +266,9 @@ async function market(a,o,c){
  const k=a.h.splice(i,1)[0],p=Math.min(pr(C[k]),o.mo);o.h.push(k);o.mo-=p;a.mo+=p;draw(a);
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（¥"+p+"）")}
 const MASTER_HELPERS=[
-{name:"ゲンシグラードン",weight:15,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
-{name:"ゲンシカイオーガ",weight:15,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
-{name:"メガレックウザ",weight:10,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
+{name:"グラードン",weight:15,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
+{name:"カイオーガ",weight:15,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
+{name:"レックウザ",weight:10,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
 {name:"ハピナス",weight:15,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
 {name:"ゼルネアス",weight:14,sprite:716,kind:"passiveDefense"},
 {name:"イベルタル",weight:14,sprite:717,kind:"passiveAttack"},
@@ -291,10 +291,10 @@ async function helperAction(owner){
  async function helperHit(t,dmg,kind,move){
   const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
-  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"お助けポケモンの技"}};
+  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技"}};
   await ev(h.name+"の"+move+"！",500);
   const guard=await getDef(t,card,bo);
-  if(guard&&(guard.b||guard.bs)){await ev(t.n+"はお助けポケモンの攻撃を防いだ！",500);return}
+  if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
   const screen=t.reflect>0&&kind==="p"?5:t.lightScreen>0&&kind==="s"?5:0;
   const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
