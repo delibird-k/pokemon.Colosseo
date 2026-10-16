@@ -53,6 +53,21 @@ header{padding:9px 16px}
   .acts{gap:6px;padding:7px;min-height:48px}
   #log{height:48px;padding:5px 10px}
 }
+/* 淡いブルー系の配色に統一 */
+:root{--bg:#dceeff;--pn:#f1f7ff;--cd:#ffffff;--ac:#8bbce8;--tx:#294b70;--mu:#718ba8;--bd:#c3daf2;--lo:#d9534f;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15283d;--pn:#1c324b;--cd:#243d59;--ac:#477eaf;--tx:#e4efff;--mu:#a8bfd9;--bd:#3b5c7e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15283d;--pn:#1c324b;--cd:#243d59;--ac:#477eaf;--tx:#e4efff;--mu:#a8bfd9;--bd:#3b5c7e;color-scheme:dark}
+.pl{background:var(--cd);color:var(--tx);border-color:var(--bd)}
+.pl .n,.pl.e .n,.pl.p .n{color:var(--tx)}
+.pl span,.pl span b{color:var(--mu)}
+.pl.tn i{background:#8bbce8}
+.tag{background:#739fcf}
+.group-title{background:var(--ac)}
+.pill{border-color:#8ca6c2;background:#e7f2ff;color:#365575}
+.a{--c:#80aee0}.b{--c:#a8c8ed}.d{--c:#6c9ed8}.h{--c:#9ac7ee}.s{--c:#b0c5e8}.m{--c:#8baed8}
+.c.on{outline-color:#6d9fd4}
+.ov{background:#193d6288}
+#toast{background:#6689a8}
 </style><link id="siteIcon" rel="icon" href="data:,"><style>#iconUpload{display:none}</style></head><body><main>
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="iconBtn" type="button">アイコン設定</button><button class="btn" id="hb">ルール</button></div></header><input id="iconUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/x-icon">
 <div class="fs" id="fs"></div>
