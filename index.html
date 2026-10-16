@@ -369,6 +369,8 @@ async function act0(a,o,c,bo,bs){
  if(d&&(d.b||(c.t==="s"&&d.bs)))return ev(t.n+"は"+(c.t==="s"?"変化技":"攻撃")+"を防いだ！");
  if(c.t==="s"){if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
  if(c.ko){if(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はぜったいれいどで一撃でたおれた！",1100)}else await ev("ぜったいれいどは はずれた！",1100);return}
+ // 命中率判定：ふぶきは技全体で1回判定し、30%で外れる
+ if(c.miss&&Math.random()<c.miss)return ev(c.n+"は はずれた！",800);
  if(c.all){
   let hitAny=false;
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
@@ -378,6 +380,7 @@ async function act0(a,o,c,bo,bs){
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
+   if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
