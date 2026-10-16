@@ -84,8 +84,8 @@ header{padding:9px 16px}
 .c.on{outline-color:#6d9fd4}
 .ov{background:#193d6288}
 #toast{background:#6689a8}
-</style><link id="siteIcon" rel="icon" href="data:,"><style>#iconUpload{display:none}</style></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="iconBtn" type="button">アイコン設定</button><button class="btn" id="hb">ルール</button></div></header><input id="iconUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/x-icon">
+</style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="hb">ルール</button></div></header>
 <div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="hand"></div>
@@ -429,9 +429,4 @@ $("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div cla
 <section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b> です。</p></section>
 </div>`;$("mb").textContent="閉じる";$("md").hidden=false};
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
-// ユーザーごとのサイトアイコン設定（このブラウザ内に保存）
-function applySiteIcon(data){const link=$("siteIcon");if(link)link.href=data||"data:,"}
-try{applySiteIcon(localStorage.getItem("pokemonColosseoCustomIcon"))}catch(_){}
-$("iconBtn").onclick=()=>$("iconUpload").click();
-$("iconUpload").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(!f.type.startsWith("image/")){alert("画像ファイルを選択してください");e.target.value="";return}if(f.size>5*1024*1024){alert("画像は5MB以下にしてください");e.target.value="";return}const reader=new FileReader();reader.onload=()=>{try{const data=String(reader.result);localStorage.setItem("pokemonColosseoCustomIcon",data);applySiteIcon(data);alert("サイトアイコンを設定しました。このブラウザのタブやブックマークに反映されます。")}catch(_){alert("保存できませんでした。画像を小さくして再度お試しください")}e.target.value=""};reader.onerror=()=>{alert("画像を読み込めませんでした");e.target.value=""};reader.readAsDataURL(f)};
 </script></body></html>
