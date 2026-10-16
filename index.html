@@ -88,7 +88,7 @@ header{padding:9px 16px}
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="hb">ルール</button></div></header>
 <div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
-<div id="hand"></div>
+<div id="helperStatus"></div><div id="hand"></div>
 <div class="acts"><button class="btn pri" id="use" hidden>使う</button><button class="btn" id="pass" hidden>1枚捨てて交代</button><button class="btn" id="sing" hidden>うたう（カード1枚仕入れ）</button><button class="btn pri" id="skip" hidden>防御せず受ける</button></div>
 <div id="log"></div><div id="toast"></div>
 <div class="ov" id="ti"><div class="md">
@@ -124,6 +124,7 @@ const C=[
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:5,x:"特殊技に重ねて+5"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:10,life:1,x:"どの技でも+10・自分も5ダメージ"},
 {id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"呪いのアイテム。使用不可。持っている相手には技の追加効果と一撃必殺が必ず成功"},
+{id:"masterball",n:"マスターボール",t:"u",x:"お助けポケモンを呼び出す（1回限り）"},
 {id:"protect",n:"まもる",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"detect",n:"みきり",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ（PP1）"},
 {id:"sub",n:"みがわり人形",t:"d",r:0,b:1,bs:1,x:"攻撃も変化技も全て無効（PP1）"},
@@ -157,7 +158,7 @@ C.forEach((c,i)=>c.i=i);
 const byType=t=>C.filter(c=>c.t===t);
 const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
- ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b")
+ ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
 const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
 const pr=c=>c.t==="b"?10:5;
@@ -166,9 +167,9 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
-const END_SPRITES={"バンギラス":248,"カイリュー":149,"ミュウツー":150,"グラードン":383,"カイオーガ":382,"レックウザ":384,"ギラティナ":487,"イベルタル":717,"アルセウス":493,"ニャース":52};
+const END_SPRITES={"バンギラス":248,"カイリュー":149,"ミュウツー":150,"グラードン":383,"カイオーガ":382,"レックウザ":384,"ギラティナ":487,"イベルタル":717,"アルセウス":493,"ニャース":52,"ニューラ":215,"ハピナス":242};
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
-const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0});
+const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
 const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
@@ -188,8 +189,8 @@ function render(){
   if(c.t==="b")return !c.aim&&!!M&&!M.ko&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'<span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div>').join("");
- const hb=$("hand");hb.innerHTML="";
- const groups=[["a","わざカード"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
+ const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs)hs.innerHTML=G.P.filter(p=>p.helper).map(p=>"<div class='rule-card' style='display:flex;align-items:center;gap:8px;margin:4px 0'><img src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png' alt='' style='width:44px;height:44px;image-rendering:pixelated'><div><b>"+esc(p.n)+"のお助け："+esc(p.helper.name)+(p.helper.dead?"（瀕死）":"")+"</b><div>HP "+p.helper.hp+"/100</div></div></div>").join("");
+ const groups=[["a","わざカード"],["u","特別なアイテム"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":x.c.t===type);if(!items.length)return;
   const head=document.createElement("div");head.className="group-title";head.textContent=title;hb.appendChild(head);
   items.forEach(({k,j,c})=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(j)?" on":"");b.disabled=!ok(c,j);
@@ -262,8 +263,38 @@ async function market(a,o,c){
  i=Number(i);if(!(i>=0&&i<a.h.length))return ev(a.n+"は何も売らなかった");
  const k=a.h.splice(i,1)[0],p=Math.min(pr(C[k]),o.mo);o.h.push(k);o.mo-=p;a.mo+=p;draw(a);
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（¥"+p+"）")}
+const MASTER_HELPERS=[
+{name:"ゲンシグラードン",weight:20,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
+{name:"ゲンシカイオーガ",weight:20,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
+{name:"メガレックウザ",weight:20,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
+{name:"ハピナス",weight:20,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
+{name:"ニャース",weight:19,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
+{name:"アルセウス",weight:1,sprite:493,kind:"burst"}];
+function rollHelper(){let n=Math.random()*100;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
+async function summonHelper(p){
+ if(p.masterUsed||p.helper){await ev(p.n+"はマスターボールを使えない！");return}
+ p.masterUsed=true;const h=rollHelper();p.helper={...h,hp:100,owner:p.id,dead:false};
+ if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
+ else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp);p.hp+=v;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"回復！")}
+ else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
+ else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 100！");
+}
+async function helperAction(owner){
+ const h=owner.helper;if(!h||h.dead||h.hp<=0||Math.random()>=.3)return;
+ if(h.kind==="allPhysical"||h.kind==="allSpecial"){
+  const dmg=rd(h.values);for(const t of G.P.filter(x=>x!==owner&&!x.d)){if(Math.random()>=.75){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}t.hp=Math.max(0,t.hp-dmg);hurtHelper(t,dmg);await ev(h.name+"の"+h.move+"！ "+t.n+"に"+dmg+"ダメージ！",400)}
+ }else if(h.kind==="singlePhysical"){
+  const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);
+  if(Math.random()>=.75)await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
+  else{t.hp=Math.max(0,t.hp-dmg);hurtHelper(t,dmg);await ev(h.name+"の"+h.move+"！ "+t.n+"に"+dmg+"ダメージ！")}
+ }else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-owner.hp);owner.hp+=v;await ev("ハピナスが"+owner.n+"のHPを"+v+"回復した！")}
+ else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
+}
+function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
+
 async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
+ if(c.id==="masterball")return summonHelper(a);
  if(c.t==="m")return market(a,o,c);
  if(c.wall){if(c.id==="wall")a.reflect=3;else a.lightScreen=3;a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを5減らす！",900)}
  if(c.t==="h"){
@@ -296,14 +327,14 @@ async function act0(a,o,c,bo,bs){
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(rr||screen?0:1,dm-rr-screen);
-   target.hp=Math.max(0,target.hp-dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
+   target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
  let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen;dm=Math.max(rr||screen?0:1,dm);
- t.hp=Math.max(0,t.hp-dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
+ t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
 function bot(p,i){
@@ -347,12 +378,13 @@ async function endEvent(p){
   else{p.mo+=10;G.eventMon.detail="お金 +10円";await ev("終末の時！ アルセウスが現れた！ "+p.n+"のお金が10円増えた！")}
   G.eventMon=null;pub();
  }else{
-  const n=Math.min(2,p.h.length);G.eventMon={name:"ニャース",target:p.n,kind:"steal",detail:"カードを"+n+"枚盗む"};p.h.splice(0,n);await ev("終末の時！ ニャースが現れた！ "+p.n+"のカードを"+n+"枚盗んだ！");G.eventMon=null;pub();
+  const n=Math.min(2,p.h.length);G.eventMon={name:"ニューラ",target:p.n,kind:"steal",detail:"カードを"+n+"枚盗む"};p.h.splice(0,n);await ev("終末の時！ ニューラが現れた！ "+p.n+"のカードを"+n+"枚盗んだ！");G.eventMon=null;pub();
  }
  chk();
 }
 async function afterAction(p){
  G.actions=(G.actions||0)+1;
+ for(const owner of G.P.filter(x=>!x.d&&x.helper&&!x.helper.dead)){await helperAction(owner);if(chk())return}
  if(!G.endStarted&&G.actions>=G.endAt){G.endStarted=true;G.eventMon=null;await ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！");}
  else if(G.endStarted&&Math.random()<.25)await endEvent(p);
 }
