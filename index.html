@@ -53,6 +53,19 @@ header{padding:9px 16px}
   .acts{gap:6px;padding:7px;min-height:48px}
   #log{height:48px;padding:5px 10px}
 }
+/* ルール説明を読みやすいカード形式に */
+#md .md{width:min(680px,94%);padding:18px;text-align:left}
+#md #mt{text-align:center;margin:0 0 12px}
+#md #mx{margin:0;line-height:1.55}
+.rules-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rule-card{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;min-width:0}
+.rule-card h3{font-size:.9rem;color:var(--tx);margin:0 0 7px;padding-bottom:5px;border-bottom:2px solid var(--bd)}
+.rule-card p{margin:5px 0;font-size:.82rem}
+.rule-card ul,.rule-card ol{padding-left:1.25rem;margin:5px 0;font-size:.82rem}
+.rule-card li{margin:4px 0}
+#md #mb{display:block;margin:14px auto 0;min-width:110px}
+@media(max-width:520px){#md .md{padding:13px;width:96%}.rules-layout{grid-template-columns:1fr;gap:7px}.rule-card{padding:9px 11px}.rule-card p,.rule-card ul,.rule-card ol{font-size:.84rem}}
+
 /* 淡いブルー系の配色に統一 */
 :root{--bg:#dceeff;--pn:#f1f7ff;--cd:#ffffff;--ac:#8bbce8;--tx:#294b70;--mu:#718ba8;--bd:#c3daf2;--lo:#d9534f;color-scheme:light}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15283d;--pn:#1c324b;--cd:#243d59;--ac:#477eaf;--tx:#e4efff;--mu:#a8bfd9;--bd:#3b5c7e;color-scheme:dark}}
@@ -406,7 +419,15 @@ $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.s
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;S.sel=[];S.sent=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
-$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP10で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。攻撃技の追加効果は通常30%。変化技は通常75%で成功。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいど・じわれは自分以外全員を対象に20%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
+$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div class="rules-layout">
+<section class="rule-card"><h3>ゲームの基本</h3><p><b>HP 40・PP 10</b>で開始。HPとPPの上限は99、手札は常に9枚です。</p><p>最後まで残ったプレイヤーが勝利！</p></section>
+<section class="rule-card"><h3>自分のターン</h3><ol><li>カードを使う。攻撃カードには強化カードを重ねられます。</li><li>または、カードを1枚捨てて交代します。</li></ol><p>対人戦では、相手の名前をタップして攻撃対象を選びます。</p></section>
+<section class="rule-card"><h3>PPと防御</h3><p>攻撃・変化技・防御カードは、使用時にPPを1消費します。</p><p>攻撃技や変化技を使うと防御フェイズへ。防御カードを重ねて使うと、ダメージを減らせます（各カードPP1）。</p></section>
+<section class="rule-card"><h3>技の成功率</h3><ul><li>攻撃技の追加効果：通常 <b>30%</b></li><li>変化技：通常 <b>75%</b></li><li>相手が「ねらいのまと」を所持：こちらの技の命中・追加効果が必ず成功</li></ul></section>
+<section class="rule-card"><h3>特殊な技</h3><ul><li><b>じしん</b>：物理・自分以外全員に10ダメージ</li><li><b>なみのり</b>：特殊・自分以外全員に10ダメージ</li><li><b>ぜったいれいど／じわれ</b>：自分以外全員を、それぞれ20%で一撃必殺</li></ul></section>
+<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
+<section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b> です。</p></section>
+</div>`;$("mb").textContent="閉じる";$("md").hidden=false};
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 // ユーザーごとのサイトアイコン設定（このブラウザ内に保存）
 function applySiteIcon(data){const link=$("siteIcon");if(link)link.href=data||"data:,"}
