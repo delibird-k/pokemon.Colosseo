@@ -29,8 +29,8 @@ header{background:var(--ac);color:#fff;display:flex;justify-content:space-betwee
 #toast{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);background:#6689a8;color:#fff;padding:12px 22px;border-radius:16px;font-weight:800;font-size:1.05rem;display:none;pointer-events:none;text-align:center;max-width:86%;z-index:5}#toast.on{display:block}
 .ov{position:absolute;inset:0;background:#063c35aa;display:grid;place-items:center;z-index:9}.md{background:var(--pn);border-radius:14px;padding:22px;width:min(420px,90%);text-align:center;line-height:1.7;max-height:92%;overflow:auto}
 #lb{list-style:none;padding:0;margin:6px 0}#lb li{padding:3px 0}
-</style></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><button class="btn" id="hb">ルール</button></header>
+</style><link id="siteIcon" rel="icon" href="data:,"><style>#iconUpload{display:none}</style></head><body><main>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="iconBtn" type="button">アイコン設定</button><button class="btn" id="hb">ルール</button></div></header><input id="iconUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/x-icon">
 <div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="hand"></div>
@@ -366,4 +366,9 @@ $("skip").onclick=()=>{if(CA)send(CA,[])};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;S.sel=[];S.sent=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
 $("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").textContent="HP40・PP10で開始（HP・PPの上限は99）、手札は常に9枚。自分のターンは①カードを使う（攻撃に強化カードを重ねられる。対人戦では相手の名前をタップして対象を選ぶ）か、②1枚捨てて交代。攻撃・変化技には防御フェイズがあり、防御カード（PP1消費）を重ねがけしてダメージを減らせます。攻撃・変化技・防御カードはPPを1消費。攻撃技の追加効果は通常30%。変化技は通常75%で成功。ねらいのまとを持っている相手には、こちらの技の命中と追加効果が必ず成功する。じしん（物理10ダメージ）となみのり（特殊10ダメージ）は自分以外全員への全体攻撃。ぜったいれいど・じわれは自分以外全員を対象に20%で一撃必殺。やけど：行動後に2ダメージ＆物理-10／まひ：30%行動不能／こおり：3回行動不能／ねむり：毎回20%で起きる／こんらん：50%で自分を攻撃。カードの価値は¥5（強化は¥10）。最後まで残った人の勝ち。";$("mb").textContent="閉じる";$("md").hidden=false};
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
+// ユーザーごとのサイトアイコン設定（このブラウザ内に保存）
+function applySiteIcon(data){const link=$("siteIcon");if(link)link.href=data||"data:,"}
+try{applySiteIcon(localStorage.getItem("pokemonColosseoCustomIcon"))}catch(_){}
+$("iconBtn").onclick=()=>$("iconUpload").click();
+$("iconUpload").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(!f.type.startsWith("image/")){alert("画像ファイルを選択してください");e.target.value="";return}if(f.size>5*1024*1024){alert("画像は5MB以下にしてください");e.target.value="";return}const reader=new FileReader();reader.onload=()=>{try{const data=String(reader.result);localStorage.setItem("pokemonColosseoCustomIcon",data);applySiteIcon(data);alert("サイトアイコンを設定しました。このブラウザのタブやブックマークに反映されます。")}catch(_){alert("保存できませんでした。画像を小さくして再度お試しください")}e.target.value=""};reader.onerror=()=>{alert("画像を読み込めませんでした");e.target.value=""};reader.readAsDataURL(f)};
 </script></body></html>
