@@ -268,8 +268,10 @@ async function market(a,o,c){
 const MASTER_HELPERS=[
 {name:"ゲンシグラードン",weight:20,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
 {name:"ゲンシカイオーガ",weight:20,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
-{name:"メガレックウザ",weight:20,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
+{name:"メガレックウザ",weight:10,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
 {name:"ハピナス",weight:20,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
+{name:"ゼルネアス",weight:5,sprite:716,kind:"passiveDefense"},
+{name:"イベルタル",weight:5,sprite:717,kind:"passiveAttack"},
 {name:"ニャース",weight:19,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
 {name:"アルセウス",weight:1,sprite:493,kind:"burst"}];
 function rollHelper(){let n=Math.random()*100;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
@@ -279,6 +281,8 @@ async function summonHelper(p){
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp);p.hp+=v;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"回復！")}
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
+ else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−5！");
+ else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋5！");
  else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 50！");
 }
 async function helperAction(owner){
@@ -293,7 +297,7 @@ async function helperAction(owner){
   if(guard&&(guard.b||guard.bs)){await ev(t.n+"はお助けポケモンの攻撃を防いだ！",500);return}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
   const screen=t.reflect>0&&kind==="p"?5:t.lightScreen>0&&kind==="s"?5:0;
-  const actual=Math.max(reduction||screen?0:1,dmg-reduction-screen);
+  const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
   t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
   await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);
  }
@@ -310,6 +314,9 @@ async function helperAction(owner){
  }else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-owner.hp);owner.hp+=v;await ev("ハピナスが"+owner.n+"のHPを"+v+"回復した！")}
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
 }
+function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&!h.dead&&h.hp>0)}
+function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?5:0}
+function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?5:0}
 function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
 
 async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
@@ -346,14 +353,14 @@ async function act0(a,o,c,bo,bs){
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
-   let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(rr||screen?0:1,dm-rr-screen);
+   let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
- let dm=c.d+bo;if(a.al==="burn"&&c.k==="p")dm-=10;
- const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen;dm=Math.max(rr||screen?0:1,dm);
+ let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
+ const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;dm-=rr+screen+helperDamageReduction(t);dm=Math.max(0,dm);
  t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),800);
  if(dm>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al)}
@@ -388,7 +395,7 @@ async function endEvent(p){
  const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
  const roll=Math.random();
  if(roll<.45){
-  const name=rd(END_POKEMON),damage=[10,20,30][Math.random()*3|0];p.hp-=damage;G.eventMon={name,target:p.n,damage};
+  const name=rd(END_POKEMON),rawDamage=[10,20,30][Math.random()*3|0],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
   await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
