@@ -492,7 +492,7 @@ function makeRoomService(){
   const attach=conn=>{conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{delete remotes[conn.peer];delete connections[conn.peer];onChange()});};
   peer.on("open",()=>{if(done)return;done=true;resolve(roomObject())});
   peer.on("connection",conn=>{connections[conn.peer]=conn;remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
-  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){}makeGuest(roomId).then(resolve,reject)}else{done=true;reject(e)}}});
+  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){};const retry=(n)=>setTimeout(()=>makeHost(roomId).then(resolve,err=>{if(n>1)retry(n-1);else makeGuest(roomId).then(resolve,reject)}),700);retry(3)}else{done=true;reject(e)}}});
   const roomObject=()=>({
    presence:async data=>{local.presence={...local.presence,...data};const msg=data.g?{type:"host-state",host:local.presence,players:roster(),g:data.g}:{type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}});return true},
    onPeers:fn=>{cb=fn||(()=>{});cb()},
@@ -514,7 +514,7 @@ $("fs").onclick=e=>{const el=e.target.closest(".pl");if(!el||!G)return;const i=+
 $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.sel],tg:S.tg})};
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
 $("skip").onclick=()=>{if(CA)send(CA,[])};
-$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;S.sel=[];S.sent=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
+$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
 $("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div class="rules-layout">
 <section class="rule-card"><h3>ゲームの基本</h3><p><b>HP 40・PP 10</b>で開始。HPとPPの上限は99、手札は常に9枚です。</p><p>最後まで残ったプレイヤーが勝利！</p></section>
 <section class="rule-card"><h3>自分のターン</h3><ol><li>カードを使う。攻撃カードには強化カードを重ねられます。</li><li>または、カードを1枚捨てて交代します。</li></ol><p>対人戦では、相手の名前をタップして攻撃対象を選びます。</p></section>
