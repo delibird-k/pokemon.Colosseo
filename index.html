@@ -193,7 +193,7 @@ function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div cl
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
 const draw=(p,players=G?.P||[p])=>{while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
-const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false}};
+const newGame=(P,endAt=20)=>{P.forEach(p=>draw(p,P));const experiment=!!(P[0]&&P[0].n==="0%!%");return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
@@ -235,7 +235,7 @@ function render(){
  if(G.e&&G.e.s!==S.es){S.es=G.e.s;const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
  if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").hidden=false}
 }
-function pub(){render();if(R&&host)R.presence({g:G}).catch(()=>{})}
+function pub(){if(G&&G.experiment){for(const p of G.P){const v=G.experimentVitals.find(x=>x.id===p.id);if(v){p.hp=Math.max(p.hp,v.hp);p.pp=Math.max(p.pp,v.pp);if(p.hp>0)p.d=0;v.hp=p.hp;v.pp=p.pp}}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
 async function ev(t,ms=1600){G.e={s:++SEQ,t};G.L=[...G.L,t].slice(-2);pub();await sl(Math.max(ms,1600))}
 function reply(n,v){if(W&&W.n===n){const r=W.r;W=null;G.ask=null;r(v)}}
 function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v}}).catch(()=>{});render()}}
