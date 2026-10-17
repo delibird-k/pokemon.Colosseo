@@ -183,7 +183,7 @@ const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
-const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
+const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);const pool=normal.length&&Math.random()<.9?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<.3;n++)c=rd(pool);return c.i};
 const pr=c=>c.id==="aim"?20:c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
@@ -393,7 +393,8 @@ async function act0(a,o,c,bo,bs){
  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
-  let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
+  let base=c.d;if(c.boostChance&&Math.random()<c.boostChance){base=c.boostD;await ev(c.n+"の威力が"+c.boostD+"に上がった！",500)}
+  let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
   await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
