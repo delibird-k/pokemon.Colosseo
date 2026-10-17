@@ -492,12 +492,12 @@ function makeRoomService(){
   const attach=conn=>{conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{delete remotes[conn.peer];delete connections[conn.peer];onChange()});};
   peer.on("open",()=>{if(done)return;done=true;resolve(roomObject())});
   peer.on("connection",conn=>{connections[conn.peer]=conn;remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
-  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){};const retry=(n)=>setTimeout(()=>makeHost(roomId).then(resolve,err=>{if(n>1)retry(n-1);else makeGuest(roomId).then(resolve,reject)}),700);retry(3)}else{done=true;reject(e)}}});
+  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){};makeGuest(roomId).then(resolve,reject)}else{done=true;try{peer.destroy()}catch(_){};reject(e)}}});
   const roomObject=()=>({
    presence:async data=>{local.presence={...local.presence,...data};const msg=data.g?{type:"host-state",host:local.presence,players:roster(),g:data.g}:{type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}});return true},
    onPeers:fn=>{cb=fn||(()=>{});cb()},
    peers:()=>[{peer:roomId,presence:local.presence,sameTab:true},...Object.values(remotes)],
-   close:()=>{try{peer.destroy()}catch(_){}}
+   close:()=>{try{Object.values(connections).forEach(conn=>{try{conn.close()}catch(_){}});Object.keys(remotes).forEach(id=>{delete remotes[id];delete connections[id]});peer.destroy()}catch(_){}}
   });
  });
  return {join:roomId=>makeHost(roomId)};
