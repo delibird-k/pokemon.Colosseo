@@ -471,7 +471,7 @@ function onP(){
 
 /* GitHub Pages 用の対人通信。PeerJS のデータ接続を使い、ホストがゲーム状態を管理する。 */
 function makeRoomService(){
- const makeGuest=roomId=>new Promise((resolve,reject)=>{
+ const makeGuest=(roomId,limit=15000)=>new Promise((resolve,reject)=>{
   const peer=new Peer();let done=false,conn=null,local={peer:"",presence:{},sameTab:true},remote={peer:roomId,presence:{},sameTab:false},players={},cb=()=>{},isOpen=false;
   const finishErr=e=>{if(done)return;done=true;try{peer.destroy()}catch(_){}reject(e instanceof Error?e:new Error("部屋に接続できませんでした"))};
   peer.on("error",e=>{if(e.type==="peer-unavailable"||e.type==="network"||e.type==="server-error")finishErr(e)});
@@ -482,7 +482,7 @@ function makeRoomService(){
    peers:()=>{const arr=[{peer:local.peer,presence:local.presence,sameTab:true}];if(remote.presence)arr.push({peer:roomId,presence:remote.presence,sameTab:false});for(const [id,pres] of Object.entries(players||{})){if(id!==local.peer&&id!==roomId)arr.push({peer:id,presence:pres,sameTab:false})}return arr},
    close:()=>{try{conn&&conn.close();peer.destroy()}catch(_){}}
   });
-  setTimeout(()=>{if(!done)finishErr(new Error("部屋が見つかりません。ホストが先に同じ6桁の番号で入室してください。"))},15000);
+  setTimeout(()=>{if(!done)finishErr(new Error("部屋が見つかりません。ホストが先に同じ6桁の番号で入室してください。"))},limit);
  });
  const makeHost=roomId=>new Promise((resolve,reject)=>{
   const peer=new Peer(roomId);let done=false,local={peer:roomId,presence:{},sameTab:true},remotes={},connections={},cb=()=>{};
@@ -492,7 +492,7 @@ function makeRoomService(){
   const attach=conn=>{conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{delete remotes[conn.peer];delete connections[conn.peer];onChange()});};
   peer.on("open",()=>{if(done)return;done=true;resolve(roomObject())});
   peer.on("connection",conn=>{connections[conn.peer]=conn;remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
-  peer.on("error",e=>{if(!done){if(e.type==="unavailable-id"){done=true;try{peer.destroy()}catch(_){};makeGuest(roomId).then(resolve,reject)}else{done=true;try{peer.destroy()}catch(_){};reject(e)}}});
+  peer.on("error",e=>{if(!done){done=true;try{peer.destroy()}catch(_){};reject(e)}});
   const roomObject=()=>({
    presence:async data=>{local.presence={...local.presence,...data};const msg=data.g?{type:"host-state",host:local.presence,players:roster(),g:data.g}:{type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}});return true},
    onPeers:fn=>{cb=fn||(()=>{});cb()},
@@ -500,14 +500,24 @@ function makeRoomService(){
    close:()=>{try{Object.values(connections).forEach(conn=>{try{conn.close()}catch(_){}});Object.keys(remotes).forEach(id=>{delete remotes[id];delete connections[id]});peer.destroy()}catch(_){}}
   });
  });
- return {join:roomId=>makeHost(roomId)};
+ return {join:async(roomId,onWait)=>{
+  const t0=Date.now();
+  for(;;){
+   try{return await makeHost(roomId)}catch(e){if(!e||e.type!=="unavailable-id")throw e}
+   /* 番号が使用中: 本物の部屋ならゲストとして入る。前回の部屋の残骸なら解放されるまで待って再挑戦 */
+   try{return await makeGuest(roomId,8000)}catch(_){}
+   if(Date.now()-t0>90000)throw new Error("部屋番号がまだ解放されていません");
+   if(onWait)onWait(Math.round((Date.now()-t0)/1000));
+   await sl(1500);
+  }
+ }};
 }
 
-let CODE="";
+let CODE="";window.addEventListener("pagehide",()=>{try{if(R&&typeof R.close==="function")R.close()}catch(_){}});
 $("bc").onclick=()=>{$("t1").hidden=true;$("tc").hidden=false;$("bk").hidden=false;const g=$("cpuCounts");g.innerHTML="";for(let n=2;n<=9;n++){const b=document.createElement("button");b.className="btn"+(n===CPU_COUNT?" pri":"");b.textContent=n+"人";b.onclick=()=>startCpu(n);g.appendChild(b)}};
 $("bn").onclick=()=>{R0=makeRoomService();$("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent="6桁の同じ部屋番号を2台で入力してください。接続にはインターネットが必要です。";$("bj").disabled=false};
 $("bj").onclick=async()=>{const c=$("cd").value.trim();if(!/^\d{6}$/.test(c)){$("te").textContent="6桁の数字を入力してください";return}
- try{R=await R0.join("g"+c)}catch(e){$("te").textContent="入室できませんでした";return}
+ $("bj").disabled=true;try{R=await R0.join("g"+c,s=>{$("te").textContent="前回の部屋が解放されるのを待っています…（"+s+"秒）"})}catch(e){$("te").textContent="入室できませんでした。少し待ってからもう一度お試しください";$("bj").disabled=false;return}$("bj").disabled=false;
  CODE=c;MODE="net";await R.presence({nm:nm(),t:Date.now()});R.onPeers(onP);$("t2").hidden=true;$("t3").hidden=false;onP()};
 $("st").onclick=startNet;$("bk").onclick=()=>{if(!$("tc").hidden){$("tc").hidden=true;$("t1").hidden=false;$("bk").hidden=true}else location.reload()};
 $("fs").onclick=e=>{const el=e.target.closest(".pl");if(!el||!G)return;const i=+el.dataset.i;if(!G.P[i].d&&G.P[i].id!==MY){S.tg=i;render()}};
@@ -521,7 +531,7 @@ $("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div cla
 <section class="rule-card"><h3>PPと防御</h3><p>攻撃技・変化技・防御カードは、使用時にPPを1消費します（みがわり人形はPPを消費しません）。</p><p>攻撃技や変化技を使うと防御フェイズに入ります。防御カードは複数枚重ねて使用でき、使用したカードの軽減量を合計してダメージを減らします。枚数に固定上限はなく、PPが足りる範囲で使用できます。</p><ul><li><b>軽減4</b>：かたくなる、めいそう、コスモパワー</li><li><b>軽減8</b>：てっぺき、とける、バリアー、ドわすれ、ブレイブチャージ（ぼうぎょしれいは物理・特殊の両方を軽減）</li><li><b>軽減12</b>：コットンガード</li><li><b>まもる・みきり・みがわり人形</b>：対応する攻撃や変化技を完全に防ぎます</li><li><b>リフレクター・ひかりのかべ</b>：それぞれ物理・特殊ダメージを3ターン軽減します</li></ul></section>
 <section class="rule-card"><h3>技の成功率</h3><ul><li>攻撃技の追加効果：通常 <b>30%</b></li><li>変化技：通常 <b>75%</b></li><li>相手が「ねらいのまと」を所持：こちらの技の命中・追加効果が必ず成功</li></ul></section>
 <section class="rule-card"><h3>特殊な技</h3><ul><li><b>じしん</b>：物理・自分以外全員に10ダメージ</li><li><b>なみのり</b>：特殊・自分以外全員に10ダメージ</li><li><b>ぜったいれいど／じわれ</b>：自分以外全員を、それぞれ20%で一撃必殺</li></ul></section>
-<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
+<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>どく</b>：行動後に4ダメージ</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
 <section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b> です。</p></section>
 </div>`;$("mb").textContent="閉じる";$("md").hidden=false};
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
