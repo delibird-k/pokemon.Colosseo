@@ -170,7 +170,7 @@ const C=[
 {id:"himeri",n:"ヒメリの実",t:"h",pp:2,x:"PP+2"},
 {id:"cure",n:"なんでもなおし",t:"h",cure:1,x:"状態異常を治す"},
 {id:"shop",n:"ショップ",t:"m",x:"ランダム4枚から1枚を買う（強化は¥10）"},
-{id:"sell",n:"売る",t:"m",x:"手札1枚を相手に売りつける"},
+{id:"sell",n:"売る",t:"m",x:"手札1枚を相手に売りつける。相手はお金→PP→HPの順で代金を支払う"},
 {id:"exchange",n:"両替",t:"m",x:"HP・PP・お金を1:1で交換（HP・PP上限99）"},
 {id:"confuse",n:"あやしいひかり",t:"s",al:"confusion",ch:.75,x:"こんらん（PP1・成功75%）"},
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",ch:.75,x:"ねむり（PP1・成功75%）"},
@@ -184,7 +184,7 @@ const PICK_CATEGORIES=[
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
 const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);return rd(normal.length&&Math.random()<.9?normal:group).i};
-const pr=c=>c.t==="b"?10:5;
+const pr=c=>c.id==="aim"?20:c.t==="b"?10:5;
 const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
@@ -286,8 +286,9 @@ async function market(a,o,c){
   const x=C[op[i]];a.mo-=pr(x);a.h.push(x.i);return ev(a.n+"は"+x.n+"を買った！（-¥"+pr(x)+"）")}
  let i;if(!a.bot)i=await ask(ai,"sell",{});else i=["b","s","d","h","a"].map(t=>a.h.findIndex(k=>C[k].t===t)).find(j=>j>=0);
  i=Number(i);if(!(i>=0&&i<a.h.length))return ev(a.n+"は何も売らなかった");
- const k=a.h.splice(i,1)[0],p=Math.min(pr(C[k]),o.mo);o.h.push(k);o.mo-=p;a.mo+=p;draw(a);
- return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（¥"+p+"）")}
+ const k=a.h.splice(i,1)[0],p=pr(C[k]);let rest=p;const pm=Math.min(o.mo,rest);o.mo-=pm;rest-=pm;const pq=Math.min(o.pp,rest);o.pp-=pq;rest-=pq;const ph=rest;o.hp=Math.max(0,o.hp-ph);o.h.push(k);a.mo+=p;draw(a);
+ const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
+ return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
 const MASTER_HELPERS=[
 {name:"グラードン",weight:15,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
 {name:"カイオーガ",weight:15,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
@@ -531,8 +532,8 @@ $("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div cla
 <section class="rule-card"><h3>PPと防御</h3><p>攻撃技・変化技・防御カードは、使用時にPPを1消費します（みがわり人形はPPを消費しません）。</p><p>攻撃技や変化技を使うと防御フェイズに入ります。防御カードは複数枚重ねて使用でき、使用したカードの軽減量を合計してダメージを減らします。枚数に固定上限はなく、PPが足りる範囲で使用できます。</p><ul><li><b>軽減4</b>：かたくなる、めいそう、コスモパワー</li><li><b>軽減8</b>：てっぺき、とける、バリアー、ドわすれ、ブレイブチャージ（ぼうぎょしれいは物理・特殊の両方を軽減）</li><li><b>軽減12</b>：コットンガード</li><li><b>まもる・みきり・みがわり人形</b>：対応する攻撃や変化技を完全に防ぎます</li><li><b>リフレクター・ひかりのかべ</b>：それぞれ物理・特殊ダメージを3ターン軽減します</li></ul></section>
 <section class="rule-card"><h3>技の成功率</h3><ul><li>攻撃技の追加効果：通常 <b>30%</b></li><li>変化技：通常 <b>75%</b></li><li>相手が「ねらいのまと」を所持：こちらの技の命中・追加効果が必ず成功</li></ul></section>
 <section class="rule-card"><h3>特殊な技</h3><ul><li><b>じしん</b>：物理・自分以外全員に10ダメージ</li><li><b>なみのり</b>：特殊・自分以外全員に10ダメージ</li><li><b>ぜったいれいど／じわれ</b>：自分以外全員を、それぞれ20%で一撃必殺</li></ul></section>
-<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>どく</b>：行動後に4ダメージ</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
-<section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b> です。</p></section>
+<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
+<section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b>、ねらいのまとは <b>¥20</b> です。</p><p>「売る」で売りつけられた側は、お金が足りなければ<b>PP</b>、PPも足りなければ<b>HP</b>で代金を支払います。</p></section>
 </div>`;$("mb").textContent="閉じる";$("md").hidden=false};
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 </script></body></html>
