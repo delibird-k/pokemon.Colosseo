@@ -220,7 +220,7 @@ function render(){
    b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+"</span><small>"+c.x+(c.t==="a"?"（PP1）":"")+"</small>";
    b.onclick=()=>{if(def||c.t==="b")S.sel=S.sel.includes(j)?S.sel.filter(x=>x!==j):[...S.sel,j];else S.sel=S.sel.length===1&&S.sel[0]===j?[]:[j];render()};hb.appendChild(b)})});
  let bd=null;
- if(turn){if(M)bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],M.t==="a"?"攻"+(M.d+bs.reduce((s,c)=>s+c.d,0)):lab(M),"",[],""]}
+ if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview-=5;if(target&&M.t==="a"){preview-=helperDamageReduction(target);if(M.k==="p"&&target.reflect>0)preview-=5;if(M.k==="s"&&target.lightScreen>0)preview-=5}preview=Math.max(0,preview);bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],M.t==="a"?"攻"+preview+(target?"（"+target.n+"への予測）":""):lab(M),"",[],""]}}
  else if(G.bd){const b=G.bd,c=b.displayCard||C[b.c],ds=def?sc:b.ds?b.ds.map(i=>C[i]):null;
   bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?"攻"+(c.d+b.bo):c.t==="a"?"攻"+(c.d+b.bo):lab(c),ds?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon,desc=em.damage!==undefined?"防御不可のイベントダメージ":"イベント効果";$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+(em.name==="アルセウス"?"の奇跡":(em.name==="ニャース"||em.name==="ニューラ")?"のどろぼう":"の攻撃")+"</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='"+END_SPRITES[em.name]+"' style='width:88px;height:88px;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>"+desc+"</div><div>"+esc(em.detail||"")+"</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>"+(em.damage!==undefined?"HP −"+em.damage:esc(em.detail||"効果発動"))+"</div></div></div>"}
@@ -383,7 +383,7 @@ async function act0(a,o,c,bo,bs){
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
-   let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
+   let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
    if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
@@ -394,7 +394,7 @@ async function act0(a,o,c,bo,bs){
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
   let base=c.d;if(c.boostChance&&Math.random()<c.boostChance){base=c.boostD;await ev(c.n+"の威力が"+c.boostD+"に上がった！",500)}
-  let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=10;
+  let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
   await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
