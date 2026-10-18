@@ -384,7 +384,7 @@ async function act0(a,o,c,bo,bs){
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
-   target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":""),500);
+   target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（イベルタル補正＋10）":"")+(rr||screen?"（軽減）":""),500);
    if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
@@ -397,7 +397,7 @@ async function act0(a,o,c,bo,bs){
   let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
-  await ev(t.n+"に "+dm+" ダメージ！"+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
+  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（イベルタル補正＋10）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
   if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
