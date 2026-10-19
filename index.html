@@ -185,7 +185,7 @@ const PICK_CATEGORIES=[
 ];
 const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);const pool=normal.length&&Math.random()<.9?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<.3;n++)c=rd(pool);return c.i};
 const pr=c=>c.id==="aim"?20:c.t==="b"?10:5;
-const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売"}[c.t];
+const lab=c=>c.t==="a"?KL[c.k]:{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
@@ -211,7 +211,7 @@ function render(){
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !c.aim&&!!M&&!M.ko&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
- $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
+ $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.stun>0?'<span class="tag">行動不能 '+p.stun+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
  const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/50</span></div>").join("");}
  const groups=[["a","わざカード"],["b","アイテム・強化カード"],["d","防御カード"],["h","回復アイテム"],["s","変化技カード"],["m","商売カード"]];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(!items.length)return;
@@ -222,7 +222,7 @@ function render(){
  let bd=null;
  if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview-=5;let wallTargets=[];if(M.t==="a"&&M.all){wallTargets=G.P.filter(q=>q!==mp&&!q.d&&((M.k==="p"&&q.reflect>0)||(M.k==="s"&&q.lightScreen>0)));if(wallTargets.length===G.P.filter(q=>q!==mp&&!q.d).length&&wallTargets.length>0)preview-=5}else if(target&&M.t==="a"){preview-=helperDamageReduction(target);if(M.k==="p"&&target.reflect>0)preview-=5;if(M.k==="s"&&target.lightScreen>0)preview-=5}preview=Math.max(0,preview);let attackLabel=M.t==="a"?"攻"+preview+(target&&!M.all&&!M.randomTarget?"⇒"+target.n+"":""):lab(M);if(M.t==="a"&&M.all&&wallTargets.length>0&&wallTargets.length<G.P.filter(q=>q!==mp&&!q.d).length)attackLabel+="（壁対象は−5）";bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],attackLabel,"",[],""]}}
  else if(G.bd){const b=G.bd,c=b.displayCard||C[b.c],ds=def?sc:b.ds?b.ds.map(i=>C[i]):null;
-  bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?"攻"+(c.d+b.bo):c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?5:0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+((c.k==="p"&&G.P[b.tg].reflect>0)||(c.k==="s"&&G.P[b.tg].lightScreen>0)?5:0):0)):lab(c),ds&&!c.all&&!c.randomTarget?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
+  bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?(c.ko?"一撃必殺":c.t==="a"?"攻"+(c.d+b.bo):"行動不能"):c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?5:0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+((c.k==="p"&&G.P[b.tg].reflect>0)||(c.k==="s"&&G.P[b.tg].lightScreen>0)?5:0):0)):lab(c),ds&&!c.all&&!c.randomTarget?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon,desc=em.damage!==undefined?"防御不可のイベントダメージ":"イベント効果";$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+(em.name==="アルセウス"?"の奇跡":(em.name==="ニャース"||em.name==="ニューラ")?"のどろぼう":"の攻撃")+"</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='"+END_SPRITES[em.name]+"' style='width:88px;height:88px;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>"+desc+"</div><div>"+esc(em.detail||"")+"</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>"+(em.damage!==undefined?"HP −"+em.damage:esc(em.detail||"効果発動"))+"</div></div></div>"}
  $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;
  $("use").textContent=def?"防御する":"使う";$("sing").textContent=mp.pp===0?"うたう":"様子をみる";$("sing").disabled=!turn||(mp.pp===0?false:mp.h.some(k=>C[k]&&C[k].t==="a"));
@@ -243,20 +243,21 @@ function ask(i,k,d){return new Promise(r=>{const n=++SEQ;G.ask={to:i,k,d,n};W={n
 // ===== ゲーム進行（ホスト側） =====
 function chk(){G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
 async function can(a){
+ if(a.stun>0){a.stun--;await ev(a.n+"は時間を止められて動けない！"+(a.stun>0?"（あと"+a.stun+"ターン）":""));return false}
  if(a.al==="sleep"){if(Math.random()<.2){a.al=null;await ev(a.n+"は目を覚ました！")}else{await ev(a.n+"はぐうぐう眠っている…");return false}}
  if(a.al==="freeze"){if(--a.fz<=0){a.al=null;await ev(a.n+"のこおりがとけた！")}else{await ev(a.n+"はこおって動けない！");return false}}
  if(a.al==="paralysis"&&Math.random()<.3){await ev(a.n+"はまひして動けない！");return false}
  return true}
 async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
 async function apply(t,al){if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
-async function getDef(t,c,bo){
+async function getDef(t,c,bo,only){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
-  const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
+  const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
   for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&ix.filter(k=>C[t.h[k]].id!=="sub").length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
- ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d");
+ ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id)));
  if(!ix.length)return null;
  const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost}ix=valid;
  if(!ix.length)return null;
@@ -320,6 +321,7 @@ async function helperAction(owner){
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
   G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技"}};
   await ev(h.name+"の"+move+"！",500);
+  if(helperIsActive(t,"パルキア")&&Math.random()<1/3){await ev(h.name+"の"+move+"は "+t.n+"に はずれた！",500);return}
   const guard=await getDef(t,card,bo);
   if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
@@ -340,6 +342,28 @@ async function helperAction(owner){
   else await helperHit(t,dmg,"p",h.move);
  }else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-owner.hp);owner.hp+=v;await ev("ハピナスが"+owner.n+"のHPを"+v+"回復した！")}
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
+ else if(h.kind==="dialga"){
+  const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
+  if(!ts.length)return;
+  const t=rd(ts),n=1+Math.floor(Math.random()*5),card={id:"dialga",n:"ときのほうこう",t:"s",d:0,x:"ポケモンの技"};
+  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ・ときのほうこう",displayCard:card};
+  await ev("ディアルガのときのほうこう！ "+t.n+"の時間が止まる…",700);
+  const guard=await getDef(t,card,0,["protect","detect"]);
+  if(guard){await ev(t.n+"は時間停止を防いだ！",600);return}
+  t.stun=n;await ev(t.n+"は時間を止められた！ "+n+"ターン行動不能！");
+ }
+ else if(h.kind==="glalie"){
+  const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
+  await ev("オニゴーリのぜったいれいど！",600);
+  for(const t of G.P.filter(x=>x!==owner&&!x.d)){
+   G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ・ぜったいれいど",displayCard:card};
+   if(helperIsActive(t,"パルキア")&&Math.random()<1/3){await ev("ぜったいれいどは "+t.n+"に はずれた！",500);continue}
+   const guard=await getDef(t,card,0);
+   if(guard&&(guard.b||guard.bs)){await ev(t.n+"は攻撃を防いだ！",500);continue}
+   if(t.h.includes(aimI)||Math.random()<card.ch){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はオニゴーリのぜったいれいどで一撃でたおれた！",700)}
+   else await ev("ぜったいれいどは "+t.n+"に はずれた！",500);
+  }
+ }
 }
 function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&!h.dead&&h.hp>0)}
 function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?10:0}
@@ -360,10 +384,11 @@ async function act0(a,o,c,bo,bs){
  if(c.randomTarget){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev("対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment)a.pp--;
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
- if((c.miss&&!c.all&&Math.random()<Number(c.miss))||(t!==a&&helperIsActive(t,"パルキア")&&Math.random()<1/3))return ev(c.n+"は はずれた！",800);
+ if((c.miss&&!c.all&&Math.random()<Number(c.miss))||(!c.all&&t!==a&&helperIsActive(t,"パルキア")&&Math.random()<1/3))return ev(c.n+"は はずれた！",800);
  if(c.ko&&c.all){
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
+   if(helperIsActive(target,"パルキア")&&Math.random()<1/3){await ev(c.n+"は "+target.n+"に はずれた！",500);continue}
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    if(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){
