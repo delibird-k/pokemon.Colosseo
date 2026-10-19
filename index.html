@@ -290,15 +290,15 @@ async function market(a,o,c){
  const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
 const MASTER_HELPERS=[
-{name:"グラードン",weight:15,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
-{name:"カイオーガ",weight:15,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
-{name:"レックウザ",weight:10,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
-{name:"ハピナス",weight:15,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
-{name:"ゼルネアス",weight:14,sprite:716,kind:"passiveDefense"},
-{name:"イベルタル",weight:14,sprite:717,kind:"passiveAttack"},
-{name:"ニャース",weight:15,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
-{name:"アルセウス",weight:2,sprite:493,kind:"burst"},
- {name:"ディアルガ",weight:5,sprite:483,kind:"dialga"},{name:"パルキア",weight:5,sprite:484,kind:"palkia"},{name:"オニゴーリ",weight:5,sprite:362,kind:"glalie"}];
+{name:"グラードン",weight:104,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
+{name:"カイオーガ",weight:104,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
+{name:"レックウザ",weight:54,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
+{name:"ハピナス",weight:104,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
+{name:"ゼルネアス",weight:104,sprite:716,kind:"passiveDefense"},
+{name:"イベルタル",weight:104,sprite:717,kind:"passiveAttack"},
+{name:"ニャース",weight:104,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
+{name:"アルセウス",weight:10,sprite:493,kind:"burst"},
+{name:"ディアルガ",weight:104,sprite:483,kind:"dialga"},{name:"パルキア",weight:104,sprite:484,kind:"palkia"},{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"}];
 function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
  p.masterUsed=false;const h=rollHelper();
