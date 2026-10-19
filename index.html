@@ -360,7 +360,7 @@ async function helperAction(owner){
    if(helperIsActive(t,"パルキア")&&Math.random()<1/3){await ev("ぜったいれいどは "+t.n+"に はずれた！",500);continue}
    const guard=await getDef(t,card,0);
    if(guard&&(guard.b||guard.bs)){await ev(t.n+"は攻撃を防いだ！",500);continue}
-   if(t.h.includes(aimI)||Math.random()<card.ch){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はオニゴーリのぜったいれいどで一撃でたおれた！",700)}
+   if(t.h.includes(aimI)||Math.random()<.3){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はオニゴーリのぜったいれいどで一撃でたおれた！",700)}
    else await ev("ぜったいれいどは "+t.n+"に はずれた！",500);
   }
  }
