@@ -424,7 +424,7 @@ async function turn(p,i){
  G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);
  if(!await can(p)){await burn(p);chk();return}
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
- if(r.sing){if(p.pp===0){await ev(p.n+"はうたった！ PPが0なので、技カードを1枚入手！");const pool=C.filter(c=>c.t==="a");const k=rd(pool).i;p.h.push(k)}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a");const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;p.h.push(k);await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
+ if(r.sing){if(p.pp===0){const ppPool=C.filter(c=>c.t==="h"&&c.pp),atkPool=C.filter(c=>c.t==="a");const k=(Math.random()<.8?rd(ppPool):rd(atkPool)).i;p.h.push(k);await ev(p.n+"はうたった！ PPが0なので、"+C[k].n+"を1枚入手！")}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a");const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;p.h.push(k);await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
  if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
