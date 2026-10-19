@@ -390,7 +390,7 @@ async function act0(a,o,c,bo,bs){
  }
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
-  const d=await getDef(t,c,bo);
+  const d=c.id==="quick"?null:await getDef(t,c,bo);
   if(d&&d.b){await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
   const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;
   let base=c.d;if(c.boostChance&&Math.random()<c.boostChance){base=c.boostD;await ev(c.n+"の威力が"+c.boostD+"に上がった！",500)}
