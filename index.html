@@ -293,13 +293,15 @@ async function market(a,o,c){
 const MASTER_HELPERS=[
 {name:"グラードン",weight:104,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
 {name:"カイオーガ",weight:104,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
-{name:"レックウザ",weight:54,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[10,20,30,40,50,60]},
+{name:"レックウザ",weight:54,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[20,20,20,20,20,60]},
 {name:"ハピナス",weight:104,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
 {name:"ゼルネアス",weight:104,sprite:716,kind:"passiveDefense"},
 {name:"イベルタル",weight:104,sprite:717,kind:"passiveAttack"},
 {name:"ニャース",weight:104,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
 {name:"アルセウス",weight:10,sprite:493,kind:"burst"},
-{name:"ディアルガ",weight:104,sprite:483,kind:"dialga"},{name:"パルキア",weight:104,sprite:484,kind:"palkia"},{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"}];
+{name:"ディアルガ",weight:104,sprite:483,kind:"dialga"},
+{name:"パルキア",weight:104,sprite:484,kind:"palkia"},
+{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"}];
 function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
  p.masterUsed=false;const h=rollHelper();
@@ -346,7 +348,7 @@ async function helperAction(owner){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
   if(!ts.length)return;
   const t=rd(ts),n=1+Math.floor(Math.random()*5),card={id:"dialga",n:"ときのほうこう",t:"s",d:0,x:"ポケモンの技"};
-  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ・ときのほうこう",displayCard:card};
+  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ",displayCard:card};
   await ev("ディアルガのときのほうこう！ "+t.n+"の時間が止まる…",700);
   const guard=await getDef(t,card,0,["protect","detect"]);
   if(guard){await ev(t.n+"は時間停止を防いだ！",600);return}
@@ -356,7 +358,7 @@ async function helperAction(owner){
   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
   await ev("オニゴーリのぜったいれいど！",600);
   for(const t of G.P.filter(x=>x!==owner&&!x.d)){
-   G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ・ぜったいれいど",displayCard:card};
+   G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ",displayCard:card};
    if(helperIsActive(t,"パルキア")&&Math.random()<1/3){await ev("ぜったいれいどは "+t.n+"に はずれた！",500);continue}
    const guard=await getDef(t,card,0);
    if(guard&&(guard.b||guard.bs)){await ev(t.n+"は攻撃を防いだ！",500);continue}
