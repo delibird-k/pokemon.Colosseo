@@ -96,7 +96,7 @@ header{padding:9px 16px}
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="20" placeholder="行動回数（例：20）">
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button></div>
-<div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
+<div id="tc" hidden><p>コンピューターのレベル</p><div class="sg" id="cpuLevels"><button class="btn pri" data-level="beginner">初心者</button><button class="btn" data-level="intermediate">中級者</button><button class="btn" data-level="advanced">上級者</button></div><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
 <button class="btn w" id="bk" hidden>戻る</button>
@@ -193,8 +193,8 @@ function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div cl
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
 const draw=(p,players=G?.P||[p])=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}while(p.h.length<9)p.h.push(pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:40,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
-const newGame=(P,endAt=20)=>{const experiment=!!(P[0]&&P[0].n==="0%!%");if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
-let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
+const newGame=(P,endAt=20)=>{const experiment=!!(P[0]&&P[0].n==="0%!%");if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
+let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="beginner";const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
 function render(){
@@ -432,9 +432,11 @@ async function act0(a,o,c,bo,bs){
  if(total>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)),ix=c=>p.h.indexOf(c.i);
- const op=G.P.filter((q,j)=>j!==i&&!q.d).sort((a,b)=>a.hp-b.hp),T=op[Math.random()<.65?0:op.length*Math.random()|0],tg=G.P.indexOf(T);
+ const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),T=G.cpuLevel==="beginner"?alive[Math.floor(Math.random()*alive.length)]:(G.cpuLevel==="advanced"?op[0]:(Math.random()<.65?op[0]:alive[Math.floor(Math.random()*alive.length)])),tg=G.P.indexOf(T);
  const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
- if(masters.length&&Math.random()<.5)c=masters[0];
+ if(G.cpuLevel==="beginner"){const pool=H.filter(x=>x&&((x.t==="a"&&p.pp>0)||x.t==="s"||x.t==="b"||x.t==="d"||x.t==="h"||x.t==="m"));c=pool.length?rd(pool):null;}
+ else if(G.cpuLevel==="advanced"){const attacks=has("a"),strongest=attacks.slice().sort((a,b)=>(b.ko?80:b.d+(b.all?8:0)+(b.al?3:0))-(a.ko?80:a.d+(a.all?8:0)+(a.al?3:0)))[0];if(masters.length&&Math.random()<.7)c=masters[0];else if(p.hp<=25&&hh.length)c=hh.sort((a,b)=>b.d-a.d)[0];else if(p.pp<=3&&pc.length)c=pc.sort((a,b)=>b.pp-a.pp)[0];else if(strongest)c=strongest;else if(screens.length)c=rd(screens);else if(sts.length)c=rd(sts);else c=hh[0]||pc[0]||rd(H);}
+ else if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
  else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
  else if(p.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
@@ -544,7 +546,7 @@ function makeRoomService(){
 }
 
 let CODE="";window.addEventListener("pagehide",()=>{try{if(R&&typeof R.close==="function")R.close()}catch(_){}});
-$("bc").onclick=()=>{$("t1").hidden=true;$("tc").hidden=false;$("bk").hidden=false;const g=$("cpuCounts");g.innerHTML="";for(let n=2;n<=9;n++){const b=document.createElement("button");b.className="btn"+(n===CPU_COUNT?" pri":"");b.textContent=n+"人";b.onclick=()=>startCpu(n);g.appendChild(b)}};
+$("bc").onclick=()=>{$("t1").hidden=true;$("tc").hidden=false;$("bk").hidden=false;const levels=$("cpuLevels");levels.querySelectorAll("[data-level]").forEach(b=>{b.classList.toggle("pri",b.dataset.level===CPU_LEVEL);b.onclick=()=>{CPU_LEVEL=b.dataset.level;levels.querySelectorAll("[data-level]").forEach(x=>x.classList.toggle("pri",x===b))}});const g=$("cpuCounts");g.innerHTML="";for(let n=2;n<=9;n++){const b=document.createElement("button");b.className="btn"+(n===CPU_COUNT?" pri":"");b.textContent=n+"人";b.onclick=()=>startCpu(n);g.appendChild(b)}};
 $("bn").onclick=()=>{R0=makeRoomService();$("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent="6桁の同じ部屋番号を2台で入力してください。接続にはインターネットが必要です。";$("bj").disabled=false};
 $("bj").onclick=async()=>{const c=$("cd").value.trim();if(!/^\d{6}$/.test(c)){$("te").textContent="6桁の数字を入力してください";return}
  $("bj").disabled=true;try{R=await R0.join("g"+c,s=>{$("te").textContent="前回の部屋が解放されるのを待っています…（"+s+"秒）"})}catch(e){$("te").textContent="入室できませんでした。少し待ってからもう一度お試しください";$("bj").disabled=false;return}$("bj").disabled=false;
