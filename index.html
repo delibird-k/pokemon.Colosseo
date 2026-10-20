@@ -94,9 +94,9 @@ header{padding:9px 16px}
 <div class="ov" id="ti"><div class="md">
 <h2>Pokémon Colosseo</h2>
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
-<label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="20" placeholder="行動回数（例：20）">
+<label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button></div>
-<div id="tc" hidden><p>コンピューターのレベル</p><div class="sg" id="cpuLevels"><button class="btn pri" data-level="beginner">初心者</button><button class="btn" data-level="intermediate">中級者</button><button class="btn" data-level="advanced">上級者</button></div><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
+<div id="tc" hidden><p>コンピューターのレベル</p><div class="sg" id="cpuLevels"><button class="btn" data-level="beginner">初心者</button><button class="btn" data-level="intermediate">中級者</button><button class="btn pri" data-level="advanced">上級者</button></div><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
 <button class="btn w" id="bk" hidden>戻る</button>
@@ -194,8 +194,8 @@ const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/
 const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge"]);if(!p.masterUsed&&!has("masterball"))add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&p.pp>0)).i};
 const draw=(p,players=G?.P||[p])=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}while(p.h.length<9)p.h.push(G?.cpuLevel==="advanced"&&p.bot?advancedPick(p,players):pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
-const newGame=(P,endAt=20)=>{const experiment=!!(P[0]&&P[0].n==="0%!%");for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,endAt:Math.max(1,Math.min(999,Number(endAt)||20)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
-let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="beginner";const S={sel:[],tg:-1,n:0,sent:0,es:0};
+const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%");for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
+let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="advanced";const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
 function render(){
