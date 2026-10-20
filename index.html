@@ -95,7 +95,7 @@ header{padding:9px 16px}
 <h2>Pokémon Colosseo</h2>
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="20" placeholder="行動回数（例：20）">
-<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button></div>
+<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button></div>
 <div id="tc" hidden><p>コンピューターのレベル</p><div class="sg" id="cpuLevels"><button class="btn pri" data-level="beginner">初心者</button><button class="btn" data-level="intermediate">中級者</button><button class="btn" data-level="advanced">上級者</button></div><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
@@ -558,14 +558,19 @@ $("use").onclick=()=>{if(!CA)return;send(CA,CA.k==="def"?[...S.sel]:{ids:[...S.s
 $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0})};
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
-$("hb").onclick=()=>{$("mt").textContent="ルール";$("mx").innerHTML=`<div class="rules-layout">
-<section class="rule-card"><h3>ゲームの基本</h3><p><b>HP 40・PP 10</b>で開始。HPとPPの上限は99、手札は常に9枚です。</p><p>最後まで残ったプレイヤーが勝利！</p></section>
-<section class="rule-card"><h3>自分のターン</h3><ol><li>カードを使う。攻撃カードには強化カードを重ねられます。</li><li>または、カードを1枚捨てて交代します。</li></ol><p>対人戦では、相手の名前をタップして攻撃対象を選びます。</p></section>
-<section class="rule-card"><h3>PPと防御</h3><p>攻撃技・変化技・防御カードは、使用時にPPを1消費します（みがわり人形はPPを消費しません）。</p><p>攻撃技や変化技を使うと防御フェイズに入ります。防御カードは複数枚重ねて使用でき、使用したカードの軽減量を合計してダメージを減らします。枚数に固定上限はなく、PPが足りる範囲で使用できます。</p><ul><li><b>軽減4</b>：かたくなる、めいそう、コスモパワー</li><li><b>軽減8</b>：てっぺき、とける、バリアー、ドわすれ、ブレイブチャージ（ぼうぎょしれいは物理・特殊の両方を軽減）</li><li><b>軽減12</b>：コットンガード</li><li><b>まもる・みきり・みがわり人形</b>：対応する攻撃や変化技を完全に防ぎます</li><li><b>リフレクター・ひかりのかべ</b>：それぞれ物理・特殊ダメージを3ターン軽減します</li></ul></section>
-<section class="rule-card"><h3>技の成功率</h3><ul><li>攻撃技の追加効果：通常 <b>30%</b></li><li>変化技：通常 <b>75%</b></li><li>相手が「ねらいのまと」を所持：こちらの技の命中・追加効果が必ず成功</li></ul></section>
-<section class="rule-card"><h3>特殊な技</h3><ul><li><b>じしん</b>：物理・自分以外全員に10ダメージ</li><li><b>なみのり</b>：特殊・自分以外全員に10ダメージ</li><li><b>ぜったいれいど／じわれ</b>：自分以外全員を、それぞれ20%で一撃必殺</li></ul></section>
-<section class="rule-card"><h3>状態異常</h3><ul><li><b>やけど</b>：行動後に2ダメージ、物理攻撃−10</li><li><b>まひ</b>：30%で行動不能</li><li><b>こおり</b>：3回行動不能</li><li><b>ねむり</b>：毎回20%で起きる</li><li><b>こんらん</b>：50%で自分を攻撃</li></ul></section>
-<section class="rule-card"><h3>カードの価値</h3><p>通常カードは <b>¥5</b>、強化カードは <b>¥10</b>、ねらいのまとは <b>¥20</b> です。</p><p>「売る」で売りつけられた側は、お金が足りなければ<b>PP</b>、PPも足りなければ<b>HP</b>で代金を支払います。</p></section>
-</div>`;$("mb").textContent="閉じる";$("md").hidden=false};
+function showRules(){ $("mt").textContent="ルール"; $("mx").innerHTML=`<div class="rules-layout">
+<section class="rule-card"><h3>ゲームの基本</h3><p>HP <b>40</b>・PP <b>10</b>・所持金 <b>20円</b>で開始。通常のHP上限は99、PP上限は99。手札は基本9枚です。</p><p>最後まで生き残ったプレイヤーが勝利。対戦人数は自分を含め最大9人です。</p></section>
+<section class="rule-card"><h3>ターンの進め方</h3><ul><li>手札からカードを選び「使う」。攻撃・変化技は対象を選びます。</li><li>攻撃技や変化技には、対応する強化カードを一緒に使えます。</li><li>使えるカードがない・使わない場合は、カードを1枚捨てて交代できます。</li><li>PPが0でも「うたう」でカードを得られます。PPが残っていても、手札に攻撃技がない場合は「様子をみる」でカードを得られます。</li></ul></section>
+<section class="rule-card"><h3>PP・強化・アイテム</h3><p>攻撃技・変化技・通常の防御カードは使用時にPPを1消費します。<b>みがわり人形はPPを消費しません。</b>PPが足りないと技や防御を使えません。</p><ul><li>ちからのハチマキ：物理技＋5</li><li>ものしりメガネ：特殊技＋5</li><li>いのちのたま：技＋10、攻撃が通ると自分も5ダメージ</li><li>ねらいのまと：所持者に対する相手の追加効果・一撃必殺が必ず成功</li><li>マスターボール：ポケモンを呼び出す</li></ul></section>
+<section class="rule-card"><h3>防御カード</h3><p>防御フェイズでは防御カードを複数枚重ねられます。軽減量は合計され、固定の枚数上限はありません（PPの範囲内）。</p><ul><li>まもる・みきり・みがわり人形：攻撃技・変化技を完全に防ぐ</li><li>かたくなる：物理−4、めいそう：特殊−4</li><li>コスモパワー：物理・特殊−4</li><li>てっぺき・とける・バリアー：物理−8</li><li>ドわすれ・ブレイブチャージ：特殊−8</li><li>ぼうぎょしれい：物理・特殊−8</li><li>コットンガード：物理−12</li><li>リフレクター・ひかりのかべ：対応する物理・特殊ダメージを3ターン−5</li></ul></section>
+<section class="rule-card"><h3>攻撃技・成功率</h3><ul><li>通常攻撃の威力はカードに表示された数値どおり。全体攻撃は自分以外が対象です。</li><li>じしん：物理・全体に8ダメージ／なみのり：特殊・全体に5ダメージ</li><li>ぜったいれいど・じわれ：自分以外それぞれ20%で一撃必殺</li><li>攻撃技の追加効果は通常30%。変化技（あやしいひかり・さいみんじゅつ・おにび・でんじは）は成功率75%。</li><li>きあいだまは30%で外れ、ふぶきは対象ごとに30%で外れます。</li></ul></section>
+<section class="rule-card"><h3>状態異常</h3><ul><li>やけど：ターン行動後に2ダメージ。物理技の威力−5。</li><li>まひ：30%で行動不能。</li><li>こおり：3回行動不能。</li><li>ねむり：各ターン20%で目覚める。</li><li>こんらん：自分を攻撃することがあります。</li><li>どく：ターン経過でダメージ。</li></ul><p>状態異常は重複しません。</p></section>
+<section class="rule-card"><h3>お金・商売</h3><p>通常カードは5円、強化カードは10円、ねらいのまとは20円。ショップは5円で候補カードから購入します。</p><p>両替はHP・PP・お金を1:1で交換。売るカードでは相手に代金を請求し、所持金が足りなければPP、PPも足りなければHPで支払います。</p></section>
+<section class="rule-card"><h3>終末の時</h3><p>開始前に「何行動後に開始するか」を設定できます。設定回数に達すると終末の時が始まり、その後は各行動後に25%でイベント発生。</p><ul><li>イベルタル：10ダメージ</li><li>ウルトラネクロズマ：20ダメージ</li><li>ムゲンダイマックスムゲンダイナ：30ダメージ</li><li>アルセウス：HPまたはPPを最大10回復、または10円獲得</li><li>ニューラ：手札を最大2枚盗む</li></ul><p>終末の時の攻撃は通常の防御カードでは防げません。</p></section>
+<section class="rule-card"><h3>コンピューター戦</h3><ul><li>初心者：対象・カード選択がランダム中心。</li><li>中級者：状況に応じて攻撃や回復などを選びます。</li><li>上級者：HP・PP・状態・戦況に応じたカード補充と行動を優先します。</li></ul></section>
+<section class="rule-card"><h3>対人戦</h3><p>2台それぞれで同じ6桁の部屋番号を入力し、ホストがゲームを開始します。インターネット接続が必要です。最大9人で対戦できます。</p></section>
+</div>`; $("mb").textContent="閉じる"; $("md").hidden=false}
+$("hb").onclick=showRules;
+$("openRules").onclick=showRules;
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 </script></body></html>
