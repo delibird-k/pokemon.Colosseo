@@ -184,7 +184,7 @@ const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
-const pick=(players=G?.P||[])=>{const group=byType(PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);const pool=normal.length&&Math.random()<.9?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<.3;n++)c=rd(pool);return c.i};
+const pick=(players=G?.P||[])=>{let cat;do{cat=PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]}while(cat==="u"&&Math.random()>=.7);const group=byType(cat).filter(x=>x.id!=="aim"||!players.some(p=>p.h.includes(x.i)));const normal=group.filter(x=>!x.ko);const pool=normal.length&&Math.random()<.9?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<.3;n++)c=rd(pool);return c.i};
 const pr=c=>c.id==="aim"?20:c.t==="b"?10:5;
 const lab=c=>c.t==="a"?(KL[ef(c).k]||"？"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
@@ -195,7 +195,7 @@ const PALKIA_CARD={id:"palkia",n:"あくうせつだん",t:"d",b:1,x:"パルキ�
 const mc=c=>"<div class='mc "+c.t+"'><b>"+c.n+"</b><small>"+c.x+"</small></div>";
 function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
-const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge"]);if(!p.masterUsed&&!has("masterball"))add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&p.pp>0)).i};
+const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge"]);if(!p.masterUsed&&!has("masterball")&&Math.random()<.7)add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&p.pp>0)).i};
 const draw=(p,players=G?.P||[p])=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}while(p.h.length<9)p.h.push(G?.cpuLevel==="advanced"&&p.bot?advancedPick(p,players):pick(players))};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
 const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%");for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else P.forEach(p=>draw(p,P));return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
@@ -211,7 +211,7 @@ function render(){
  const ops=G.P.map((p,i)=>i).filter(i=>i!==me&&!G.P[i].d);
  if(ops.length===1)S.tg=ops[0];else if(!ops.includes(S.tg))S.tg=-1;
  const sc=S.sel.map(j=>C[mp.h[j]]).filter(Boolean),M=ef(sc.find(c=>c.t!=="b")),bs=sc.filter(c=>c.t==="b");
- const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!M.randomTarget)||(M.t==="s")||M.id==="sell");
+ const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!rt(M))||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !c.aim&&!!M&&!M.mimic&&!M.ko&&(M.t==="a"||M.t==="s")&&(c.k==="any"||M.k===c.k);return true};
@@ -225,9 +225,9 @@ function render(){
    b.innerHTML="<b>"+c.n+"</b><span class='tag'>"+lab(c)+"</span><small>"+(c.mimic?mimicInfo(c):c.x)+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small>";
    b.onclick=()=>{if(def||c.t==="b")S.sel=S.sel.includes(j)?S.sel.filter(x=>x!==j):[...S.sel,j];else S.sel=S.sel.length===1&&S.sel[0]===j?[]:[j];render()};hb.appendChild(b)})});
  let bd=null;
- if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview-=5;let wallTargets=[];if(M.t==="a"&&M.all){wallTargets=G.P.filter(q=>q!==mp&&!q.d&&((M.k==="p"&&q.reflect>0)||(M.k==="s"&&q.lightScreen>0)));if(wallTargets.length===G.P.filter(q=>q!==mp&&!q.d).length&&wallTargets.length>0)preview-=5}else if(target&&M.t==="a"){preview-=helperDamageReduction(target);if(M.k==="p"&&target.reflect>0)preview-=5;if(M.k==="s"&&target.lightScreen>0)preview-=5}preview=Math.max(0,preview);let attackLabel=M.t==="a"?"攻"+preview+(target&&!M.all&&!M.randomTarget?"⇒"+target.n+"":""):lab(M);if(M.t==="a"&&M.all&&wallTargets.length>0&&wallTargets.length<G.P.filter(q=>q!==mp&&!q.d).length)attackLabel+="（壁対象は−5）";bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],attackLabel,"",[],""]}}
+ if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview-=5;let wallTargets=[];if(M.t==="a"&&M.all){wallTargets=G.P.filter(q=>q!==mp&&!q.d&&((M.k==="p"&&q.reflect>0)||(M.k==="s"&&q.lightScreen>0)));if(wallTargets.length===G.P.filter(q=>q!==mp&&!q.d).length&&wallTargets.length>0)preview-=5}else if(target&&M.t==="a"){preview-=helperDamageReduction(target);if(M.k==="p"&&target.reflect>0)preview-=5;if(M.k==="s"&&target.lightScreen>0)preview-=5}preview=Math.max(0,preview);let attackLabel=M.t==="a"?"攻"+preview+(target&&!M.all&&!rt(M)?"⇒"+target.n+"":"")+(M.t==="a"&&!M.all&&!M.randomTarget&&rt(M)?"（ミュウ：対象ランダム）":""):lab(M);if(M.t==="a"&&M.all&&wallTargets.length>0&&wallTargets.length<G.P.filter(q=>q!==mp&&!q.d).length)attackLabel+="（壁対象は−5）";bd=[mp.n+"の"+(M.t==="a"?"攻撃":"行動"),[M,...bs],attackLabel,"",[],""]}}
  else if(G.bd){const b=G.bd,c=b.displayCard||ef(C[b.c]),ds=b.palkia?[PALKIA_CARD]:def?sc:b.ds?b.ds.map(i=>C[i]):null;
-  bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?(c.ko?"一撃必殺":c.t==="a"?"攻"+(c.d+b.bo):"行動不能"):c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?5:0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+((c.k==="p"&&G.P[b.tg].reflect>0)||(c.k==="s"&&G.P[b.tg].lightScreen>0)?5:0):0)):lab(c),ds&&(b.palkia||!c.all&&!c.randomTarget)?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
+  bd=[(b.moveName||G.P[b.a].n)+"の"+(c.t==="a"?"攻撃":"行動"),[c,...b.b.map(i=>C[i])],b.moveName?(c.ko?"一撃必殺":c.t==="a"?"攻"+(c.d+b.bo):c.steal?"カード強奪":"行動不能"):c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?5:0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+((c.k==="p"&&G.P[b.tg].reflect>0)||(c.k==="s"&&G.P[b.tg].lightScreen>0)?5:0):0)):lab(c),ds&&(b.palkia||!c.all&&!c.randomTarget)?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon,desc=em.damage!==undefined?"防御不可のイベントダメージ":"イベント効果";$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+(em.name==="アルセウス"?"の奇跡":(em.name==="ニャース"||em.name==="ニューラ")?"のどろぼう":"の攻撃")+"</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='"+END_SPRITES[em.name]+"' style='width:88px;height:88px;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>"+desc+"</div><div>"+esc(em.detail||"")+"</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>"+(em.damage!==undefined?"HP −"+em.damage:esc(em.detail||"効果発動"))+"</div></div></div>"}
  $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;$("sur").hidden=!(MODE==="cpu"&&G.ph!=="over"&&me>=0&&!mp.d);$("sur").textContent=S.sur?"本当に降参する？（もう一度タップ）":"降参";
  $("use").textContent=def?"防御する":"使う";$("sing").textContent=mp.pp===0?"うたう":"様子をみる";$("sing").disabled=!turn||(mp.pp===0?false:mp.h.some(k=>C[k]&&C[k].t==="a"));
@@ -254,7 +254,7 @@ async function can(a){
  if(a.al==="paralysis"&&Math.random()<.3){await ev(a.n+"はまひして動けない！");return false}
  return true}
 async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
-async function apply(t,al){if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
+async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo,only){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
@@ -306,7 +306,10 @@ const MASTER_HELPERS=[
 {name:"アルセウス",weight:10,sprite:493,kind:"burst"},
 {name:"ディアルガ",weight:104,sprite:483,kind:"dialga"},
 {name:"パルキア",weight:104,sprite:484,kind:"palkia"},
-{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"}];
+{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"},
+{name:"ミュウ",weight:104,sprite:151,kind:"mew"},
+{name:"ジガルデ100％",weight:104,sprite:10181,kind:"zygarde"},
+{name:"ギラティナ",weight:104,sprite:487,kind:"giratina"}];
 function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
  p.masterUsed=false;const h=rollHelper();
@@ -318,6 +321,20 @@ async function summonHelper(p){
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
  else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−10！");
  else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋10！");
+ else if(h.kind==="mew")await ev(p.n+"はマスターボールを投げた！ ミュウが仲間になった！ いる間、全員の攻撃先がランダムになる！");
+ else if(h.kind==="zygarde")await ev(p.n+"はマスターボールを投げた！ ジガルデ100％が仲間になった！ いる間、受けるダメージ−5・与えるダメージ＋5・状態異常にならない！");
+ else if(h.kind==="giratina"){
+  await ev(p.n+"はマスターボールを投げた！ ギラティナが仲間になった！ HP 50！");
+  const ts=G.P.filter(x=>x!==p&&!x.d&&x.h.length>0);
+  if(!ts.length){await ev("ギラティナのシャドーダイブ！ しかし盗めるカードがなかった…");return}
+  const t=rd(ts),card={id:"giratina",n:"シャドーダイブ",t:"s",d:0,steal:1,x:"ポケモンの技"};
+  G.bd={a:G.P.indexOf(p),c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ギラティナ",displayCard:card};
+  await ev("ギラティナのシャドーダイブ！ "+t.n+"に襲いかかる…",700);
+  if(await palkiaBlock(t,"シャドーダイブ"))return;
+  const n=Math.min(2,t.h.length),got=[];for(let i=0;i<n;i++)got.push(t.h.splice(Math.floor(Math.random()*t.h.length),1)[0]);
+  p.h.push(...got);
+  await ev("シャドーダイブ！ "+t.n+"のカードを"+n+"枚奪った！");
+ }
  else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 50！");
 }
 async function helperAction(owner){
@@ -374,8 +391,11 @@ async function helperAction(owner){
 }
 function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&!h.dead&&h.hp>0)}
 async function palkiaBlock(t,src){if(helperIsActive(t,"パルキア")&&Math.random()<.33){if(G.bd){G.bd.tg=G.P.indexOf(t);G.bd.palkia=1}await ev("パルキアのあくうせつだん！ "+t.n+"への"+src+"を防いだ！",900);if(G.bd)G.bd.palkia=0;return true}return false}
-function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?10:0}
-function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?10:0}
+function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?10:helperIsActive(p,"ジガルデ100％")?5:0}
+function helperBonusLabel(p){return helperIsActive(p,"イベルタル")?"イベルタル補正＋10":"ジガルデ補正＋5"}
+function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?10:helperIsActive(p,"ジガルデ100％")?5:0}
+function mewOn(){return !!(G&&G.P.some(x=>!x.d&&helperIsActive(x,"ミュウ")))}
+function rt(c){return !!(c&&(c.randomTarget||(c.t==="a"&&!c.all&&mewOn())))}
 function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
 
 async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
@@ -390,7 +410,7 @@ async function act0(a,o,c,bo,bs){
  if(c.mimic){if(!G.last){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);return ev("しかし まねする技がなかった！")}c=ef(c);bs=[];bo=0}
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
- if(c.randomTarget){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev("対象はランダムに決まった！ "+t.n+"！",500)}}
+ const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment)a.pp--;
  if(c.t==="a"&&!c.mimic)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0};
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
@@ -418,7 +438,7 @@ async function act0(a,o,c,bo,bs){
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
-   target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（イベルタル補正＋10）":"")+(rr||screen?"（軽減）":""),500);
+   target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":""),500);
    if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
@@ -433,7 +453,7 @@ async function act0(a,o,c,bo,bs){
   let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm-=5;
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
-  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（イベルタル補正＋10）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
+  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
   if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
