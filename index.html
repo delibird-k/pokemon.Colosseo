@@ -245,7 +245,7 @@ const pr=c=>CARD_PRICES[c.id]??(c.t==="b"?8:c.t==="d"?6:c.t==="h"?5:c.t==="a"?6:
 const CARD_MON={
  tackle:[19,"コラッタ"],quick:[133,"イーブイ"],flame:[392,"ゴウカザル"],spark:[25,"ピカチュウ"],ice:[245,"スイクン"],shadow:[94,"ゲンガー"],earthquake:[445,"ガブリアス"],surf:[131,"ラプラス"],sheercold:[1002,"パオジアン"],fissure:[1003,"ディンルー"],
  closecombat:[68,"カイリキー"],flareblitz:[59,"ウインディ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[812,"ゴリランダー"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
- protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:[235,"ドーブル"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[376,"メタグロス"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"]
+ protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[376,"メタグロス"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"]
 };
 const ITEM_IMG={band:"muscle-band",glasses:"wise-glasses",orb:"life-orb",aim:"ring-target",sash:"focus-sash",jw_normal:"normal-gem",jw_fire:"fire-gem",jw_water:"water-gem",jw_elec:"electric-gem",jw_grass:"grass-gem",masterball:"master-ball",potion:"potion",super:"super-potion",hyper:"hyper-potion",pp1:"ether",pp2:"max-ether",pp3:"elixir",pp4:"max-elixir",oran:"oran-berry",himeri:"leppa-berry",cure:"full-heal"};
 const itemArt=c=>ITEM_IMG[c.id]?"<div class='card-mon item-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/"+ITEM_IMG[c.id]+".png' alt=''></div>":"";
@@ -290,7 +290,7 @@ function render(){
  const groups=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(!items.length)return;
   const group=document.createElement("div");group.className="hand-group";const head=document.createElement("div");head.className="hand-group-title";head.textContent=title;group.appendChild(head);const row=document.createElement("div");row.className="hand-group-cards";group.appendChild(row);hb.appendChild(group);
-  items.forEach(({k,j,c})=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(j)?" on":"");b.disabled=!ok(c,j);
+  items.forEach(({k,j,c})=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(j)?" on":"");b.disabled=!ok(c,j);b.dataset.cid=c.id;
    b.innerHTML=c.t==="s"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+CARD_MON[c.id][0]+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+esc(c.x)+"</span></span>":c.t==="a"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+CARD_MON[c.id][0]+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(ef(c).ko?"一撃必殺":((ef(c).k==="p"?"物":ef(c).k==="s"?"特":"攻")+ef(c).d))+(TYPE_SHORT[TYPE_OF[c.n]]||TYPE_OF[c.n]||"")+ "</span></span>":c.t==="d"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+CARD_MON[c.id][0]+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(c.b||c.bs?"完全防御":c.id==="cosmic"?"全"+c.r:c.k==="p"?"防"+c.r:c.k==="s"?"特防"+c.r:"全"+(c.r||0))+"</span></span>":monArt(c)+(c.t==="m"?"<b>"+c.n+"</b>":"")+"<span class='tr'><span class='tag'>"+lab(c)+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</span><small>"+(c.mimic?mimicInfo(c):c.x)+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small>";
    b.onclick=()=>{if(def||c.t==="b")S.sel=S.sel.includes(j)?S.sel.filter(x=>x!==j):[...S.sel,j];else S.sel=S.sel.length===1&&S.sel[0]===j?[]:[j];render()};row.appendChild(b)})});
  let bd=null;
@@ -725,3 +725,39 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 #hand .hand-group .c .item-mon img{width:44px;height:44px}
 .mc .item-mon{justify-content:center}.mc .item-mon img{width:40px;height:40px}
 </style>
+
+<style>
+#cardtip{position:fixed;z-index:9999;max-width:230px;background:var(--cd,#fff);color:var(--tx,#087d6d);border:2px solid var(--ac,#008e74);border-radius:10px;padding:8px 10px;box-shadow:0 4px 14px rgba(0,0,0,.28);font-size:.8rem;line-height:1.4;pointer-events:none;display:none}
+#cardtip b{font-size:.92rem}#cardtip .tt{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px}
+#cardtip .ds{color:var(--mu,#4f7f7d)}
+#hand .c{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#hand .c:disabled{pointer-events:none}
+</style>
+<script>
+(function(){
+ const tip=document.createElement("div");tip.id="cardtip";document.body.appendChild(tip);
+ let cur=null,lastTouch=0,timer=0,hideT=0,long=false,sx=0,sy=0;
+ const hand=()=>document.getElementById("hand");
+ const cardAt=(x,y)=>{const h=hand();if(!h)return null;for(const el of h.querySelectorAll(".c")){const r=el.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return el}return null};
+ const detail=id=>{const c=C.find(x=>x.id===id);if(!c)return "";const e=ef(c);let l="";
+  if(c.t==="a"){l=e.ko?"一撃必殺":((e.k==="p"?"物理":e.k==="s"?"特殊":"")+"威力"+e.d)}
+  return "<div class='tt'><b>"+esc(c.n)+"</b>"+tyTag(c)+"<span class='tag'>"+esc(lab(c))+"</span><span class='tag'>¥"+pr(c)+"</span></div>"+(l?"<div>"+esc(l)+"</div>":"")+"<div class='ds'>"+esc(c.mimic?mimicInfo(c):(c.x||""))+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</div>"};
+ const place=(x,y,rect)=>{tip.style.display="block";const w=tip.offsetWidth,h=tip.offsetHeight,W=innerWidth,H=innerHeight;let left,top;
+  if(rect){left=rect.left+rect.width/2-w/2;top=rect.top-h-8;if(top<4)top=rect.bottom+8}else{left=x+14;top=y+18;if(left+w>W-4)left=x-w-14;if(top+h>H-4)top=y-h-14}
+  tip.style.left=Math.max(4,Math.min(left,W-w-4))+"px";tip.style.top=Math.max(4,Math.min(top,H-h-4))+"px"};
+ const hide=()=>{tip.style.display="none";cur=null};
+ const show=(el,x,y,rect)=>{if(cur!==el){tip.innerHTML=detail(el.dataset.cid);cur=el}place(x,y,rect)};
+ // PC：カーソルを乗せると表示
+ document.addEventListener("mousemove",e=>{if(Date.now()-lastTouch<800)return;const el=cardAt(e.clientX,e.clientY);if(el&&el.dataset.cid)show(el,e.clientX,e.clientY);else hide()});
+ document.addEventListener("mouseleave",hide);
+ // スマホ：長押しで表示
+ document.addEventListener("touchstart",e=>{lastTouch=Date.now();clearTimeout(timer);clearTimeout(hideT);long=false;hide();const p=e.touches[0],el=cardAt(p.clientX,p.clientY);if(!el||!el.dataset.cid)return;sx=p.clientX;sy=p.clientY;
+  timer=setTimeout(()=>{long=true;show(el,sx,sy,el.getBoundingClientRect());if(navigator.vibrate)try{navigator.vibrate(15)}catch(_){}},450)},{passive:true});
+ document.addEventListener("touchmove",e=>{lastTouch=Date.now();const p=e.touches[0];if(!long&&Math.hypot(p.clientX-sx,p.clientY-sy)>10)clearTimeout(timer)},{passive:true});
+ document.addEventListener("touchend",e=>{lastTouch=Date.now();clearTimeout(timer);if(long){e.preventDefault();hideT=setTimeout(hide,1500)}},{passive:false});
+ document.addEventListener("touchcancel",()=>{clearTimeout(timer);hide()});
+ // 長押し後のクリック（カードを出す動作）を防ぐ
+ document.addEventListener("click",e=>{if(long){e.stopPropagation();e.preventDefault();long=false}},true);
+ document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest("#hand"))e.preventDefault()});
+})();
+</script>
