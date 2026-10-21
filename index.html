@@ -216,7 +216,24 @@ const PICK_CATEGORIES=[
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
 const pick=(players=G?.P||[],who)=>{let cat;do{cat=PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]}while(cat==="u"&&Math.random()>=.7);const group=byType(cat).filter(x=>(x.id!=="aim"||!players.some(p=>p.h.includes(x.i)))&&(x.id!=="sash"||!who||!(who.sashUsed||who.h.includes(x.i))));const normal=group.filter(x=>!x.ko);const pool=normal.length&&Math.random()<.9?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<.3;n++)c=rd(pool);return c.i};
-const pr=c=>c.id==="aim"?20:c.t==="b"?10:5;
+// カード価格：効果の強さ・汎用性・成功率を基準に設定（円）
+const CARD_PRICES={
+ tackle:3,quick:4,flame:7,spark:7,ice:7,shadow:5,earthquake:8,surf:7,
+ sheercold:15,fissure:15,closecombat:8,flareblitz:8,bravebird:8,outrage:9,
+ stoneedge:8,playrough:6,doubleedge:8,gunkshot:8,flamethrower:7,psychic:6,
+ moonblast:8,dracometeor:9,focusblast:8,sludgebomb:7,rockslide:6,blizzard:9,
+ heatwave:8,hypervoice:6,discharge:7,aquabreak:6,aquajet:5,hydropump:9,
+ waterstar:8,thunder:9,parabolic:7,thunderfang:6,drainpunch:7,petal:8,
+ gigadrain:7,energyball:6,leafblade:8,woodhammer:8,mimic:6,metronome:6,
+ band:8,glasses:8,orb:12,aim:20,sash:10,
+ jw_normal:7,jw_fire:7,jw_water:7,jw_elec:7,jw_grass:7,
+ masterball:15,protect:10,detect:10,sub:8,harden:4,cotton:9,amnesia:7,
+ calm:5,cosmic:7,light:7,wall:7,iron:7,acidarmor:7,barrier:7,
+ healorder:8,bravecharge:7,potion:4,super:7,hyper:10,pp1:3,pp2:5,
+ pp3:7,pp4:9,oran:7,himeri:5,cure:6,shop:5,sell:5,exchange:4,
+ confuse:7,sleep:8,wisp:7,wave:7
+};
+const pr=c=>CARD_PRICES[c.id]??(c.t==="b"?8:c.t==="d"?6:c.t==="h"?5:c.t==="a"?6:c.t==="s"?7:c.t==="u"?12:5);
 const lab=c=>c.t==="a"?(KL[ef(c).k]||"？"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
 const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
@@ -633,7 +650,7 @@ function showRules(){ $("mt").textContent="ルール"; $("mx").innerHTML=`<div c
 <section class="rule-card"><h3>防御カード</h3><p>防御フェイズでは防御カードを複数枚重ねられます。軽減量は合計され、固定の枚数上限はありません（PPの範囲内）。</p><ul><li>まもる・みきり・みがわり人形：攻撃技・変化技を完全に防ぐ</li><li>かたくなる：物理−4、めいそう：特殊−4</li><li>コスモパワー：物理・特殊−4</li><li>てっぺき・とける・バリアー：物理−8</li><li>ドわすれ・ブレイブチャージ：特殊−8</li><li>ぼうぎょしれい：物理・特殊−8</li><li>コットンガード：物理−12</li><li>リフレクター・ひかりのかべ：対応する物理・特殊ダメージを3ターン−5</li></ul></section>
 <section class="rule-card"><h3>攻撃技・成功率</h3><ul><li>通常攻撃の威力はカードに表示された数値どおり。全体攻撃は自分以外が対象です。</li><li>じしん：物理・全体に8ダメージ／なみのり：特殊・全体に5ダメージ</li><li>ぜったいれいど・じわれ：自分以外それぞれ20%で一撃必殺</li><li>攻撃技の追加効果は通常30%。変化技（あやしいひかり・さいみんじゅつ・おにび・でんじは）は成功率75%。</li><li>きあいだまは30%で外れ、ふぶきは対象ごとに30%で外れます。</li><li>まねっこ：直前に使われた技（ポケモンの技も含む）の威力・物理/特殊・単体/全体をそのまま真似ます。一撃必殺も真似られます。追加効果は真似られず、強化カードも重ねられません。直前の技がないと使えません。</li><li>ゆびをふる：全ての攻撃技の中からランダムに1つ選んで使います（まねっこ・ゆびをふる自身は除く）。強化カードは重ねられません。</li><li>きあいのタスキ：手札に持っていると、倒される攻撃を受けてもHP1で耐え、タスキを消費します。一度使うと、そのゲームでそのプレイヤーにタスキが配られることはありません。</li><li>技にはポケモンと同じタイプがあり、カードに表示されます（今のところ、タイプ相性による威力の変化はありません）。</li><li>タイプジュエル（ノーマル・ほのお・みず・でんき・くさ）：同じタイプの攻撃技に重ねると威力+7。</li><li>ドレインパンチ・ギガドレイン・パラボラチャージは、与えたダメージ分HPが回復します。ハイドロポンプ・かみなりは30%で外れます。アクアジェットは防御できません。</li></ul></section>
 <section class="rule-card"><h3>状態異常</h3><ul><li>やけど：ターン行動後に2ダメージ。物理技の威力−5。</li><li>まひ：30%で行動不能。</li><li>こおり：3回行動不能。</li><li>ねむり：各ターン20%で目覚める。</li><li>こんらん：自分を攻撃することがあります。</li><li>どく：ターン経過でダメージ。</li></ul><p>状態異常は重複しません。</p></section>
-<section class="rule-card"><h3>お金・商売</h3><p>通常カードは5円、強化カードは10円、ねらいのまとは20円。ショップは5円で候補カードから購入します。</p><p>両替はHP・PP・お金を1:1で交換。売るカードでは相手に代金を請求し、所持金が足りなければPP、PPも足りなければHPで支払います。</p></section>
+<section class="rule-card"><h3>お金・商売</h3><p>カードごとに効果の強さ・汎用性・成功率に応じた価格が設定されています。基本技は3〜5円、標準的な攻撃・回復・変化技は6〜8円、強力な技や防御は9〜12円、一撃必殺技・マスターボールは15円、ねらいのまとは20円が目安です。ショップでは候補カードごとに表示された価格を支払って購入します。</p><p>両替はHP・PP・お金を1:1で交換。売るカードでは相手に代金を請求し、所持金が足りなければPP、PPも足りなければHPで支払います。</p></section>
 <section class="rule-card"><h3>終末の時</h3><p>開始前に「何行動後に開始するか」を設定できます。設定回数に達すると終末の時が始まり、その後は各行動後に25%でイベント発生。</p><ul><li>イベルタル：10ダメージ</li><li>ウルトラネクロズマ：20ダメージ</li><li>ムゲンダイマックスムゲンダイナ：30ダメージ</li><li>アルセウス：HPまたはPPを最大10回復、または10円獲得</li><li>ニューラ：手札を最大2枚盗む</li></ul><p>終末の時の攻撃は通常の防御カードでは防げません。</p></section>
 <section class="rule-card"><h3>コンピューター戦</h3><ul><li>初心者：対象・カード選択がランダム中心。</li><li>中級者：状況に応じて攻撃や回復などを選びます。</li><li>上級者：HP・PP・状態・戦況に応じたカード補充と行動を優先します。</li></ul></section>
 <section class="rule-card"><h3>対人戦</h3><p>2台それぞれで同じ6桁の部屋番号を入力し、ホストがゲームを開始します。インターネット接続が必要です。最大9人で対戦できます。</p></section>
