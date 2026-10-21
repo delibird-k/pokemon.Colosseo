@@ -87,6 +87,14 @@ header{padding:9px 16px}
 .c.on{outline-color:#6d9fd4}
 .ov{background:#193d6288}
 #toast{background:#6689a8}
+
+/* 技カードの長い名前・効果説明がカード枠からはみ出さないようにする */
+#hand{grid-template-columns:repeat(auto-fill,minmax(min(100%,108px),1fr))}
+.c{min-width:0;max-width:100%;overflow:hidden}
+.c b,.c small,.c .tr{display:block;width:100%;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+.c b{line-height:1.35}
+.c .tr{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px}
+.c .tag,.c .ty{white-space:normal;max-width:100%;overflow-wrap:anywhere}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="hb">ルール</button></div></header>
 <div class="fs" id="fs"></div>
