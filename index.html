@@ -590,7 +590,7 @@ async function turn(p,i,extra){
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
  if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){p.h.splice(ids.length?ids[0]:0,1);draw(p);if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
- else{const bs=cs.filter(b=>b.t==="b"&&!m.mimic&&!m.metronome&&!m.ko&&(m.t==="a"||m.t==="s")&&bm(b,m));if(!G.experiment){p.h=p.h.filter((_,k)=>!ids.includes(k));draw(p)}await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
+ else{const bs=cs.filter(b=>b.t==="b"&&!m.mimic&&!m.metronome&&!m.ko&&(m.t==="a"||m.t==="s")&&bm(b,m));if(!G.experiment){p.h=p.h.filter((_,k)=>!ids.includes(k));if(G.fingerMode&&m.metronome){const fixed=C.find(c=>c.id==="metronome")?.i;if(fixed!=null&&!p.h.includes(fixed))p.h.unshift(fixed)}draw(p)}await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs)}
  chk()}
 const END_POKEMON=["イベルタル","ウルトラネクロズマ","ムゲンダイマックスムゲンダイナ"];
 async function endEvent(p){
