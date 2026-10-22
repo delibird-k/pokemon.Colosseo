@@ -510,7 +510,7 @@ async function act0(a,o,c,bo,bs){
   if(c.cure){const had=a.al;a.al=null;return ev(had?a.n+"の"+AIL[had]+"が治った！":"しかし何も起こらなかった…")}
   if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;return ev(a.n+"は"+c.n+"！ PP+"+g)}
   const g=Math.min(c.d,99-a.hp);a.hp+=g;return ev(a.n+"は"+c.n+"！ HP+"+g)}
- if(c.metronome){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"は ゆびをふった！",700);const pool=C.filter(x=>x.t==="a"&&!x.mimic&&!x.metronome);const mv=rd(pool)await ev(mv.n+"が出た！",700);c=mv;bs=[];bo=0}
+ if(c.metronome){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"は ゆびをふった！",700);const pool=C.filter(x=>x.t==="a"&&!x.mimic&&!x.metronome);const mv=rd(pool);await ev(mv.n+"が出た！",700);c=mv;bs=[];bo=0}
  if(c.mimic){if(!G.last){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);return ev("しかし まねする技がなかった！")}c=ef(c)}
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
