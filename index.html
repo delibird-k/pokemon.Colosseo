@@ -332,6 +332,7 @@ async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await e
 async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo,only){
  if(G&&G.unguard)return null;
+ if(G&&G.experiment&&t.bot)return null; // 0%!%モードではCPUは防御カードを使わない
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
