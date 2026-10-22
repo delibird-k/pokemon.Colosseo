@@ -391,7 +391,7 @@ async function summonHelper(p){
  if(!p.helpers)p.helpers=[];
  const summoned={...h,hp:50,owner:p.id,dead:false};p.helpers.push(summoned);p.helper=summoned;
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
- else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp),q=Math.min(n,99-p.pp);p.hp+=v;p.pp+=q;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"、PPが"+q+"回復！")}
+ else if(h.kind==="heal")await ev("ハピナスが現れた！ いる間、毎ターンHPかPPを5回復！");
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
  else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−7！");
  else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋7！");
@@ -554,7 +554,7 @@ function bot(p,i){
  if((c.t==="a"||c.t==="s")&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i){
- G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);
+ G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);if(p.helpers&&p.helpers.some(h=>h.kind==="heal"&&!h.dead&&h.hp>0)){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
  if(!await can(p)){await burn(p);chk();return}
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
  if(r.sing){if(p.pp===0){const ppPool=C.filter(c=>c.t==="h"&&c.pp),atkPool=C.filter(c=>c.t==="a");const k=(Math.random()<.8?rd(ppPool):rd(atkPool)).i;p.h.push(k);await ev(p.n+"はうたった！ PPが0なので、"+C[k].n+"を1枚入手！")}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a");const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;p.h.push(k);await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
