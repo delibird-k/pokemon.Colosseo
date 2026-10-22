@@ -397,18 +397,7 @@ async function summonHelper(p){
  else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋7！");
  else if(h.kind==="mew")await ev(p.n+"はマスターボールを投げた！ ミュウが仲間になった！ いる間、全員の攻撃先がランダムになる！");
  else if(h.kind==="zygarde")await ev(p.n+"はマスターボールを投げた！ ジガルデ100％が仲間になった！ いる間、受けるダメージ−5・与えるダメージ＋5・状態異常にならない！");
- else if(h.kind==="giratina"){
-  await ev(p.n+"はマスターボールを投げた！ ギラティナが仲間になった！ HP 40！");
-  const ts=G.P.filter(x=>x!==p&&!x.d&&x.h.length>0);
-  if(!ts.length){await ev("ギラティナのシャドーダイブ！ しかし盗めるカードがなかった…");return}
-  const t=rd(ts),card={id:"giratina",n:"シャドーダイブ",t:"s",d:0,steal:1,x:"ポケモンの技"};
-  G.bd={a:G.P.indexOf(p),c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ギラティナ",displayCard:card};
-  await ev("ギラティナのシャドーダイブ！ "+t.n+"に襲いかかる…",700);
-  if(await palkiaBlock(t,"シャドーダイブ"))return;
-  const n=Math.min(2,t.h.length),got=[];for(let i=0;i<n;i++)got.push(t.h.splice(Math.floor(Math.random()*t.h.length),1)[0]);
-  p.h.push(...got);
-  await ev("シャドーダイブ！ "+t.n+"のカードを"+n+"枚奪った！");
- }
+ else if(h.kind==="giratina")await ev(p.n+"はマスターボールを投げた！ ギラティナが仲間になった！ HP 40！");
  else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 40！");
 }
 async function helperAction(owner){
@@ -440,6 +429,15 @@ async function helperAction(owner){
   else await helperHit(t,dmg,"p",h.move);
  }
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
+ else if(h.kind==="giratina"){
+  const ts=G.P.filter(x=>x!==owner&&!x.d&&x.h.length>0);if(!ts.length){await ev("ギラティナのシャドーダイブ！ しかし盗めるカードがなかった…");return}
+  const t=rd(ts),card={id:"giratina",n:"シャドーダイブ",t:"s",d:0,steal:1,x:"ポケモンの技"};
+  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ギラティナ",displayCard:card};
+  await ev("ギラティナのシャドーダイブ！ "+t.n+"に襲いかかる…",700);
+  if(await palkiaBlock(t,"シャドーダイブ"))return;
+  const n=Math.min(2,t.h.length),got=[];for(let j=0;j<n;j++)got.push(t.h.splice(Math.floor(Math.random()*t.h.length),1)[0]);
+  owner.h.push(...got);await ev("シャドーダイブ！ "+t.n+"のカードを"+n+"枚奪った！");
+ }
  else if(h.kind==="dialga"){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
   if(!ts.length)return;
