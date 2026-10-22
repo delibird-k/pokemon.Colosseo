@@ -552,12 +552,14 @@ async function act0(a,o,c,bo,bs){
   return
  }
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
+  // 威力1.5倍の抽選は技ごとに1回。アイテム等の加算後の威力全体に倍率をかける。
+  let movePower=c.d+bo+helperDamageBonus(a);
+  if(c.boostChance&&Math.random()<c.boostChance){const before=movePower;movePower=Math.round(movePower*1.5);await ev(c.n+"の最終威力が1.5倍になった！ "+before+"→"+movePower,500)}
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
   const d=c.id==="quick"||c.nd?null:await getDef(t,c,bo);
   if(d&&d.b){await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
   const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;
-  let base=c.d;if(c.boostChance&&Math.random()<c.boostChance){base=Math.round(c.d*1.5);await ev(c.n+"の威力が1.5倍になった！ 威力"+c.d+"→"+base,500)}
-  let dm=base+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
+  let dm=movePower;if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
   await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
