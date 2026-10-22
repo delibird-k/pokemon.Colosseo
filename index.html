@@ -438,7 +438,7 @@ async function helperAction(owner){
   const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);G.last={d:dmg,k:"p",all:0,ko:0};
   if(Math.random()>=.75)await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
   else await helperHit(t,dmg,"p",h.move);
- }else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-owner.hp);owner.hp+=v;await ev("ハピナスが"+owner.n+"のHPを"+v+"回復した！")}
+ }
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
  else if(h.kind==="dialga"){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
