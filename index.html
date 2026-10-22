@@ -384,7 +384,8 @@ const MASTER_HELPERS=[
 {name:"ギラティナ",weight:104,sprite:487,kind:"giratina"}];
 function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function summonHelper(p){
- p.masterUsed=false;const h=rollHelper();
+ p.masterUsed=false;let h=rollHelper();
+ if(G.experiment){const list=MASTER_HELPERS.map((x,i)=>(i+1)+". "+x.name).join("\\n");const answer=prompt("呼び出すポケモンを番号で選んでください。\\n\\n"+list,"1");if(answer===null)return;const n=Number(answer.trim());if(!Number.isInteger(n)||n<1||n>MASTER_HELPERS.length){await ev("選択が正しくありません。マスターボールは消費されません！",500);return}h=MASTER_HELPERS[n-1]}
  // 新しい仲間を呼んでも、すでにいる仲間は残す。効果は仲間ごとに記録する。
  if(!p.helpers)p.helpers=[];
  const summoned={...h,hp:50,owner:p.id,dead:false};p.helpers.push(summoned);p.helper=summoned;
