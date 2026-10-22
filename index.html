@@ -313,13 +313,13 @@ function render(){
  if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").hidden=false}
 }
 function pub(){if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
-async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
+async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
 function reply(n,v){if(W&&W.n===n){const r=W.r;W=null;G.ask=null;r(v)}}
 function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v}}).catch(()=>{});render()}}
 function ask(i,k,d){return new Promise(r=>{const n=++SEQ;G.ask={to:i,k,d,n};W={n,r};if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
 // ===== ゲーム進行（ホスト側） =====
-function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;out.push(p)}}}return out}
-function chk(){if(G.surrendered)return true;sashSave().forEach(p=>{G.L=[...G.L,p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
+function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;p.saveMsg=p.n+"はきあいのタスキでこらえた！";out.push(p)}}if(!p.d&&p.hp<=0&&helperIsActive(p,"ホウオウ")){const h=p.helper;h.dead=true;h.hp=0;p.hp=50;p.al=null;p.saveMsg="ホウオウのさいせいのほのお！ "+p.n+"はHP50で復活した！ ホウオウは飛び去った…";out.push(p)}}return out}
+function chk(){if(G.surrendered)return true;sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
 async function can(a){
  if(a.stun>0){a.stun--;await ev(a.n+"は時間を止められて動けない！"+(a.stun>0?"（あと"+a.stun+"ターン）":""));return false}
  if(a.al==="sleep"){if(Math.random()<.2){a.al=null;await ev(a.n+"は目を覚ました！")}else{await ev(a.n+"はぐうぐう眠っている…");return false}}
@@ -329,6 +329,7 @@ async function can(a){
 async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
 async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=4;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo,only){
+ if(G&&G.unguard)return null;
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
@@ -382,9 +383,12 @@ const MASTER_HELPERS=[
 {name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"},
 {name:"ミュウ",weight:104,sprite:151,kind:"mew"},
 {name:"ジガルデ100％",weight:104,sprite:10120,kind:"zygarde"},
-{name:"ギラティナ",weight:104,sprite:487,kind:"giratina"}];
+{name:"ギラティナ",weight:104,sprite:487,kind:"giratina"},
+{name:"ホウオウ",weight:54,sprite:250,kind:"phoenix"},
+{name:"セレビィ",weight:54,sprite:251,kind:"celebi"},
+{name:"ミュウツー",weight:54,sprite:150,kind:"mewtwo"}];
 function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
-async function chooseHelperInGame(){return new Promise(resolve=>{const old=document.getElementById("helperPickOverlay");if(old)old.remove();const overlay=document.createElement("div");overlay.id="helperPickOverlay";overlay.className="helper-pick-overlay";Object.assign(overlay.style,{position:"fixed",top:"0",right:"0",bottom:"0",left:"0",width:"100vw",height:"100dvh",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",margin:"0",padding:"14px",zIndex:"2147483647",background:"rgba(0,0,0,.72)"});const descriptions={allPhysical:"相手全員に物理攻撃",allSpecial:"相手全員に特殊攻撃",singlePhysical:"相手1人に強力な物理攻撃",heal:"自分のHP・PPを回復",passiveDefense:"受けるダメージを減らす",passiveAttack:"与えるダメージを増やす",money:"お金を増やす",burst:"相手全員に大ダメージ",dialga:"特殊な攻撃",palkia:"攻撃を防ぐ",glalie:"特殊効果",mew:"攻撃先をランダムにする",zygarde:"攻防強化・状態異常防止",giratina:"相手のカードを奪う"};overlay.innerHTML="<div class=\"helper-pick-dialog\" role=\"dialog\" aria-modal=\"true\" style=\"position:relative;margin:auto;max-height:calc(100dvh - 28px);overflow-y:auto;\"><h2>マスターボール</h2><p>仲間にするポケモンを選んでください。</p><div class=\"helper-pick-grid\"></div><button type=\"button\" class=\"btn helper-pick-cancel\">キャンセル</button></div>";const grid=overlay.querySelector(".helper-pick-grid");MASTER_HELPERS.forEach((h,i)=>{const b=document.createElement("button");b.type="button";b.className="helper-pick-option";b.innerHTML="<img alt=\"\"><span class=\"helper-pick-name\"></span><small></small>";const img=b.querySelector("img");img.src=typeof h.sprite==="number"?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png":h.sprite;b.querySelector(".helper-pick-name").textContent=h.name;b.querySelector("small").textContent=descriptions[h.kind]||"仲間になって効果を発揮";b.addEventListener("click",()=>{overlay.remove();resolve(h)});grid.appendChild(b)});overlay.querySelector(".helper-pick-cancel").addEventListener("click",()=>{overlay.remove();resolve(null)});document.body.appendChild(overlay)})}
+async function chooseHelperInGame(){return new Promise(resolve=>{const old=document.getElementById("helperPickOverlay");if(old)old.remove();const overlay=document.createElement("div");overlay.id="helperPickOverlay";overlay.className="helper-pick-overlay";Object.assign(overlay.style,{position:"fixed",top:"0",right:"0",bottom:"0",left:"0",width:"100vw",height:"100dvh",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",margin:"0",padding:"14px",zIndex:"2147483647",background:"rgba(0,0,0,.72)"});const descriptions={allPhysical:"相手全員に物理攻撃",allSpecial:"相手全員に特殊攻撃",singlePhysical:"相手1人に強力な物理攻撃",heal:"自分のHP・PPを回復",passiveDefense:"受けるダメージを減らす",passiveAttack:"与えるダメージを増やす",money:"お金を増やす",burst:"相手全員に大ダメージ",dialga:"特殊な攻撃",palkia:"攻撃を防ぐ",glalie:"特殊効果",mew:"攻撃先をランダムにする",zygarde:"攻防強化・状態異常防止",giratina:"相手のカードを奪う",phoenix:"倒されても一度だけ復活",celebi:"誰の行動後にも割り込んで行動（ガード不可）",mewtwo:"直前の技を威力+5で追撃（ガード不可）"};overlay.innerHTML="<div class=\"helper-pick-dialog\" role=\"dialog\" aria-modal=\"true\" style=\"position:relative;margin:auto;max-height:calc(100dvh - 28px);overflow-y:auto;\"><h2>マスターボール</h2><p>仲間にするポケモンを選んでください。</p><div class=\"helper-pick-grid\"></div><button type=\"button\" class=\"btn helper-pick-cancel\">キャンセル</button></div>";const grid=overlay.querySelector(".helper-pick-grid");MASTER_HELPERS.forEach((h,i)=>{const b=document.createElement("button");b.type="button";b.className="helper-pick-option";b.innerHTML="<img alt=\"\"><span class=\"helper-pick-name\"></span><small></small>";const img=b.querySelector("img");img.src=typeof h.sprite==="number"?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png":h.sprite;b.querySelector(".helper-pick-name").textContent=h.name;b.querySelector("small").textContent=descriptions[h.kind]||"仲間になって効果を発揮";b.addEventListener("click",()=>{overlay.remove();resolve(h)});grid.appendChild(b)});overlay.querySelector(".helper-pick-cancel").addEventListener("click",()=>{overlay.remove();resolve(null)});document.body.appendChild(overlay)})}
 async function summonHelper(p){
  p.masterUsed=false;let h=rollHelper();
  if(G.experiment&&p.id===MY){h=await chooseHelperInGame();if(!h)return}else if(G.experiment){h=rollHelper()}
@@ -399,18 +403,21 @@ async function summonHelper(p){
  else if(h.kind==="mew")await ev(p.n+"はマスターボールを投げた！ ミュウが仲間になった！ いる間、全員の攻撃先がランダムになる！");
  else if(h.kind==="zygarde")await ev(p.n+"はマスターボールを投げた！ ジガルデ100％が仲間になった！ いる間、受けるダメージ−5・与えるダメージ＋5・状態異常にならない！");
  else if(h.kind==="giratina")await ev(p.n+"はマスターボールを投げた！ ギラティナが仲間になった！ HP 40！");
+ else if(h.kind==="phoenix")await ev(p.n+"はマスターボールを投げた！ ホウオウが仲間になった！ 倒されても一度だけHP50で復活する！");
+ else if(h.kind==="celebi")await ev(p.n+"はマスターボールを投げた！ セレビィが仲間になった！ 誰かが行動するたびに割り込んで行動できる！");
+ else if(h.kind==="mewtwo")await ev(p.n+"はマスターボールを投げた！ ミュウツーが仲間になった！ 直前の技で追撃する！");
  else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 40！");
 }
 async function helperAction(owner){
  const h=owner.helper;if(!h||h.dead||h.hp<=0||Math.random()>=.25)return;
  const ownerIndex=G.P.indexOf(owner);
- async function helperHit(t,dmg,kind,move){
+ async function helperHit(t,dmg,kind,move,noGuard){
   const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
   G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技",helperSprite:h.sprite}};
   await ev(h.name+"の"+move+"！",500);
   if(await palkiaBlock(t,move))return;
-  const guard=await getDef(t,card,bo);
+  const guard=noGuard?null:await getDef(t,card,bo);
   if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
   const screen=t.reflect>0&&kind==="p"?5:t.lightScreen>0&&kind==="s"?5:0;
@@ -419,13 +426,13 @@ async function helperAction(owner){
   await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);
  }
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
-  const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0};
+  const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0,n:h.move};
   for(const t of G.P.filter(x=>x!==owner&&!x.d)){
    if(Math.random()>=.75){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}
    await helperHit(t,dmg,kind,h.move);
   }
  }else if(h.kind==="singlePhysical"){
-  const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);G.last={d:dmg,k:"p",all:0,ko:0};
+  const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);G.last={d:dmg,k:"p",all:0,ko:0,n:h.move};
   if(Math.random()>=.75)await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
   else await helperHit(t,dmg,"p",h.move);
  }
@@ -449,9 +456,30 @@ async function helperAction(owner){
   if(guard){await ev(t.n+"は時間停止を防いだ！",600);return}
   t.stun=n;await ev(t.n+"は時間を止められた！ "+n+"ターン行動不能！");
  }
+ else if(h.kind==="celebi"){
+  await ev("セレビィの時渡り！ "+owner.n+"は時を越えて割り込む！（ガード不可）",800);
+  const idx=G.P.indexOf(owner),prevT=G.t;G.t=idx;G.unguard=true;
+  try{await turn(owner,idx,true)}finally{G.unguard=false;G.t=prevT}
+ }
+ else if(h.kind==="mewtwo"){
+  const L=G.last;
+  if(!L||!(L.d>0||L.ko)){await ev("ミュウツーは真似る技がなかった…");return}
+  const name="超・"+(L.n||"わざ"),ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;
+  const targets=L.all?ts:[rd(ts)];
+  await ev("ミュウツーが直前の技を真似た！ "+name+"！（ガード不可）",800);
+  if(L.ko){
+   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
+   for(const t of targets){
+    G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:h.name,displayCard:{...card,n:name,helperSprite:h.sprite}};
+    if(await palkiaBlock(t,name))continue;
+    if(t.h.includes(aimI)||Math.random()<.2){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"は"+name+"で一撃でたおれた！",700)}
+    else await ev(name+"は "+t.n+"に はずれた！",500);
+   }
+  }else for(const t of targets){if(t.d)continue;await helperHit(t,L.d+5,L.k||"s",name,true)}
+ }
  else if(h.kind==="glalie"){
   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
-  await ev("オニゴーリのぜったいれいど！",600);G.last={d:0,k:"s",all:1,ko:1};
+  await ev("オニゴーリのぜったいれいど！",600);G.last={d:0,k:"s",all:1,ko:1,n:"ぜったいれいど"};
   for(const t of G.P.filter(x=>x!==owner&&!x.d)){
    G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ",displayCard:{...card,helperSprite:h.sprite}};
    if(await palkiaBlock(t,"ぜったいれいど"))continue;
@@ -486,7 +514,7 @@ async function act0(a,o,c,bo,bs){
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment)a.pp--;
- if(c.t==="a"&&!c.mimic)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0};
+ if(c.t==="a"&&!c.mimic)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n};
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
  if(c.miss&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);if(!c.all&&t!==a&&await palkiaBlock(t,c.n))return;
  if(c.ko&&c.all){
@@ -552,8 +580,8 @@ function bot(p,i){
  const ids=[ix(c)];
  if((c.t==="a"||c.t==="s")&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
-async function turn(p,i){
- G.bd=null;G.ask=null;if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--;await ev(p.n+"のターン",600);if(p.helpers&&p.helpers.some(h=>h.kind==="heal"&&!h.dead&&h.hp>0)){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
+async function turn(p,i,extra){
+ G.bd=null;G.ask=null;if(!extra){if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--}await ev(p.n+(extra?"の割り込み行動":"のターン"),600);if(!extra&&p.helpers&&p.helpers.some(h=>h.kind==="heal"&&!h.dead&&h.hp>0)){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
  if(!await can(p)){await burn(p);chk();return}
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
  if(r.sing){if(p.pp===0){const ppPool=C.filter(c=>c.t==="h"&&c.pp),atkPool=C.filter(c=>c.t==="a");const k=(Math.random()<.8?rd(ppPool):rd(atkPool)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"はうたった！ PPが0なので、"+C[k].n+"を1枚入手！")}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a");const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
