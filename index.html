@@ -284,7 +284,7 @@ function render(){
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!rt(M))||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
-  if(c.t==="b")return !c.aim&&!c.sash&&!!M&&!M.mimic&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
+  if(c.t==="b")return !c.aim&&!c.sash&&!!M&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.stun>0?'<span class="tag">行動不能 '+p.stun+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
  const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/50</span></div>").join("");}
@@ -479,7 +479,7 @@ async function act0(a,o,c,bo,bs){
   if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;return ev(a.n+"は"+c.n+"！ PP+"+g)}
   const g=Math.min(c.d,99-a.hp);a.hp+=g;return ev(a.n+"は"+c.n+"！ HP+"+g)}
  if(c.metronome){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"は ゆびをふった！",700);const mv=rd(C.filter(x=>x.t==="a"&&!x.mimic&&!x.metronome));await ev(mv.n+"が出た！",700);c=mv;bs=[];bo=0}
- if(c.mimic){if(!G.last){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);return ev("しかし まねする技がなかった！")}c=ef(c);bs=[];bo=0}
+ if(c.mimic){if(!G.last){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);return ev("しかし まねする技がなかった！")}c=ef(c)}
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
