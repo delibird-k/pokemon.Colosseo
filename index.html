@@ -390,8 +390,8 @@ async function summonHelper(p){
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal"){const n=rd(h.values),v=Math.min(n,99-p.hp),q=Math.min(n,99-p.pp);p.hp+=v;p.pp+=q;await ev("ハピナスが現れた！ "+p.n+"のHPが"+v+"、PPが"+q+"回復！")}
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
- else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−10！");
- else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋10！");
+ else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−7！");
+ else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋7！");
  else if(h.kind==="mew")await ev(p.n+"はマスターボールを投げた！ ミュウが仲間になった！ いる間、全員の攻撃先がランダムになる！");
  else if(h.kind==="zygarde")await ev(p.n+"はマスターボールを投げた！ ジガルデ100％が仲間になった！ いる間、受けるダメージ−5・与えるダメージ＋5・状態異常にならない！");
  else if(h.kind==="giratina"){
@@ -462,9 +462,9 @@ async function helperAction(owner){
 }
 function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&!h.dead&&h.hp>0)}
 async function palkiaBlock(t,src){if(helperIsActive(t,"パルキア")&&Math.random()<.33){if(G.bd){G.bd.tg=G.P.indexOf(t);G.bd.palkia=1}await ev("パルキアのあくうせつだん！ "+t.n+"への"+src+"を防いだ！",900);if(G.bd)G.bd.palkia=0;return true}return false}
-function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?10:helperIsActive(p,"ジガルデ100％")?5:0}
-function helperBonusLabel(p){return helperIsActive(p,"イベルタル")?"イベルタル補正＋10":"ジガルデ補正＋5"}
-function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?10:helperIsActive(p,"ジガルデ100％")?5:0}
+function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?7:helperIsActive(p,"ジガルデ100％")?5:0}
+function helperBonusLabel(p){return helperIsActive(p,"イベルタル")?"イベルタル補正＋7":"ジガルデ補正＋5"}
+function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?7:helperIsActive(p,"ジガルデ100％")?5:0}
 function mewOn(){return !!(G&&G.P.some(x=>!x.d&&helperIsActive(x,"ミュウ")))}
 function rt(c){return !!(c&&(c.randomTarget||(c.t==="a"&&!c.all&&mewOn())))}
 function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
@@ -565,7 +565,7 @@ async function endEvent(p){
  const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
  const roll=Math.random();
  if(roll<.45){
-  const name=rd(END_POKEMON),rawDamage=({"イベルタル":10,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
+  const name=rd(END_POKEMON),rawDamage=({"イベルタル":7,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
   await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
@@ -669,7 +669,7 @@ function showRules(){ $("mt").textContent="ルール"; $("mx").innerHTML=`<div c
 <section class="rule-card"><h3>攻撃技・成功率</h3><ul><li>通常攻撃の威力はカードに表示された数値どおり。全体攻撃は自分以外が対象です。</li><li>じしん：物理・全体に8ダメージ／なみのり：特殊・全体に5ダメージ</li><li>ぜったいれいど・じわれ：自分以外それぞれ20%で一撃必殺</li><li>攻撃技の追加効果は通常30%。変化技（あやしいひかり・さいみんじゅつ・おにび・でんじは）は成功率75%。</li><li>きあいだまは30%で外れ、ふぶきは対象ごとに30%で外れます。</li><li>まねっこ：直前に使われた技（ポケモンの技も含む）の威力・物理/特殊・単体/全体をそのまま真似ます。一撃必殺も真似られます。追加効果は真似られず、強化カードも重ねられません。直前の技がないと使えません。</li><li>ゆびをふる：全ての攻撃技の中からランダムに1つ選んで使います（まねっこ・ゆびをふる自身は除く）。強化カードは重ねられません。</li><li>きあいのタスキ：手札に持っていると、倒される攻撃を受けてもHP1で耐え、タスキを消費します。一度使うと、そのゲームでそのプレイヤーにタスキが配られることはありません。</li><li>技にはポケモンと同じタイプがあり、カードに表示されます（今のところ、タイプ相性による威力の変化はありません）。</li><li>タイプジュエル（ノーマル・ほのお・みず・でんき・くさ）：同じタイプの攻撃技に重ねると威力+7。</li><li>ドレインパンチ・ギガドレイン・パラボラチャージは、与えたダメージ分HPが回復します。ハイドロポンプ・かみなりは30%で外れます。アクアジェットは防御できません。</li></ul></section>
 <section class="rule-card"><h3>状態異常</h3><ul><li>やけど：ターン行動後に2ダメージ。物理技の威力−5。</li><li>まひ：30%で行動不能。</li><li>こおり：3回行動不能。</li><li>ねむり：各ターン20%で目覚める。</li><li>こんらん：自分を攻撃することがあります。</li><li>どく：ターン経過でダメージ。</li></ul><p>状態異常は重複しません。</p></section>
 <section class="rule-card"><h3>お金・商売</h3><p>カードごとに効果の強さ・汎用性・成功率に応じた価格が設定されています。基本技は3〜5円、標準的な攻撃・回復・変化技は6〜8円、強力な技や防御は9〜12円、一撃必殺技・マスターボールは15円、ねらいのまとは20円が目安です。ショップでは候補カードごとに表示された価格を支払って購入します。</p><p>両替はHP・PP・お金を1:1で交換。売るカードでは相手に代金を請求し、所持金が足りなければPP、PPも足りなければHPで支払います。</p></section>
-<section class="rule-card"><h3>終末の時</h3><p>開始前に「何行動後に開始するか」を設定できます。設定回数に達すると終末の時が始まり、その後は各行動後に25%でイベント発生。</p><ul><li>イベルタル：10ダメージ</li><li>ウルトラネクロズマ：20ダメージ</li><li>ムゲンダイマックスムゲンダイナ：30ダメージ</li><li>アルセウス：HPまたはPPを最大10回復、または10円獲得</li><li>ニューラ：手札を最大2枚盗む</li></ul><p>終末の時の攻撃は通常の防御カードでは防げません。</p></section>
+<section class="rule-card"><h3>終末の時</h3><p>開始前に「何行動後に開始するか」を設定できます。設定回数に達すると終末の時が始まり、その後は各行動後に25%でイベント発生。</p><ul><li>イベルタル：7ダメージ</li><li>ウルトラネクロズマ：20ダメージ</li><li>ムゲンダイマックスムゲンダイナ：30ダメージ</li><li>アルセウス：HPまたはPPを最大10回復、または10円獲得</li><li>ニューラ：手札を最大2枚盗む</li></ul><p>終末の時の攻撃は通常の防御カードでは防げません。</p></section>
 <section class="rule-card"><h3>コンピューター戦</h3><ul><li>初心者：対象・カード選択がランダム中心。</li><li>中級者：状況に応じて攻撃や回復などを選びます。</li><li>上級者：HP・PP・状態・戦況に応じたカード補充と行動を優先します。</li></ul></section>
 <section class="rule-card"><h3>対人戦</h3><p>2台それぞれで同じ6桁の部屋番号を入力し、ホストがゲームを開始します。インターネット接続が必要です。最大9人で対戦できます。</p></section>
 </div>`; $("mb").textContent="閉じる"; $("md").hidden=false}
