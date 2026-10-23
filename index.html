@@ -389,24 +389,24 @@ async function market(a,o,c){
  const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
 const MASTER_HELPERS=[
-{name:"グラードン",weight:104,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
-{name:"カイオーガ",weight:104,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
-{name:"レックウザ",weight:54,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[20,20,20,20,20,60]},
-{name:"ハピナス",weight:104,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
-{name:"ゼルネアス",weight:104,sprite:716,kind:"passiveDefense"},
-{name:"イベルタル",weight:104,sprite:717,kind:"passiveAttack"},
-{name:"ニャース",weight:104,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
-{name:"アルセウス",weight:1518/99,sprite:493,kind:"burst"},
-{name:"ディアルガ",weight:104,sprite:483,kind:"dialga"},
-{name:"パルキア",weight:104,sprite:484,kind:"palkia"},
-{name:"オニゴーリ",weight:104,sprite:362,kind:"glalie"},
-{name:"ミュウ",weight:104,sprite:151,kind:"mew"},
-{name:"ジガルデ100％",weight:104,sprite:10120,kind:"zygarde"},
-{name:"ギラティナ",weight:104,sprite:487,kind:"giratina"},
-{name:"ホウオウ",weight:54,sprite:250,kind:"phoenix"},
-{name:"セレビィ",weight:54,sprite:251,kind:"celebi"},
-{name:"ミュウツー",weight:54,sprite:150,kind:"mewtwo"},
-{name:"ルギア",weight:54,sprite:249,kind:"lugia"}];
+{name:"グラードン",weight:100,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
+{name:"カイオーガ",weight:100,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
+{name:"レックウザ",weight:100,sprite:384,kind:"singlePhysical",move:"ガリョウテンセイ",values:[20,20,20,20,20,60]},
+{name:"ハピナス",weight:100,sprite:242,kind:"heal",values:[5,10,15,20,25,30]},
+{name:"ゼルネアス",weight:100,sprite:716,kind:"passiveDefense"},
+{name:"イベルタル",weight:100,sprite:717,kind:"passiveAttack"},
+{name:"ニャース",weight:100,sprite:52,kind:"money",values:[5,10,15,20,25,30]},
+{name:"アルセウス",weight:1700/99,sprite:493,kind:"burst"},
+{name:"ディアルガ",weight:100,sprite:483,kind:"dialga"},
+{name:"パルキア",weight:100,sprite:484,kind:"palkia"},
+{name:"オニゴーリ",weight:100,sprite:362,kind:"glalie"},
+{name:"ミュウ",weight:100,sprite:151,kind:"mew"},
+{name:"ジガルデ100％",weight:100,sprite:10120,kind:"zygarde"},
+{name:"ギラティナ",weight:100,sprite:487,kind:"giratina"},
+{name:"ホウオウ",weight:100,sprite:250,kind:"phoenix"},
+{name:"セレビィ",weight:100,sprite:251,kind:"celebi"},
+{name:"ミュウツー",weight:100,sprite:150,kind:"mewtwo"},
+{name:"ルギア",weight:100,sprite:249,kind:"lugia"}];
 const HELPER_SIGNATURE_MOVES={dialga:"ときのほうこう",giratina:"シャドーダイブ"};MASTER_HELPERS.forEach(h=>{const move=h.move||HELPER_SIGNATURE_MOVES[h.kind];if(!move)return;const c={id:"helpermove_"+h.sprite+"_"+move,n:move,t:"a",k:/グラードン|レックウザ|ディアルガ|ギラティナ/.test(h.name)?"p":"s",d:h.kind==="singlePhysical"?12:h.kind==="allPhysical"?12:h.kind==="allSpecial"?11:h.kind==="dialga"?15:h.kind==="giratina"?9:0,all:h.kind==="allPhysical"||h.kind==="allSpecial"?1:0,helperSprite:h.sprite,helperMove:1,x:h.name+"の専用技（原作威力の1/10・小数点以下切り捨て）"};c.i=C.length;C.push(c)});function rollHelper(){const total=MASTER_HELPERS.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of MASTER_HELPERS){n-=h.weight;if(n<0)return h}return MASTER_HELPERS[0]}
 async function chooseHelperInGame(){return new Promise(resolve=>{const old=document.getElementById("helperPickOverlay");if(old)old.remove();const overlay=document.createElement("div");overlay.id="helperPickOverlay";overlay.className="helper-pick-overlay";Object.assign(overlay.style,{position:"fixed",top:"0",right:"0",bottom:"0",left:"0",width:"100vw",height:"100dvh",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",margin:"0",padding:"14px",zIndex:"2147483647",background:"rgba(0,0,0,.72)"});const descriptions={allPhysical:"相手全員に物理攻撃",allSpecial:"相手全員に特殊攻撃",singlePhysical:"相手1人に強力な物理攻撃",heal:"自分のHP・PPを回復",passiveDefense:"受けるダメージを減らす",passiveAttack:"与えるダメージを増やす",money:"お金を増やす",burst:"相手全員に大ダメージ",dialga:"特殊な攻撃",palkia:"攻撃を防ぐ",glalie:"特殊効果",mew:"攻撃先をランダムにする",zygarde:"攻防強化・状態異常防止",giratina:"相手のカードを奪う",phoenix:"倒されても一度だけ復活",celebi:"誰の行動後にも割り込んで行動（ガード不可）",mewtwo:"直前の技を威力+5で追撃（ガード不可）",lugia:"相手の手札3枚か、相手の仲間を吹き飛ばす"};overlay.innerHTML="<div class=\"helper-pick-dialog\" role=\"dialog\" aria-modal=\"true\" style=\"position:relative;margin:auto;max-height:calc(100dvh - 28px);overflow-y:auto;\"><h2>マスターボール</h2><p>仲間にするポケモンを選んでください。</p><div class=\"helper-pick-grid\"></div><button type=\"button\" class=\"btn helper-pick-cancel\">キャンセル</button></div>";const grid=overlay.querySelector(".helper-pick-grid");MASTER_HELPERS.forEach((h,i)=>{const b=document.createElement("button");b.type="button";b.className="helper-pick-option";b.innerHTML="<img alt=\"\"><span class=\"helper-pick-name\"></span><small></small>";const img=b.querySelector("img");img.src=typeof h.sprite==="number"?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png":h.sprite;b.querySelector(".helper-pick-name").textContent=h.name;b.querySelector("small").textContent=descriptions[h.kind]||"仲間になって効果を発揮";b.addEventListener("click",()=>{overlay.remove();resolve(h)});grid.appendChild(b)});overlay.querySelector(".helper-pick-cancel").addEventListener("click",()=>{overlay.remove();resolve(null)});document.body.appendChild(overlay)})}
 async function summonHelper(p){
