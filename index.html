@@ -867,7 +867,7 @@ $("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・�
 <script>
 var LOGALL=[];
 function logPush(t){LOGALL.push({a:(G&&G.actions)||0,t:String(t)});if(LOGALL.length>300)LOGALL.shift()}
-function showLog(){$("mt").textContent="バトルログ";$("mx").innerHTML="<div class='logbox'>"+(LOGALL.length?LOGALL.slice().reverse().map(x=>"<div class='log-entry'><small>T"+(x.a+1)+"</small><div class='log-text'>"+esc(x.t)+"</div></div>").join(""):"<div class='log-empty'>ログはまだありません</div>")+"</div><p style='font-size:.72rem;color:var(--mu);margin:8px 2px 0'>新しいログが上に表示されます（最大300件）</p>";$("mb").textContent="閉じる";$("md").hidden=false}
+function showLog(){$("mt").textContent="バトルログ";$("mx").innerHTML="<div class='logbox'>"+(LOGALL.length?LOGALL.map(x=>"<div class='log-entry'><small>T"+(x.a+1)+"</small><div class='log-text'>"+esc(x.t)+"</div></div>").join(""):"<div class='log-empty'>ログはまだありません</div>")+"</div><p style='font-size:.72rem;color:var(--mu);margin:8px 2px 0'>新しいログが下に表示されます（最大300件）</p>";$("mb").textContent="閉じる";$("md").hidden=false}
 $("lgb").onclick=showLog;
 // ライト/ダーク手動切替（自動→ライト→ダーク）
 const THEMES=["auto","light","dark"],THEME_LBL={auto:"自動",light:"ライト",dark:"ダーク"},THEME_ICO={auto:"🌓",light:"☀️",dark:"🌙"};
