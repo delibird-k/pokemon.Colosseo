@@ -121,7 +121,7 @@ header{padding:9px 16px}
 
 .helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="lgb">ログ</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
 <div id="play"><div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="helperStatus"></div><div id="hand"></div></div>
@@ -306,7 +306,7 @@ function render(){
   if(c.t==="b")return !c.aim&&!c.sash&&!!M&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.stun>0?'<span class="tag">行動不能 '+p.stun+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
- const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/40</span></div>").join("");}
+ const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div class=\"helper-status-card\" data-helper=\""+esc(p.helper.name)+"\" tabindex=\"0\" title=\"効果を見る\" style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0;cursor:pointer\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/40</span></div>").join("");}
  const groups=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
  const typeOrder=["ノーマル","ほのお","みず","でんき","くさ","こおり","かくとう","どく","じめん","ひこう","エスパー","むし","いわ","ゴースト","ドラゴン","あく","フェアリー"];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(type==="a")items.sort((x,y)=>{const a=typeOrder.indexOf(TYPE_OF[x.c.n]||"");const b=typeOrder.indexOf(TYPE_OF[y.c.n]||"");return (a<0?999:a)-(b<0?999:b)||x.j-y.j;});if(!items.length)return;
@@ -417,18 +417,18 @@ async function summonHelper(p){
  if(!G.usedHelpers)G.usedHelpers=[];G.usedHelpers.push(h.name);if(!p.helpers)p.helpers=[];
  const summoned={...h,hp:40,owner:p.id,dead:false};p.helpers.push(summoned);p.helper=summoned;
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
- else if(h.kind==="heal")await ev("ハピナスが現れた！ いる間、毎ターンHPかPPを5回復！");
- else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev("ニャースが現れた！ "+p.n+"のお金が"+n+"円増えた！")}
- else if(h.kind==="passiveDefense")await ev(p.n+"はマスターボールを投げた！ ゼルネアスが仲間になった！ いる間、受けるダメージ−7！");
- else if(h.kind==="passiveAttack")await ev(p.n+"はマスターボールを投げた！ イベルタルが仲間になった！ いる間、与えるダメージ＋7！");
- else if(h.kind==="mew")await ev(p.n+"はマスターボールを投げた！ ミュウが仲間になった！ いる間、全員の攻撃先がランダムになる！");
- else if(h.kind==="zygarde")await ev(p.n+"はマスターボールを投げた！ ジガルデ100％が仲間になった！ いる間、受けるダメージ−5・与えるダメージ＋5・状態異常にならない！");
- else if(h.kind==="giratina")await ev(p.n+"はマスターボールを投げた！ ギラティナが仲間になった！ HP 40！");
- else if(h.kind==="lugia")await ev(p.n+"はマスターボールを投げた！ ルギアが仲間になった！ HP 40！");
- else if(h.kind==="phoenix")await ev(p.n+"はマスターボールを投げた！ ホウオウが仲間になった！ 倒されても一度だけHP50で復活する！");
- else if(h.kind==="celebi")await ev(p.n+"はマスターボールを投げた！ セレビィが仲間になった！ 誰かが行動するたびに割り込んで行動できる！");
- else if(h.kind==="mewtwo")await ev(p.n+"はマスターボールを投げた！ ミュウツーが仲間になった！ 直前の技で追撃する！");
- else await ev(p.n+"はマスターボールを投げた！ "+h.name+"が仲間になった！ HP 40！");
+ else if(h.kind==="heal")await ev(h.name+"が出た！");
+ else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev(h.name+"が出た！")}
+ else if(h.kind==="passiveDefense")await ev(h.name+"が出た！");
+ else if(h.kind==="passiveAttack")await ev(h.name+"が出た！");
+ else if(h.kind==="mew")await ev(h.name+"が出た！");
+ else if(h.kind==="zygarde")await ev(h.name+"が出た！");
+ else if(h.kind==="giratina")await ev(h.name+"が出た！");
+ else if(h.kind==="lugia")await ev(h.name+"が出た！");
+ else if(h.kind==="phoenix")await ev(h.name+"が出た！");
+ else if(h.kind==="celebi")await ev(h.name+"が出た！");
+ else if(h.kind==="mewtwo")await ev(h.name+"が出た！");
+ else await ev(h.name+"が出た！");
 }
 async function helperAction(owner,forcedHelper=null){
  const h=forcedHelper||owner.helper;if(!h||h.dead||h.hp<=0||(!forcedHelper&&Math.random()>=.25))return;
@@ -806,7 +806,7 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 <script>
 (function(){
  const tip=document.createElement("div");tip.id="cardtip";document.body.appendChild(tip);
- let cur=null,lastTouch=0,timer=0,hideT=0,long=false,sx=0,sy=0;
+ let cur=null,lastTouch=0,timer=0,hideT=0,long=false,sx=0,sy=0,lastTapEl=null,lastTapAt=0;
  const hand=()=>document.getElementById("hand");
  const cardAt=(x,y)=>{const h=hand();if(!h)return null;for(const el of h.querySelectorAll(".c")){const r=el.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return el}return null};
  const detail=id=>{const c=C.find(x=>x.id===id);if(!c)return "";const e=ef(c);let l="";
@@ -824,11 +824,15 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
  document.addEventListener("touchstart",e=>{lastTouch=Date.now();clearTimeout(timer);clearTimeout(hideT);long=false;hide();const p=e.touches[0],el=cardAt(p.clientX,p.clientY);if(!el||!el.dataset.cid)return;sx=p.clientX;sy=p.clientY;
   timer=setTimeout(()=>{long=true;show(el,sx,sy,el.getBoundingClientRect());if(navigator.vibrate)try{navigator.vibrate(15)}catch(_){}},450)},{passive:true});
  document.addEventListener("touchmove",e=>{lastTouch=Date.now();const p=e.touches[0];if(!long&&Math.hypot(p.clientX-sx,p.clientY-sy)>10)clearTimeout(timer)},{passive:true});
- document.addEventListener("touchend",e=>{lastTouch=Date.now();clearTimeout(timer);if(long){e.preventDefault();hideT=setTimeout(hide,1500)}},{passive:false});
+ document.addEventListener("touchend",e=>{lastTouch=Date.now();clearTimeout(timer);const p=e.changedTouches[0],el=cardAt(p.clientX,p.clientY);if(long){e.preventDefault();hideT=setTimeout(hide,1800);return}if(el&&el.dataset.cid&&lastTapEl===el&&Date.now()-lastTapAt<380){e.preventDefault();show(el,p.clientX,p.clientY,el.getBoundingClientRect());hideT=setTimeout(hide,2600);lastTapEl=null;lastTapAt=0}else{lastTapEl=el;lastTapAt=Date.now()}},{passive:false});
  document.addEventListener("touchcancel",()=>{clearTimeout(timer);hide()});
  // 長押し後のクリック（カードを出す動作）を防ぐ
  document.addEventListener("click",e=>{if(long){e.stopPropagation();e.preventDefault();long=false}},true);
  document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest("#hand"))e.preventDefault()});
+ const helperDetail=name=>{const h=(typeof MASTER_HELPERS!=="undefined"?MASTER_HELPERS:[]).find(x=>x.name===name);if(!h)return "";const f=(typeof LEG_FX!=="undefined"&&LEG_FX[h.kind])?LEG_FX[h.kind](h):"仲間になって効果を発揮";return "<div class='tt'><b>"+esc(h.name)+"</b><span class='tag'>HP40</span></div><div class='ds'>"+esc(f)+"</div>"};
+ const showHelper=(el,x,y,rect)=>{const html=helperDetail(el.dataset.helper);if(!html)return;tip.innerHTML=html;cur=el;place(x,y,rect)};
+ document.addEventListener("mousemove",e=>{if(Date.now()-lastTouch<800)return;const el=e.target.closest&&e.target.closest(".helper-status-card");if(el)showHelper(el,e.clientX,e.clientY);else if(!e.target.closest||!e.target.closest(".helper-status-card")){if(!e.target.closest||!e.target.closest("#hand"))hide()}});
+ document.addEventListener("touchend",e=>{const p=e.changedTouches[0],el=document.elementFromPoint(p.clientX,p.clientY)?.closest(".helper-status-card");if(!el)return;if(lastTapEl===el&&Date.now()-lastTapAt<380){e.preventDefault();showHelper(el,p.clientX,p.clientY,el.getBoundingClientRect());hideT=setTimeout(hide,2600);lastTapEl=null;lastTapAt=0}else{lastTapEl=el;lastTapAt=Date.now()}},{passive:false});
 })();
 
 $("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・免責事項";$("mx").innerHTML="<section class='legal-content'><h3>著作権について</h3><p>本作「Pokémon Colosseo」は、ポケモンを題材とした非公式のファンゲームです。ポケモン、キャラクター、名称、画像等に関する権利は、それぞれの権利者に帰属します。</p><p>本作は、ゲーム「ゴッドフィールド」を参考にして制作したファンゲームです。ゲームのルールや演出等を参考にしていますが、公式作品ではなく、ゴッドフィールドの権利者との提携・承認を受けたものではありません。</p><p>ゲーム内で使用するポケモンの画像は、外部の公開リソース（PokeAPIのスプライト等）を参照しています。各素材の利用条件・権利表記は、配布元および権利者の案内をご確認ください。</p><p>本作は株式会社ポケモン、任天堂、ゲームフリーク等の公式作品ではなく、各権利者からの承認・提携を受けたものではありません。</p><h3>非営利での公開について</h3><p>本作は非営利の個人制作ファンゲームとして公開しており、広告の掲載、課金、アイテム販売、寄付・支援金の募集など、収益を得る行為は行いません。今後も行わない方針です。</p><h3>免責事項</h3><p>本作は個人制作のファンゲームであり、動作や内容の正確性、継続的な提供を保証するものではありません。予告なく仕様変更・公開停止する場合があります。</p><p>本作の利用によって生じた損害、データの消失、通信障害等について、制作者は法令上認められる範囲で責任を負いません。</p><p>オンライン対戦では、通信状況や利用環境により正常に動作しない場合があります。個人情報や他人に知られたくない情報は入力しないでください。</p><p>権利者からの申し出や、素材の利用条件に関する指摘があった場合は、内容を確認のうえ必要な対応を行います。</p></section>";$("mb").textContent="閉じる";$("md").hidden=false;});
@@ -906,7 +910,7 @@ function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
  $("mx").innerHTML=tabs+"<div class='zk-grid'>"+body+"</div>";
  $("mx").querySelectorAll("[data-zk]").forEach(b=>b.onclick=()=>zukan(b.dataset.zk));
  $("mb").textContent="閉じる";$("md").hidden=false}
-$("openZukan").onclick=()=>zukan("all");
+$("openZukan").onclick=()=>zukan("all");$("gameZukan").onclick=()=>zukan("all");
 // PWA
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
