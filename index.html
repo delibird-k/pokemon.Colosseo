@@ -69,6 +69,15 @@ header{padding:9px 16px}
 #md #mx{margin:0;line-height:1.55}
 .rules-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .rule-card{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;min-width:0}
+.rules-accordion{display:flex;flex-direction:column;gap:7px}
+.rules-accordion .rule-card{padding:0;overflow:hidden}
+.rules-accordion .rule-card summary{cursor:pointer;list-style:none;position:relative;padding:11px 38px 11px 13px;font-size:.9rem;font-weight:800;color:var(--tx)}
+.rules-accordion .rule-card summary::-webkit-details-marker{display:none}
+.rules-accordion .rule-card summary:after{content:"＋";position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--mu)}
+.rules-accordion .rule-card[open] summary{border-bottom:1px solid var(--bd)}
+.rules-accordion .rule-card[open] summary:after{content:"−"}
+.rules-accordion .rule-card p,.rules-accordion .rule-card ul{margin:9px 13px;font-size:.82rem}
+.rules-accordion .rule-card ul{padding-left:1.25rem}
 .rule-card h3{font-size:.9rem;color:var(--tx);margin:0 0 7px;padding-bottom:5px;border-bottom:2px solid var(--bd)}
 .rule-card p{margin:5px 0;font-size:.82rem}
 .rule-card ul,.rule-card ol{padding-left:1.25rem;margin:5px 0;font-size:.82rem}
@@ -730,18 +739,20 @@ $("skip").onclick=()=>{if(CA)send(CA,[])};
 function surrender(){if(!G||G.ph==="over"||MODE!=="cpu")return;G.surrendered=1;const a=G.ask,al=G.P.filter(p=>p.bot&&!p.d).sort((x,y)=>y.hp-x.hp);G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;if(W){const r=W.r;W=null;r(a?DEF[a.k]:DEF.turn)}S.sur=0;clearTimeout(S.st);pub()}
 $("sur").onclick=()=>{if(!G||G.ph==="over")return;if(!S.sur){S.sur=1;clearTimeout(S.st);S.st=setTimeout(()=>{S.sur=0;if(G)render()},3000);render();return}surrender()};
 $("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);LOGALL.length=0;$("md").classList.remove("res");$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
-function showRules(){ $("mt").textContent="ルール"; $("mx").innerHTML=`<div class="rules-layout">
-<section class="rule-card"><h3>ゲームの基本</h3><p>HP <b>50</b>・PP <b>10</b>・所持金 <b>20円</b>で開始。通常のHP上限は99、PP上限は99。手札は基本9枚です。</p><p>最後まで生き残ったプレイヤーが勝利。対戦人数は自分を含め最大9人です。</p></section>
-<section class="rule-card"><h3>ターンの進め方</h3><ul><li>手札からカードを選び「使う」。攻撃・変化技は対象を選びます。</li><li>攻撃技や変化技には、対応する強化カードを一緒に使えます。</li><li>使えるカードがない・使わない場合は、カードを1枚捨てて交代できます。</li><li>PPが0でも「うたう」でカードを得られます。PPが残っていても、手札に攻撃技がない場合は「様子をみる」でカードを得られます。</li></ul></section>
-<section class="rule-card"><h3>PP・強化・アイテム</h3><p>攻撃技・変化技・通常の防御カードは使用時にPPを1消費します。<b>みがわりの人形はPPが0でも使用でき、PPを消費しません。</b>それ以外の技や防御カードはPPが必要です。</p><ul><li>ちからのハチマキ：物理技＋5</li><li>ものしりメガネ：特殊技＋5</li><li>いのちのたま：技＋10、攻撃が通ると自分も5ダメージ</li><li>ねらいのまと：所持者に対する相手の追加効果・一撃必殺が必ず成功</li><li>マスターボール：ポケモンを呼び出す</li></ul></section>
-<section class="rule-card"><h3>防御カード</h3><p>防御フェイズでは防御カードを複数枚重ねられます。軽減量は合計され、固定の枚数上限はありません（PPの範囲内）。</p><ul><li>まもる・みきり・みがわりの人形：攻撃技・変化技を完全に防ぐ</li><li>かたくなる：物理−4、めいそう：特殊−4</li><li>コスモパワー：物理・特殊−4</li><li>てっぺき・とける・バリアー：物理−8</li><li>ドわすれ・ブレイブチャージ：特殊−8</li><li>ぼうぎょしれい：物理・特殊−8</li><li>コットンガード：物理−12</li><li>リフレクター・ひかりのかべ：対応する物理・特殊ダメージを3ターン−5</li></ul></section>
-<section class="rule-card"><h3>攻撃技・成功率</h3><ul><li>通常攻撃の威力はカードに表示された数値どおり。全体攻撃は自分以外が対象です。</li><li>じしん：物理・全体に8ダメージ／なみのり：特殊・全体に5ダメージ</li><li>ぜったいれいど・じわれ：自分以外それぞれ20%で一撃必殺</li><li>攻撃技の追加効果は通常30%。変化技（あやしいひかり・さいみんじゅつ・おにび・でんじは）は成功率75%。</li><li>きあいだまは30%で外れ、ふぶきは対象ごとに30%で外れます。</li><li>まねっこ：直前に使われた技（ポケモンの技も含む）の威力・物理/特殊・単体/全体をそのまま真似ます。一撃必殺も真似られます。追加効果は真似られず、強化カードも重ねられません。直前の技がないと使えません。</li><li>ゆびをふる：全ての攻撃技の中からランダムに1つ選んで使います（まねっこ・ゆびをふる自身は除く）。強化カードは重ねられません。</li><li>ゆびをふるモード：オープニング画面でON/OFFを選べます。ONでは手札が「ゆびをふる」と「ピーピーマックス」のみになり、ゆびをふるでマスターボールのポケモンが持つ技も出ます。</li><li>きあいのタスキ：手札に持っていると、倒される攻撃を受けてもHP1で耐え、タスキを消費します。一度使うと、そのゲームでそのプレイヤーにタスキが配られることはありません。</li><li>技にはポケモンと同じタイプがあり、カードに表示されます（今のところ、タイプ相性による威力の変化はありません）。</li><li>タイプジュエル（ノーマル・ほのお・みず・でんき・くさ）：同じタイプの攻撃技に重ねると威力+7。</li><li>ドレインパンチ・ギガドレイン・パラボラチャージは、与えたダメージ分HPが回復します。ハイドロポンプ・かみなりは30%で外れます。アクアジェットは防御できません。</li></ul></section>
-<section class="rule-card"><h3>状態異常</h3><ul><li>やけど：ターン行動後に2ダメージ。物理技の威力−5。</li><li>まひ：30%で行動不能。</li><li>こおり：2回行動不能。</li><li>ねむり：各ターン20%で目覚める。</li><li>こんらん：自分を攻撃することがあります。</li><li>どく：ターン経過でダメージ。</li></ul><p>状態異常は重複しません。ねむり・こおり・ときのほうこうで動けない間は、防御カードを使えません。</p></section>
-<section class="rule-card"><h3>お金・商売</h3><p>カードごとに効果の強さ・汎用性・成功率に応じた価格が設定されています。基本技は3〜5円、標準的な攻撃・回復・変化技は6〜8円、強力な技や防御は9〜12円、一撃必殺技・マスターボールは15円、ねらいのまとは20円が目安です。ショップでは候補カードごとに表示された価格を支払って購入します。</p><p>両替はHP・PP・お金を1:1で交換。売るカードでは相手に代金を請求し、所持金が足りなければPP、PPも足りなければHPで支払います。</p></section>
-<section class="rule-card"><h3>終末の時</h3><p>開始前に「何行動後に開始するか」を設定できます。設定回数に達すると終末の時が始まり、その後は各行動後に25%でイベント発生。</p><ul><li>イベルタル：7ダメージ</li><li>ウルトラネクロズマ：20ダメージ</li><li>ムゲンダイマックスムゲンダイナ：30ダメージ</li><li>アルセウス：HPまたはPPを最大10回復、または10円獲得</li><li>ニューラ：手札を最大2枚盗む</li></ul><p>終末の時の攻撃は通常の防御カードでは防げません。</p></section>
-<section class="rule-card"><h3>コンピューター戦</h3><p>コンピューターは、状況に応じて攻撃や回復などを選びます。</p></section>
-<section class="rule-card"><h3>対人戦</h3><p>2台それぞれで同じ6桁の部屋番号を入力し、ホストがゲームを開始します。インターネット接続が必要です。最大9人で対戦できます。</p></section>
-</div>`; $("mb").textContent="閉じる"; $("md").hidden=false}
+function showRules(){
+ $("mt").textContent="ルール";
+ $("mx").innerHTML=`<div class="rules-layout rules-accordion">
+ <details class="rule-card"><summary>基本ルール</summary><p>HP50・PP10・20円で開始。最後まで生き残れば勝ち（最大9人）。</p><p>カードを使って行動。使わないときはカードを1枚捨てて交代できます。</p></details>
+ <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋5</li><li>ものしりメガネ：特殊＋5</li><li>いのちのたま：技＋10、自分も5ダメージ</li><li>タイプジュエル：同タイプ技＋7</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
+ <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのりは全体攻撃です。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
+ <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：毎ターン20%で回復</li><li>こんらん：自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
+ <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
+ <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル7ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
+ <details class="rule-card"><summary>特殊ルール・技</summary><p>「まねっこ」は直前の技を再現。「ゆびをふる」は攻撃技をランダムに使用。</p><p>ゆびをふるモードでは手札が「ゆびをふる」「ピーピーマックス」になります。</p><p>タイプ相性による威力変化はありません。きあいのタスキは倒される攻撃をHP1で耐え、消費されます。</p></details>
+ <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p></details>
+ </div>`;
+ $("mb").textContent="閉じる"; $("md").hidden=false
+}
 $("hb").onclick=showRules;
 $("openRules").onclick=showRules;
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
