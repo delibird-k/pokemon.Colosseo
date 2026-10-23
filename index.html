@@ -122,9 +122,9 @@ header{padding:9px 16px}
 .helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="lgb">ログ</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
-<div class="fs" id="fs"></div>
+<div id="play"><div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
-<div id="helperStatus"></div><div id="hand"></div>
+<div id="helperStatus"></div><div id="hand"></div></div>
 <div class="acts"><button class="btn pri" id="use" hidden>使う</button><button class="btn" id="pass" hidden>1枚捨てて交代</button><button class="btn" id="sing" hidden>うたう</button><button class="btn pri" id="skip" hidden>防御せず受ける</button><button class="btn" id="sur" hidden>降参</button></div>
 <div id="log"></div><div id="toast"></div>
 <div class="ov" id="ti"><div class="md">
@@ -295,7 +295,7 @@ function render(){
  const tc=$("turnCount");if(tc)tc.textContent="ターン "+Math.max(1,(G.actions||0)+1);
  const me=G.P.findIndex(p=>p.id===MY),mp=G.P[me]||{h:[],pp:0,mo:0,n:"観戦"};
  const A=G.ask&&G.ask.to===me&&S.sent!==G.ask.n?G.ask:null;CA=A;
- if(A?A.n!==S.n:S.n){S.n=A?A.n:0;S.sel=[]}
+ if(A?A.n!==S.n:S.n){S.n=A?A.n:0;S.sel=[];if(A&&A.k==="def"){const pl=$("play");if(pl)pl.scrollTop=0}}
  const ops=G.P.map((p,i)=>i).filter(i=>i!==me&&!G.P[i].d);
  if(ops.length===1)S.tg=ops[0];else if(!ops.includes(S.tg))S.tg=-1;
  {const m0=S.sel.map(j=>C[mp.h[j]]).filter(Boolean).find(c=>c.t!=="b");if(m0)S.sel=S.sel.filter(j=>{const c=C[mp.h[j]];return !c||c.t!=="b"||bm(c,ef(m0))})}
@@ -825,6 +825,9 @@ $("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・�
 </style>
 
 <style>
+#play{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:auto}
+#play #hand{flex:none;overflow:visible;min-height:0}
+.zk-note{grid-column:1/-1;font-size:.74rem;color:var(--mu);line-height:1.5}
 #again{display:none;margin:8px auto 0}#md.res #again{display:block}
 .logbox{max-height:60vh;overflow:auto;text-align:left;font-size:.84rem;line-height:1.5}.logbox div{padding:4px 2px;border-bottom:1px solid var(--bd)}.logbox small{color:var(--mu);margin-right:6px}
 .zk-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;justify-content:center}.zk-tabs .btn{padding:5px 10px;font-size:.8rem}
@@ -854,13 +857,36 @@ $("again").onclick=()=>{if(MODE!=="cpu")return;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.se
 const ZK_GROUPS=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
 const zkLab=c=>c.t==="a"?(c.mimic||c.metronome?"特殊技":KL[c.k]||"攻撃"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
 const zkGroup=c=>c.t==="u"?"b":c.t;
+const LEG_FX={
+allPhysical:h=>"誰かが行動するたびに25%で発動。相手全員に物理攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
+allSpecial:h=>"誰かが行動するたびに25%で発動。相手全員に特殊攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
+singlePhysical:h=>"25%で発動。相手1人に物理攻撃「"+h.move+"」（威力20、6回に1回は威力60。75%で命中。防御カードで軽減できる）",
+heal:h=>"持ち主のターン開始時に、HPかPP（ランダム）が5回復する",
+passiveDefense:h=>"いる間、持ち主が受けるダメージ−7",
+passiveAttack:h=>"いる間、持ち主が与えるダメージ＋7",
+money:h=>"呼び出した瞬間に5〜30円を獲得。その後も25%で発動するたびに5〜30円増える",
+burst:h=>"呼び出した瞬間に相手全員へ99ダメージ。使い切るとすぐ消える",
+dialga:h=>"25%で発動。相手1人を1〜3ターン行動不能にする（まもる・みきりで防げる）",
+palkia:h=>"いる間、持ち主に向けられた技を33%で無効にする",
+glalie:h=>"25%で発動。相手全員に「ぜったいれいど」（各30%で一撃必殺。防御カードで防げる）",
+mew:h=>"いる間、全員の単体攻撃の対象がランダムになる",
+zygarde:h=>"いる間、受けるダメージ−5・与えるダメージ＋5。状態異常にならない",
+giratina:h=>"25%で発動。相手1人の手札を最大2枚奪う",
+phoenix:h=>"持ち主が倒されても一度だけHP50で復活する（状態異常も治る）。復活後は飛び去る",
+celebi:h=>"25%で発動。誰かの行動のあとに割り込んで、持ち主がもう一度行動する（ガード不可）",
+mewtwo:h=>"25%で発動。直前に使われた技を威力＋5で追撃する（ガード不可。直前の技がなければ不発）"};
+function legendHtml(){const tot=MASTER_HELPERS.reduce((a,h)=>a+h.weight,0);
+ return "<div class='zk-h'>伝説（マスターボールで仲間になるポケモン）</div><div class='zk-note'>マスターボールを使うと、下のポケモンのどれかがランダムで仲間になります。仲間のHPは40で、持ち主が受けたダメージの分だけ仲間のHPも減り、0になると効果が消えます。「25%で発動」は、誰かが行動するたびに判定されます。</div>"+
+ MASTER_HELPERS.map(h=>{const f=LEG_FX[h.kind]?LEG_FX[h.kind](h):"仲間になって効果を発揮";
+  return "<div class='zk leg'><div class='zk-i'><div class='card-mon'><img loading='lazy' alt='' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png'></div></div><div class='zk-b'><b>"+esc(h.name)+"</b><div class='tr'><span class='tag'>"+(h.kind==="burst"?"即発動":"HP40")+"</span><span class='tag'>出現 "+(h.weight/tot*100).toFixed(1)+"%</span></div><small>"+esc(f)+"</small></div></div>"}).join("")}
 function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
  const list=C.filter(c=>!c.helperMove);
- const tabs="<div class='zk-tabs'>"+[["all","全て"],...ZK_GROUPS].map(([k,n])=>"<button class='btn"+(k===cat?" pri":"")+"' data-zk='"+k+"'>"+n+"</button>").join("")+"</div>";
+ const tabs="<div class='zk-tabs'>"+[["all","全て"],...ZK_GROUPS,["leg","伝説"]].map(([k,n])=>"<button class='btn"+(k===cat?" pri":"")+"' data-zk='"+k+"'>"+n+"</button>").join("")+"</div>";
  let body="";
  ZK_GROUPS.forEach(([k,n])=>{if(cat!=="all"&&cat!==k)return;const items=list.filter(c=>zkGroup(c)===k);if(!items.length)return;
   body+="<div class='zk-h'>"+n+"（"+items.length+"）</div>"+items.map(c=>{const pw=c.t==="a"?(c.ko?"一撃必殺":c.d?"威力"+c.d:""):"";
    return "<div class='zk "+c.t+"'><div class='zk-i'>"+monArt(c)+"</div><div class='zk-b'><b>"+esc(c.n)+"</b><div class='tr'><span class='tag'>"+zkLab(c)+(pw?" "+pw:"")+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</div><small>"+esc(c.x||"")+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small></div></div>"}).join("")});
+ if(cat==="all"||cat==="leg")body+=legendHtml();
  $("mx").innerHTML=tabs+"<div class='zk-grid'>"+body+"</div>";
  $("mx").querySelectorAll("[data-zk]").forEach(b=>b.onclick=()=>zukan(b.dataset.zk));
  $("mb").textContent="閉じる";$("md").hidden=false}
