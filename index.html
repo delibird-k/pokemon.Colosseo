@@ -848,7 +848,14 @@ $("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・�
 #play #hand{flex:none;overflow:visible;min-height:0}
 .zk-note{grid-column:1/-1;font-size:.74rem;color:var(--mu);line-height:1.5}
 #again{display:none;margin:8px auto 0}#md.res #again{display:block}
-.logbox{max-height:60vh;overflow:auto;text-align:left;font-size:.84rem;line-height:1.5}.logbox div{padding:4px 2px;border-bottom:1px solid var(--bd)}.logbox small{color:var(--mu);margin-right:6px}
+/* バトルログ：1件ずつ区切り、ターン番号と本文を見分けやすくする */
+.logbox{max-height:65vh;overflow:auto;overscroll-behavior:contain;text-align:left;font-size:.9rem;line-height:1.6;padding:2px 4px 4px}
+.log-entry{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:9px;padding:9px 10px;margin:0 0 7px;border:1px solid var(--bd);border-left:4px solid var(--ac);border-radius:9px;background:var(--cd);overflow-wrap:anywhere}
+.log-entry:nth-child(even){background:color-mix(in srgb,var(--cd) 88%,var(--ac))}
+.log-entry small{display:inline-block;margin-top:1px;padding:2px 4px;border-radius:5px;background:var(--pn);color:var(--mu);font-size:.72rem;font-weight:800;text-align:center;white-space:nowrap}
+.log-entry .log-text{min-width:0;color:var(--tx)}
+.log-empty{padding:16px;text-align:center;color:var(--mu);background:var(--cd);border-radius:9px}
+@media(max-width:520px){.logbox{max-height:68vh;font-size:.88rem}.log-entry{grid-template-columns:38px minmax(0,1fr);gap:7px;padding:8px;margin-bottom:6px}}
 .zk-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;justify-content:center}.zk-tabs .btn{padding:5px 10px;font-size:.8rem}
 .zk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:58vh;overflow:auto;text-align:left}
 .zk-h{grid-column:1/-1;font-weight:800;font-size:.8rem;padding:4px 8px;background:var(--ac);color:#fff;border-radius:5px}
@@ -860,7 +867,7 @@ $("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・�
 <script>
 var LOGALL=[];
 function logPush(t){LOGALL.push({a:(G&&G.actions)||0,t:String(t)});if(LOGALL.length>300)LOGALL.shift()}
-function showLog(){$("mt").textContent="バトルログ";$("mx").innerHTML="<div class='logbox'>"+(LOGALL.length?LOGALL.slice().reverse().map(x=>"<div><small>T"+(x.a+1)+"</small>"+esc(x.t)+"</div>").join(""):"<div>まだログはありません</div>")+"</div><p style='font-size:.72rem;color:var(--mu);margin:6px 0 0'>新しい順・直近300件</p>";$("mb").textContent="閉じる";$("md").hidden=false}
+function showLog(){$("mt").textContent="バトルログ";$("mx").innerHTML="<div class='logbox'>"+(LOGALL.length?LOGALL.slice().reverse().map(x=>"<div class='log-entry'><small>T"+(x.a+1)+"</small><div class='log-text'>"+esc(x.t)+"</div></div>").join(""):"<div class='log-empty'>ログはまだありません</div>")+"</div><p style='font-size:.72rem;color:var(--mu);margin:8px 2px 0'>新しいログが上に表示されます（最大300件）</p>";$("mb").textContent="閉じる";$("md").hidden=false}
 $("lgb").onclick=showLog;
 // ライト/ダーク手動切替（自動→ライト→ダーク）
 const THEMES=["auto","light","dark"],THEME_LBL={auto:"自動",light:"ライト",dark:"ダーク"},THEME_ICO={auto:"🌓",light:"☀️",dark:"🌙"};
