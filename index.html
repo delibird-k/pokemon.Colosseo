@@ -2,6 +2,13 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pokémon Colosseo</title>
+<meta name="description" content="ポケモンを題材にした非営利のファンメイドカードバトル（広告・課金なし）">
+<meta name="theme-color" content="#8bbce8">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<script>try{var t=localStorage.getItem("colosseoTheme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <style>
 :root{--bg:#55b99b;--pn:#eafff8;--cd:#fff;--ac:#008e74;--tx:#087d6d;--mu:#4f7f7d;--bd:#9fd8cc;--lo:#d9534f;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b2a25;--pn:#123a34;--cd:#1b4d45;--ac:#12a58a;--tx:#d2f7ee;--mu:#93c8bc;--bd:#2f6e63;color-scheme:dark}}
@@ -101,11 +108,20 @@ header{padding:9px 16px}
 @media(max-width:520px){#hand .hand-group .c{width:72px;min-width:72px;max-width:72px;flex-basis:72px;height:120px;min-height:120px;max-height:120px}.hand-group-title{font-size:.66rem}}
 .c{min-width:0;max-width:100%;overflow:hidden}
 .c b,.c small,.c .tr{display:block;width:100%;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
-.c b{line-height:1.35}\n/* 防御カードも攻撃カードと同様、名前ではなく防御性能を大きく表示 */\n#hand .c.d{align-items:center;text-align:center;justify-content:flex-start}\n#hand .c.d .hand-mon{min-height:64px}\n#hand .c.d .hand-mon img{width:64px;height:64px}\n#hand .c.d .tr{justify-content:center}\n#hand .c.d .attack-summary{font-size:.9rem;font-weight:900;white-space:nowrap}\n@media(max-width:520px){#hand .c.d .hand-mon{min-height:56px}#hand .c.d .hand-mon img{width:56px;height:56px}}
+.c b{line-height:1.35}
+/* 防御カードも攻撃カードと同様、名前ではなく防御性能を大きく表示 */
+#hand .c.d{align-items:center;text-align:center;justify-content:flex-start}
+#hand .c.d .hand-mon{min-height:64px}
+#hand .c.d .hand-mon img{width:64px;height:64px}
+#hand .c.d .tr{justify-content:center}
+#hand .c.d .attack-summary{font-size:.9rem;font-weight:900;white-space:nowrap}
+@media(max-width:520px){#hand .c.d .hand-mon{min-height:56px}#hand .c.d .hand-mon img{width:56px;height:56px}}
 .c .tr{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px}
 .c .tag,.c .ty{white-space:normal;max-width:100%;overflow-wrap:anywhere}
-\n.helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}\n</style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="hb">ルール</button></div></header>
+
+.helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}
+</style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="lgb">ログ</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
 <div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="helperStatus"></div><div id="hand"></div>
@@ -116,14 +132,14 @@ header{padding:9px 16px}
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
 <div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">ゆびをふるモード</b><div class="sg" style="margin:0"><button class="btn pri" id="fingerOff" type="button">OFF</button><button class="btn" id="fingerOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)">ON：手札は「ゆびをふる」と「ピーピーマックス」のみ。マスターボールのポケモンの技も出ます。</small></div>
-<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openLegal">著作権・免責事項</button></div>
+<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
 <div id="tc" hidden><p>コンピューターのレベル</p><div class="sg" id="cpuLevels"><button class="btn" data-level="beginner">初心者</button><button class="btn" data-level="intermediate">中級者</button><button class="btn pri" data-level="advanced">上級者</button></div><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
 <button class="btn w" id="bk" hidden>戻る</button>
 </div></div>
 <div class="ov" id="sh" hidden><div class="md"><h2 id="sht"></h2><p id="shm"></p><div class="sg" id="shg"></div><button class="btn" id="shn">やめる</button></div></div>
-<div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button></div></div>
+<div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button><button class="btn" id="again">もう一度遊ぶ</button></div></div>
 </main>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -311,8 +327,8 @@ function render(){
  if(ch){const sh=A.k==="shop",ex=A.k==="exchange",ids=sh?A.d.o:mp.h;$("sht").textContent=sh?"ショップ":ex?"両替":"売る";$("shm").textContent=sh?"所持金 ¥"+mp.mo+"（価格はカードごとに異なります）":ex?"HP・PP・お金を1:1で交換します。HP・PPは最大99。":"売るカードを選ぼう（相手が代金を支払う）";
   const g=$("shg");g.innerHTML="";if(ex){g.innerHTML='<label>支払う数値<select id="exfrom"><option value="hp">HP（現在 '+mp.hp+'）</option><option value="pp">PP（現在 '+mp.pp+'）</option><option value="mo">お金（現在 ¥'+mp.mo+'）</option></select></label><label>交換先<select id="exto"><option value="hp">HP</option><option value="pp">PP</option><option value="mo">お金</option></select></label><label>交換する量<input id="examount" type="number" min="1" step="1" value="1"></label><p id="expreview"></p><button class="btn pri" id="exconfirm">両替する</button>';const update=()=>{const f=$("exfrom").value,t=$("exto").value,n=Math.floor(Number($("examount").value)||0),v={hp:mp.hp,pp:mp.pp,mo:mp.mo},max={hp:99,pp:99,mo:Infinity};$("expreview").textContent=f===t?"交換元と交換先を別々に選んでください":n<1||n>v[f]||v[t]+n>max[t]?"交換できない数値です":v[f]+" → "+(v[f]-n)+"、"+v[t]+" → "+(v[t]+n)+"（1:1）";$("exconfirm").disabled=f===t||n<1||n>v[f]||v[t]+n>max[t]};$("exfrom").onchange=update;$("exto").onchange=update;$("examount").oninput=update;$("exconfirm").onclick=()=>send(A,{from:$("exfrom").value,to:$("exto").value,amount:Number($("examount").value)});update()}else{ids.forEach((k,j)=>{const c=C[k],b=document.createElement("button");b.className="c "+c.t;b.innerHTML=monArt(c)+"<b>"+c.n+"</b><span class='tag'>"+lab(c)+" ¥"+pr(c)+"</span><small>"+c.x+"</small>";b.disabled=sh&&mp.mo<pr(c);b.onclick=()=>send(A,j);g.appendChild(b)})}$("shn").textContent=ex?"キャンセル":"やめる";$("shn").onclick=()=>send(A,ex?{cancel:true}:-1)}
  $("log").innerHTML=G.L.map(x=>"<div>"+esc(x)+"</div>").join("");
- if(G.e&&G.e.s!==S.es){S.es=G.e.s;const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
- if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").hidden=false}
+ if(G.e&&G.e.s!==S.es){S.es=G.e.s;if(typeof logPush==="function")logPush(G.e.t);const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
+ if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu");$("md").hidden=false}
 }
 function pub(){if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
 async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
@@ -625,9 +641,9 @@ async function afterAction(p){
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return;await afterAction(p);if(chk())return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
 const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
-function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let j=cpuNames.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[cpuNames[j],cpuNames[k]]=[cpuNames[k],cpuNames[j]]}for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;$("ti").hidden=true;$("md").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
+function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let j=cpuNames.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[cpuNames[j],cpuNames[k]]=[cpuNames[k],cpuNames[j]]}for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);LOGALL.length=0;const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;$("ti").hidden=true;$("md").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
-function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;host=true;$("ti").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
+function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;host=true;LOGALL.length=0;$("ti").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 function onP(){
  const ps=R.peers(),me=ps.find(p=>p.sameTab);MY=me?me.peer:"";
  if(!G){const hp=ps.find(p=>p.presence.g&&!p.sameTab);
@@ -698,7 +714,7 @@ $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 function surrender(){if(!G||G.ph==="over"||MODE!=="cpu")return;G.surrendered=1;const a=G.ask,al=G.P.filter(p=>p.bot&&!p.d).sort((x,y)=>y.hp-x.hp);G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;if(W){const r=W.r;W=null;r(a?DEF[a.k]:DEF.turn)}S.sur=0;clearTimeout(S.st);pub()}
 $("sur").onclick=()=>{if(!G||G.ph==="over")return;if(!S.sur){S.sur=1;clearTimeout(S.st);S.st=setTimeout(()=>{S.sur=0;if(G)render()},3000);render();return}surrender()};
-$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
+$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);LOGALL.length=0;$("md").classList.remove("res");$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
 function showRules(){ $("mt").textContent="ルール"; $("mx").innerHTML=`<div class="rules-layout">
 <section class="rule-card"><h3>ゲームの基本</h3><p>HP <b>50</b>・PP <b>10</b>・所持金 <b>20円</b>で開始。通常のHP上限は99、PP上限は99。手札は基本9枚です。</p><p>最後まで生き残ったプレイヤーが勝利。対戦人数は自分を含め最大9人です。</p></section>
 <section class="rule-card"><h3>ターンの進め方</h3><ul><li>手札からカードを選び「使う」。攻撃・変化技は対象を選びます。</li><li>攻撃技や変化技には、対応する強化カードを一緒に使えます。</li><li>使えるカードがない・使わない場合は、カードを1枚捨てて交代できます。</li><li>PPが0でも「うたう」でカードを得られます。PPが残っていても、手札に攻撃技がない場合は「様子をみる」でカードを得られます。</li></ul></section>
@@ -800,10 +816,55 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
  document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest("#hand"))e.preventDefault()});
 })();
 
-$("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・免責事項";$("mx").innerHTML="<section class='legal-content'><h3>著作権について</h3><p>本作「Pokémon Colosseo」は、ポケモンを題材とした非公式のファンゲームです。ポケモン、キャラクター、名称、画像等に関する権利は、それぞれの権利者に帰属します。</p><p>本作は、ゲーム「ゴッドフィールド」を参考にして制作したファンゲームです。ゲームのルールや演出等を参考にしていますが、公式作品ではなく、ゴッドフィールドの権利者との提携・承認を受けたものではありません。</p><p>ゲーム内で使用するポケモンの画像は、外部の公開リソース（PokeAPIのスプライト等）を参照しています。各素材の利用条件・権利表記は、配布元および権利者の案内をご確認ください。</p><p>本作は株式会社ポケモン、任天堂、ゲームフリーク等の公式作品ではなく、各権利者からの承認・提携を受けたものではありません。</p><h3>免責事項</h3><p>本作は個人制作のファンゲームであり、動作や内容の正確性、継続的な提供を保証するものではありません。予告なく仕様変更・公開停止する場合があります。</p><p>本作の利用によって生じた損害、データの消失、通信障害等について、制作者は法令上認められる範囲で責任を負いません。</p><p>オンライン対戦では、通信状況や利用環境により正常に動作しない場合があります。個人情報や他人に知られたくない情報は入力しないでください。</p><p>権利者からの申し出や、素材の利用条件に関する指摘があった場合は、内容を確認のうえ必要な対応を行います。</p></section>";$("mb").textContent="閉じる";$("md").hidden=false;});
+$("openLegal").addEventListener("click",()=>{$("mt").textContent="著作権・免責事項";$("mx").innerHTML="<section class='legal-content'><h3>著作権について</h3><p>本作「Pokémon Colosseo」は、ポケモンを題材とした非公式のファンゲームです。ポケモン、キャラクター、名称、画像等に関する権利は、それぞれの権利者に帰属します。</p><p>本作は、ゲーム「ゴッドフィールド」を参考にして制作したファンゲームです。ゲームのルールや演出等を参考にしていますが、公式作品ではなく、ゴッドフィールドの権利者との提携・承認を受けたものではありません。</p><p>ゲーム内で使用するポケモンの画像は、外部の公開リソース（PokeAPIのスプライト等）を参照しています。各素材の利用条件・権利表記は、配布元および権利者の案内をご確認ください。</p><p>本作は株式会社ポケモン、任天堂、ゲームフリーク等の公式作品ではなく、各権利者からの承認・提携を受けたものではありません。</p><h3>非営利での公開について</h3><p>本作は非営利の個人制作ファンゲームとして公開しており、広告の掲載、課金、アイテム販売、寄付・支援金の募集など、収益を得る行為は行いません。今後も行わない方針です。</p><h3>免責事項</h3><p>本作は個人制作のファンゲームであり、動作や内容の正確性、継続的な提供を保証するものではありません。予告なく仕様変更・公開停止する場合があります。</p><p>本作の利用によって生じた損害、データの消失、通信障害等について、制作者は法令上認められる範囲で責任を負いません。</p><p>オンライン対戦では、通信状況や利用環境により正常に動作しない場合があります。個人情報や他人に知られたくない情報は入力しないでください。</p><p>権利者からの申し出や、素材の利用条件に関する指摘があった場合は、内容を確認のうえ必要な対応を行います。</p></section>";$("mb").textContent="閉じる";$("md").hidden=false;});
 </script>
 
 <style>
 /* スマホ版：ダメージなどの通知枠を少し下げる */
 @media(max-width:520px){#toast{top:55%}}
 </style>
+
+<style>
+#again{display:none;margin:8px auto 0}#md.res #again{display:block}
+.logbox{max-height:60vh;overflow:auto;text-align:left;font-size:.84rem;line-height:1.5}.logbox div{padding:4px 2px;border-bottom:1px solid var(--bd)}.logbox small{color:var(--mu);margin-right:6px}
+.zk-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;justify-content:center}.zk-tabs .btn{padding:5px 10px;font-size:.8rem}
+.zk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:58vh;overflow:auto;text-align:left}
+.zk-h{grid-column:1/-1;font-weight:800;font-size:.8rem;padding:4px 8px;background:var(--ac);color:#fff;border-radius:5px}
+.zk{display:flex;gap:6px;align-items:center;background:var(--cd);border:1px solid var(--bd);border-left:5px solid var(--c,var(--bd));border-radius:8px;padding:5px 7px;min-width:0}
+.zk-i{flex:0 0 48px;display:flex;justify-content:center}.zk-i .card-mon{min-height:0;width:auto}.zk-i img{width:46px;height:46px}
+.zk-b{min-width:0;flex:1}.zk-b b{font-size:.84rem}.zk-b small{display:block;font-size:.7rem;color:var(--mu);line-height:1.35;overflow-wrap:anywhere}.zk-b .tr{margin:2px 0}
+@media(max-width:520px){.zk-grid{grid-template-columns:1fr}}
+</style>
+<script>
+var LOGALL=[];
+function logPush(t){LOGALL.push({a:(G&&G.actions)||0,t:String(t)});if(LOGALL.length>300)LOGALL.shift()}
+function showLog(){$("mt").textContent="バトルログ";$("mx").innerHTML="<div class='logbox'>"+(LOGALL.length?LOGALL.slice().reverse().map(x=>"<div><small>T"+(x.a+1)+"</small>"+esc(x.t)+"</div>").join(""):"<div>まだログはありません</div>")+"</div><p style='font-size:.72rem;color:var(--mu);margin:6px 0 0'>新しい順・直近300件</p>";$("mb").textContent="閉じる";$("md").hidden=false}
+$("lgb").onclick=showLog;
+// ライト/ダーク手動切替（自動→ライト→ダーク）
+const THEMES=["auto","light","dark"],THEME_LBL={auto:"自動",light:"ライト",dark:"ダーク"},THEME_ICO={auto:"🌓",light:"☀️",dark:"🌙"};
+let THEME="auto";try{const t=localStorage.getItem("colosseoTheme");if(t==="light"||t==="dark")THEME=t}catch(_){}
+function applyTheme(){const r=document.documentElement;if(THEME==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",THEME);try{localStorage.setItem("colosseoTheme",THEME)}catch(_){}
+ $("tb").textContent=THEME_ICO[THEME];$("themeBtn").textContent="表示テーマ："+THEME_LBL[THEME]+"（タップで切替）";
+ const dark=THEME==="dark"||(THEME==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches),m=document.querySelector('meta[name="theme-color"]');if(m)m.content=dark?"#15283d":"#8bbce8"}
+const nextTheme=()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%3];applyTheme()};
+$("tb").onclick=nextTheme;$("themeBtn").onclick=nextTheme;applyTheme();
+// もう一度遊ぶ（コンピューター戦）
+$("again").onclick=()=>{if(MODE!=="cpu")return;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");startCpu(CPU_COUNT)};
+// カード図鑑
+const ZK_GROUPS=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
+const zkLab=c=>c.t==="a"?(c.mimic||c.metronome?"特殊技":KL[c.k]||"攻撃"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
+const zkGroup=c=>c.t==="u"?"b":c.t;
+function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
+ const list=C.filter(c=>!c.helperMove);
+ const tabs="<div class='zk-tabs'>"+[["all","全て"],...ZK_GROUPS].map(([k,n])=>"<button class='btn"+(k===cat?" pri":"")+"' data-zk='"+k+"'>"+n+"</button>").join("")+"</div>";
+ let body="";
+ ZK_GROUPS.forEach(([k,n])=>{if(cat!=="all"&&cat!==k)return;const items=list.filter(c=>zkGroup(c)===k);if(!items.length)return;
+  body+="<div class='zk-h'>"+n+"（"+items.length+"）</div>"+items.map(c=>{const pw=c.t==="a"?(c.ko?"一撃必殺":c.d?"威力"+c.d:""):"";
+   return "<div class='zk "+c.t+"'><div class='zk-i'>"+monArt(c)+"</div><div class='zk-b'><b>"+esc(c.n)+"</b><div class='tr'><span class='tag'>"+zkLab(c)+(pw?" "+pw:"")+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</div><small>"+esc(c.x||"")+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small></div></div>"}).join("")});
+ $("mx").innerHTML=tabs+"<div class='zk-grid'>"+body+"</div>";
+ $("mx").querySelectorAll("[data-zk]").forEach(b=>b.onclick=()=>zukan(b.dataset.zk));
+ $("mb").textContent="閉じる";$("md").hidden=false}
+$("openZukan").onclick=()=>zukan("all");
+// PWA
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
