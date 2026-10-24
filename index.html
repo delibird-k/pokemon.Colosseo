@@ -531,16 +531,20 @@ async function helperAction(owner,forcedHelper=null){
   }else for(const t of targets){if(t.d)continue;await helperHit(t,L.d+5,L.k||"s",name,true)}
  }
  else if(h.kind==="lugia"){
-  const foes=G.P.filter(x=>x!==owner&&!x.d);
-  const withHelper=foes.filter(x=>x.helper&&!x.helper.dead&&x.helper.hp>0),withCards=foes.filter(x=>x.h.length>0);
+  const turnNow=G.actions||0,last=h.aeroLastTarget||{};
+  const foes=G.P.filter(x=>x!==owner&&!x.d&&x.id!==last.id||false);
+  const eligible=G.P.filter(x=>x!==owner&&!x.d&&(!last.id||x.id!==last.id||turnNow-last.action>=5));
+  const withHelper=eligible.filter(x=>x.helper&&!x.helper.dead&&x.helper.hp>0),withCards=eligible.filter(x=>x.h.length>0);
   const killHelper=withHelper.length>0&&(!withCards.length||Math.random()<.5),pool=killHelper?withHelper:withCards;
-  if(!pool.length){await ev("ルギアのエアロブラスト！ しかし何も起こらなかった…");return}
+  if(!pool.length){await ev("ルギアのエアロブラスト！ 5ターン以内に攻撃できる相手がいない…");return}
   const t=rd(pool),card={id:"lugia",n:"エアロブラスト",t:"s",d:0,blast:1,x:"ポケモンの技",helperSprite:hs};
+  h.aeroLastTarget={id:t.id,action:turnNow};
   G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ルギア",displayCard:card};
   await ev("ルギアのエアロブラスト！ "+t.n+"に襲いかかる…",700);
+  if(Math.random()>=.75){await ev("エアロブラストは外れた！",600);return}
   if(await palkiaBlock(t,"エアロブラスト"))return;
   if(killHelper){const th=t.helper;th.dead=true;th.hp=0;await ev("エアロブラスト！ "+t.n+"の"+th.name+"を消し飛ばした！")}
-  else{const n=Math.min(3,t.h.length);for(let j=0;j<n;j++)t.h.splice(Math.floor(Math.random()*t.h.length),1);await ev("エアロブラスト！ "+t.n+"の手札を"+n+"枚吹き飛ばした！")}
+  else{const n=Math.min(2,t.h.length);for(let j=0;j<n;j++)t.h.splice(Math.floor(Math.random()*t.h.length),1);await ev("エアロブラスト！ "+t.n+"の手札を"+n+"枚吹き飛ばした！")}
  }
  else if(h.kind==="glalie"){
   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
