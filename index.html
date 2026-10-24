@@ -244,7 +244,7 @@ const C=[
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",ch:.75,x:"ねむり（75%）"},
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（75%）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（75%）"},
-{id:"shiny_delibird",n:"色違いデリバード",t:"a",k:"s",d:0,gift:1,secret:1,keep:1,x:"プレゼント：5・10・15・20ダメージ、またはHP10回復（各20%）"}];
+{id:"shiny_delibird",n:"プレゼント",t:"a",k:"s",d:0,gift:1,secret:1,keep:1,x:"プレゼント：5・10・15・20ダメージ、またはHP10回復（各20%）"}];
 C.forEach((c,i)=>c.i=i);
 // 抽選表：攻撃12、通常変化3、回復5、防御9、商売4、強化5。
 const byType=t=>C.filter(c=>c.t===t);
@@ -303,7 +303,7 @@ const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.
 const addCard=(p,k)=>{if(p.h.length>=99)return false;p.h.push(k);return true};
 const draw=(p,players=G?.P||[p],amount=null)=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}const n=amount==null?Math.max(0,9-p.h.length):Math.max(0,Number(amount)||0);for(let i=0;i<n&&p.h.length<99;i++)p.h.push((G?.fingerMode||FINGER_MODE)?(Math.random()<.2?C.find(c=>c.id==="metronome").i:C.find(c=>c.id==="pp4").i):pick(players,p))};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
-const newGame=(P,endAt=50)=>{rollShiny();const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n===secret.n){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
+const newGame=(P,endAt=50)=>{rollShiny();const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="intermediate";const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
@@ -404,7 +404,7 @@ async function market(a,o,c){
   const x=C[op[i]];if(a.h.length>=99)return ev(a.n+"の手札は99枚でいっぱいだ！");a.mo-=pr(x);addCard(a,x.i);return ev(a.n+"は"+x.n+"を買った！（-¥"+pr(x)+"）")}
  let i;if(!a.bot)i=await ask(ai,"sell",{});else i=["b","s","d","h","a"].map(t=>a.h.findIndex(k=>C[k].t===t&&!C[k].keep)).find(j=>j>=0);
  i=Number(i);if(!(i>=0&&i<a.h.length))return ev(a.n+"は何も売らなかった");
- if(C[a.h[i]].keep)return ev("色違いデリバードは売れない！");
+ if(C[a.h[i]].keep)return ev("プレゼントは売れない！");
  const k=a.h.splice(i,1)[0],p=pr(C[k]);let rest=p;const pm=Math.min(o.mo,rest);o.mo-=pm;rest-=pm;const pq=Math.min(o.pp,rest);o.pp-=pq;rest-=pq;const ph=rest;o.hp=Math.max(0,o.hp-ph);if(o.h.length<99)addCard(o,k);else a.h.push(k);a.mo+=p;draw(a);
  const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
