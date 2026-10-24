@@ -284,7 +284,7 @@ let EXP_SHINY={cards:{},helpers:{}};try{const t=JSON.parse(localStorage.getItem(
 const saveExpShiny=()=>{try{localStorage.setItem("colosseoExpShiny",JSON.stringify(EXP_SHINY))}catch(_){}};
 const shinyOK=id=>{const m=CARD_MON[id];return !!m&&id!=="shiny_delibird"&&!/^satoshi/.test(id)&&typeof m[0]==="number"};
 // 色違いボーナス：攻撃威力+3／一撃必殺30%／防御+3（壁は被ダメ-8）／変化技は必中／PP消費なし。元の値は bd・br・bch に保存して引き直す
-const applyShinyCard=id=>{const m=CARD_MON[id],c=C.find(x=>x.id===id);if(!m||!c)return;if(c.bd===undefined){c.bd=c.d;c.br=c.r;c.bch=c.ch}
+const applyShinyCard=id=>{const m=CARD_MON[id],c=C.find(x=>x.id===id);if(!m||!c)return;if(!c.baseSet){c.baseSet=1;c.bd=c.d;c.br=c.r;c.bch=c.ch}
  const sh=!!m[2];c.shiny=sh;
  if(c.t==="a"&&c.bd>0&&!c.ko&&!c.mimic&&!c.metronome&&!c.gift)c.d=c.bd+(sh?3:0);
  if(c.ko)c.ch=c.bch+(sh?.1:0);
