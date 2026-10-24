@@ -278,7 +278,7 @@ const CARD_MON={
  closecombat:[68,"カイリキー"],flareblitz:[59,"ウインディ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[812,"ゴリランダー"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
  protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[861,"オーロンゲ"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"],shiny_delibird:[225,"色違いデリバード"],satoshi_spark:[10094,"サトシピカチュウ"],satoshi_waterstar:[10117,"サトシゲッコウガ"]
 };
-const SHINY_RATE=.03;
+const SHINY_RATE=.025;
 // 0%!%モード用：どのカード・伝説を色違いにするか（ブラウザに保存）
 let EXP_SHINY={cards:{},helpers:{}};try{const t=JSON.parse(localStorage.getItem("colosseoExpShiny")||"null");if(t&&t.cards&&t.helpers)EXP_SHINY=t}catch(_){}
 const saveExpShiny=()=>{try{localStorage.setItem("colosseoExpShiny",JSON.stringify(EXP_SHINY))}catch(_){}};
