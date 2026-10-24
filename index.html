@@ -313,7 +313,7 @@ function render(){
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!rt(M))||(M.t==="s")||M.id==="sell");
  const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
   if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
-  if(c.t==="b")return !c.aim&&!c.sash&&!!M&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
+  if(c.t==="b")return !c.aim&&!c.sash&&!!M&&!M.gift&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.stun>0?'<span class="tag">行動不能 '+p.stun+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
  const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div class=\"helper-status-card\" data-helper=\""+esc(p.helper.name)+"\" tabindex=\"0\" title=\"効果を見る\" style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0;cursor:pointer\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/40</span></div>").join("");}
@@ -560,7 +560,7 @@ async function act0(a,o,c,bo,bs){
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment)a.pp--;
- if(c.t==="a"&&!c.mimic)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n};
+ if(c.t==="a"&&!c.mimic&&!c.gift)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n};
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
  if(c.miss&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);if(!c.all&&t!==a&&await palkiaBlock(t,c.n))return;
  if(c.ko&&c.all){
@@ -626,7 +626,7 @@ function bot(p,i){
  else c=hh[0]||pc[0]||sts[0];
  if(!c)return{ps:1,ids:[Math.random()*p.h.length|0],tg};
  const ids=[ix(c)];
- if((c.t==="a"||c.t==="s")&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
+ if((c.t==="a"||c.t==="s")&&!c.gift&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i,extra){
  G.bd=null;G.ask=null;if(!extra){if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--}await ev(p.n+(extra?"の割り込み行動":"のターン"),600);if(!extra&&p.helper&&p.helper.kind==="heal"&&!p.helper.dead&&p.helper.hp>0){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
