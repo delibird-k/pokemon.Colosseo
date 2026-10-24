@@ -362,7 +362,7 @@ function reply(n,v){if(W&&W.n===n){const r=W.r;W=null;G.ask=null;r(v)}}
 function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v}}).catch(()=>{});render()}}
 function ask(i,k,d){return new Promise(r=>{const n=++SEQ;G.ask={to:i,k,d,n};W={n,r};if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
 // ===== ゲーム進行（ホスト側） =====
-function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;p.saveMsg=p.n+"はきあいのタスキでこらえた！";out.push(p)}}if(!p.d&&p.hp<=0&&helperIsActive(p,"ホウオウ")){const h=p.helper;h.dead=true;h.hp=0;p.hp=50;p.al=null;p.saveMsg="ホウオウのさいせいのほのお！ "+p.n+"はHP50で復活した！ ホウオウは飛び去った…";out.push(p)}}return out}
+function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;p.saveMsg=p.n+"はきあいのタスキでこらえた！";out.push(p)}}if(!p.d&&p.hp<=0&&helperIsActive(p,"ホウオウ")){const h=p.helper,rv=h.shiny?99:50;h.dead=true;h.hp=0;p.hp=rv;p.al=null;p.saveMsg="ホウオウのさいせいのほのお！ "+p.n+"はHP"+rv+"で復活した！ ホウオウは飛び去った…";out.push(p)}}return out}
 function satoshiFix(p){if(!p||(!p.satoshiSpark&&!p.satoshiGren))return;const idx=id=>C.findIndex(c=>c.id===id),m={};if(p.satoshiSpark)m[idx("spark")]=idx("satoshi_spark");if(p.satoshiGren)m[idx("waterstar")]=idx("satoshi_waterstar");p.h=p.h.map(k=>m[k]!==undefined?m[k]:k)}
 function normalizeSecret(){const s=C.find(c=>c.secret);if(!s||!G||G.experiment)return;for(const p of G.P){p.h=p.h.filter(k=>k!==s.i);if(p.secretKeep&&!p.d)p.h.push(s.i)}}
 function chk(){if(G.surrendered)return true;normalizeSecret();G.P.forEach(satoshiFix);sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
@@ -446,12 +446,13 @@ async function summonHelper(p){
  // 新しい仲間を呼んでも、すでにいる仲間は残す。効果は仲間ごとに記録する。
  if(!G.usedHelpers)G.usedHelpers=[];G.usedHelpers.push(h.name);if(!p.helpers)p.helpers=[];
  const shiny=G.experiment?!!EXP_SHINY.helpers[h.name]:Math.random()<HELPER_SHINY_RATE;const summoned={...h,hp:40,owner:p.id,dead:false,shiny};p.helpers.push(summoned);p.helper=summoned;
- if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
+ if(h.kind==="burst"&&shiny&&G.P.some(x=>x.d)){await ev("✨色違いアルセウスが降臨！ 倒れた者たちに奇跡を起こす！",600);for(const t of G.P.filter(x=>x.d)){t.d=0;t.hp=50;t.al=null;t.stun=0;await ev(t.n+"がHP50で復活した！",600)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
+ else if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
  else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev((shiny?"✨色違いの":"")+h.name+"が出た！")}
  else if(h.kind==="passiveDefense")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
  else if(h.kind==="passiveAttack")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
- else if(h.kind==="mew")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="mew"){await ev((shiny?"✨色違いの":"")+h.name+"が出た！");if(shiny){p.hp=99;p.pp=99;p.mo=999;await ev("色違いミュウの奇跡！ "+p.n+"のHP・PP・お金が最大になった！")}}
  else if(h.kind==="zygarde")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
  else if(h.kind==="giratina")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
  else if(h.kind==="lugia")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
@@ -549,17 +550,17 @@ async function helperAction(owner,forcedHelper=null){
    if(await palkiaBlock(t,"ぜったいれいど"))continue;
    const guard=await getDef(t,card,0);
    if(guard&&(guard.b||guard.bs)){await ev(t.n+"は攻撃を防いだ！",500);continue}
-   if(t.h.includes(aimI)||Math.random()<.3){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はオニゴーリのぜったいれいどで一撃でたおれた！",700)}
+   if(t.h.includes(aimI)||Math.random()<(h.shiny?.5:.3)){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はオニゴーリのぜったいれいどで一撃でたおれた！",700)}
    else await ev("ぜったいれいどは "+t.n+"に はずれた！",500);
   }
  }
 }
 function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&!h.dead&&h.hp>0)}
 async function palkiaBlock(t,src){if(helperIsActive(t,"パルキア")&&Math.random()<.33){if(G.bd){G.bd.tg=G.P.indexOf(t);G.bd.palkia=1}await ev("パルキアのあくうせつだん！ "+t.n+"への"+src+"を防いだ！",900);if(G.bd)G.bd.palkia=0;return true}return false}
-function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?7:helperIsActive(p,"ジガルデ100％")?5:0}
-function helperBonusLabel(p){return helperIsActive(p,"イベルタル")?"イベルタル補正＋7":"ジガルデ補正＋5"}
+function helperDamageBonus(p){const v=p&&p.helper&&p.helper.shiny?10:0;return helperIsActive(p,"イベルタル")?(v||7):helperIsActive(p,"ジガルデ100％")?(v||5):0}
+function helperBonusLabel(p){return (helperIsActive(p,"イベルタル")?"イベルタル":"ジガルデ")+"補正＋"+helperDamageBonus(p)}
 function wallRed(t,k){return k==="p"&&t.reflect>0?(t.reflectAmt||5):k==="s"&&t.lightScreen>0?(t.lightScreenAmt||5):0}
-function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?7:helperIsActive(p,"ジガルデ100％")?5:0}
+function helperDamageReduction(p){const v=p&&p.helper&&p.helper.shiny?10:0;return helperIsActive(p,"ゼルネアス")?(v||7):helperIsActive(p,"ジガルデ100％")?(v||5):0}
 function mewOn(){return !!(G&&G.P.some(x=>!x.d&&helperIsActive(x,"ミュウ")))}
 function rt(c){return !!(c&&(c.randomTarget||(c.t==="a"&&!c.all&&mewOn())))}
 function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
@@ -936,7 +937,7 @@ phoenix:h=>"持ち主が倒されても一度だけHP50で復活する（状態�
 celebi:h=>"50%で発動。誰かの行動のあとに割り込んで、持ち主がもう一度行動する（ガード不可）",
 mewtwo:h=>"50%で発動。直前に使われた技を威力＋5で追撃する（ガード不可。直前の技がなければ不発）"};
 function legendHtml(){const tot=MASTER_HELPERS.reduce((a,h)=>a+h.weight,0);
- return "<div class='zk-h'>伝説（マスターボールで仲間になるポケモン）</div><div class='zk-note'>マスターボールを使うと、下のポケモンのどれかがランダムで仲間になります。仲間のHPは40で、持ち主が受けたダメージの分だけ仲間のHPも減り、0になると効果が消えます。「50%で発動」は、誰かが行動するたびに判定されます。いま誰かの仲間になっているポケモンは出ません（やられて消えたポケモンは再び出ます。アルセウスは1ゲームに1回だけです）。出現時に1%で色違いになり、色違いの仲間の技は必ず当たります。</div>"+
+ return "<div class='zk-h'>伝説（マスターボールで仲間になるポケモン）</div><div class='zk-note'>マスターボールを使うと、下のポケモンのどれかがランダムで仲間になります。仲間のHPは40で、持ち主が受けたダメージの分だけ仲間のHPも減り、0になると効果が消えます。「50%で発動」は、誰かが行動するたびに判定されます。いま誰かの仲間になっているポケモンは出ません（やられて消えたポケモンは再び出ます。アルセウスは1ゲームに1回だけです）。出現時に1%で色違いになり、色違いの仲間の技は必ず当たります。色違いの特別効果：ゼルネアス（受けるダメージ−10）・イベルタル（与えるダメージ＋10）・ジガルデ（攻防とも10）、ホウオウ（HP99で復活）、アルセウス（倒れたプレイヤー全員をHP50で復活。倒れた人がいなければ通常の99ダメージ）、オニゴーリ（ぜったいれいど50%）、ミュウ（呼んだ人のHP・PP・お金が最大）。</div>"+
  MASTER_HELPERS.map(h=>{const f=LEG_FX[h.kind]?LEG_FX[h.kind](h):"仲間になって効果を発揮";
   return "<div class='zk leg'><div class='zk-i'><div class='card-mon'><img loading='lazy' alt='' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png'></div></div><div class='zk-b'><b>"+esc(h.name)+"</b><div class='tr'><span class='tag'>"+(h.kind==="burst"?"即発動":"HP40")+"</span><span class='tag'>出現 "+(h.weight/tot*100).toFixed(1)+"%</span></div><small>"+esc(f)+"</small></div></div>"}).join("")}
 function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
