@@ -243,7 +243,8 @@ const C=[
 {id:"confuse",n:"あやしいひかり",t:"s",al:"confusion",ch:.75,x:"こんらん（75%）"},
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",ch:.75,x:"ねむり（75%）"},
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（75%）"},
-{id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（75%）"}];
+{id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（75%）"},
+{id:"shiny_delibird",n:"色違いデリバード",t:"a",k:"s",d:0,gift:1,x:"プレゼント：5・10・15・20ダメージ、またはHP10回復（各20%）"}];
 C.forEach((c,i)=>c.i=i);
 // 抽選表：攻撃12、通常変化3、回復5、防御9、商売4、強化5。
 const byType=t=>C.filter(c=>c.t===t);
