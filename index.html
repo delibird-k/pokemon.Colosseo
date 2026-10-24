@@ -532,7 +532,6 @@ async function helperAction(owner,forcedHelper=null){
  }
  else if(h.kind==="lugia"){
   const turnNow=G.actions||0,last=h.aeroLastTarget||{};
-  const foes=G.P.filter(x=>x!==owner&&!x.d&&x.id!==last.id||false);
   const eligible=G.P.filter(x=>x!==owner&&!x.d&&(!last.id||x.id!==last.id||turnNow-last.action>=5));
   const withHelper=eligible.filter(x=>x.helper&&!x.helper.dead&&x.helper.hp>0),withCards=eligible.filter(x=>x.h.length>0);
   const killHelper=withHelper.length>0&&(!withCards.length||Math.random()<.5),pool=killHelper?withHelper:withCards;
