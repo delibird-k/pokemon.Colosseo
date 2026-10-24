@@ -209,11 +209,11 @@ const C=[
  {id:"zcrystal",n:"Zクリスタル",t:"b",k:"z",d:10,z:1,x:"ゲーム中1回のみ。技のタイプに応じたZワザ名に変化し、威力+10"},
  {id:"luckypunch",n:"ラッキーパンチ",t:"b",k:"lucky",d:0,lucky:1,x:"追加効果のある技と一緒に出すと、追加効果が必ず発動"},
 {id:"sash",n:"きあいのタスキ",t:"b",k:"none",d:0,sash:1,x:"持っていると、倒される攻撃をHP1で耐える（1回きり）"},
-{id:"jw_normal",n:"ノーマルジュエル",t:"b",k:"jewel",jt:"ノーマル",d:7,x:"ノーマルタイプの技に重ねて+7"},
-{id:"jw_fire",n:"ほのおジュエル",t:"b",k:"jewel",jt:"ほのお",d:7,x:"ほのおタイプの技に重ねて+7"},
-{id:"jw_water",n:"みずジュエル",t:"b",k:"jewel",jt:"みず",d:7,x:"みずタイプの技に重ねて+7"},
-{id:"jw_elec",n:"でんきジュエル",t:"b",k:"jewel",jt:"でんき",d:7,x:"でんきタイプの技に重ねて+7"},
-{id:"jw_grass",n:"くさジュエル",t:"b",k:"jewel",jt:"くさ",d:7,x:"くさタイプの技に重ねて+7"},
+{id:"jw_normal",n:"ノーマルジュエル",t:"b",k:"jewel",jt:"ノーマル",d:5,x:"ノーマルタイプの技に重ねて+5"},
+{id:"jw_fire",n:"ほのおジュエル",t:"b",k:"jewel",jt:"ほのお",d:5,x:"ほのおタイプの技に重ねて+5"},
+{id:"jw_water",n:"みずジュエル",t:"b",k:"jewel",jt:"みず",d:5,x:"みずタイプの技に重ねて+5"},
+{id:"jw_elec",n:"でんきジュエル",t:"b",k:"jewel",jt:"でんき",d:5,x:"でんきタイプの技に重ねて+5"},
+{id:"jw_grass",n:"くさジュエル",t:"b",k:"jewel",jt:"くさ",d:5,x:"くさタイプの技に重ねて+5"},
 {id:"masterball",n:"マスターボール",t:"u",x:"ポケモンを呼び出す"},
 {id:"protect",n:"まもる",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ"},
 {id:"detect",n:"みきり",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ"},
@@ -674,7 +674,7 @@ async function endEvent(p){
  const alive=G.P.filter(x=>!x.d);if(!alive.length)return;
  const roll=Math.random();
  if(roll<.45){
-  const name=rd(END_POKEMON),rawDamage=({"イベルタル":7,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
+  const name=rd(END_POKEMON),rawDamage=({"イベルタル":10,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
   await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
@@ -775,11 +775,11 @@ function showRules(){
  $("mt").textContent="ルール";
  $("mx").innerHTML=`<div class="rules-layout rules-accordion">
  <details class="rule-card"><summary>基本ルール</summary><p>HP50・PP10・20円で開始。最後まで生き残れば勝ち（最大9人）。</p><p>カードを使って行動。使わないときはカードを1枚捨てて交代できます。</p></details>
- <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋2</li><li>ものしりメガネ：特殊＋2</li><li>いのちのたま：技＋7、自分も5ダメージ</li><li>Zクリスタル：ゲーム中1回のみ。技のタイプに応じてZワザ名に変化し、威力＋10</li><li>メガストーン：対応するポケモンの技と一緒に出すと、アイコンがメガシンカ後になり威力＋10</li><li>ラッキーパンチ：追加効果のある技と一緒に出すと、追加効果が必ず発動</li><li>タイプジュエル：同タイプ技＋7</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
+ <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋2</li><li>ものしりメガネ：特殊＋2</li><li>いのちのたま：技＋7、自分も5ダメージ</li><li>Zクリスタル：ゲーム中1回のみ。技のタイプに応じてZワザ名に変化し、威力＋10</li><li>メガストーン：対応するポケモンの技と一緒に出すと、アイコンがメガシンカ後になり威力＋10</li><li>ラッキーパンチ：追加効果のある技と一緒に出すと、追加効果が必ず発動</li><li>タイプジュエル：同タイプ技＋5</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
  <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのりは全体攻撃です。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
  <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：毎ターン20%で回復</li><li>こんらん：自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
- <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル7ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
+ <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル10ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
  <details class="rule-card"><summary>特殊ルール・技</summary><p>「まねっこ」は直前の技を再現。「ゆびをふる」は攻撃技をランダムに使用。</p><p>ゆびをふるモードでは手札が「ゆびをふる」「ピーピーマックス」になります。</p><p>タイプ相性による威力変化はありません。きあいのタスキは倒される攻撃をHP1で耐え、消費されます。</p></details>
  <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p></details>
  </div>`;
