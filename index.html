@@ -418,7 +418,7 @@ async function market(a,o,c){
  const k=a.h.splice(i,1)[0],p=pr(C[k]);let rest=p;const pm=Math.min(o.mo,rest);o.mo-=pm;rest-=pm;const pq=Math.min(o.pp,rest);o.pp-=pq;rest-=pq;const ph=rest;o.hp=Math.max(0,o.hp-ph);if(o.h.length<99)addCard(o,k);else a.h.push(k);a.mo+=p;draw(a);
  const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
-const HELPER_RATE=.5,HELPER_SHINY_RATE=.01;
+const HELPER_RATE=.25,HELPER_SHINY_RATE=.01;
 const MASTER_HELPERS=[
 {name:"グラードン",weight:100,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
 {name:"カイオーガ",weight:100,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
@@ -462,7 +462,7 @@ async function summonHelper(p){
  else await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
 }
 async function helperAction(owner,forcedHelper=null){
- const h=forcedHelper||owner.helper;if(!h||h.dead||h.hp<=0||(!forcedHelper&&Math.random()>=1-HELPER_RATE))return;
+ const h=forcedHelper||owner.helper;if(!h||h.dead||h.hp<=0||(!forcedHelper&&Math.random()>=(h.shiny?.5:HELPER_RATE)))return;
  const ownerIndex=G.P.indexOf(owner);const hs=(h.shiny?"shiny/":"")+h.sprite;
  async function helperHit(t,dmg,kind,move,noGuard){
   const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
