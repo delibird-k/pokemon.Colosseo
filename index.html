@@ -587,7 +587,7 @@ async function act0(a,o,c,bo,bs){
   const g=Math.min(c.d,99-a.hp);a.hp+=g;return ev(a.n+"は"+c.n+"！ HP+"+g)}
  if(c.metronome){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"は ゆびをふった！",700);const pool=C.filter(x=>x.t==="a"&&!x.secret&&!x.mimic&&!x.metronome&&(!x.helperMove||G.experiment));const mv=rd(pool);await ev(mv.n+"が出た！",700);c=mv;bs=[];bo=0}
  if(c.mimic){if(!G.last){G.bd={a:G.P.indexOf(a),c:c.i,b:[],bo:0,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);return ev("しかし まねする技がなかった！")}c=ef(c)}
- G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o),displayCard:c.megaSprite?c:undefined};await ev(a.n+"の "+c.n+"！",700);
+ G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o),displayCard:(c.megaSprite||c.zOriginalName)?c:undefined};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment&&!free)a.pp--;
