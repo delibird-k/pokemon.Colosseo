@@ -276,7 +276,12 @@ const CARD_MON={
  closecombat:[68,"カイリキー"],flareblitz:[59,"ウインディ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[812,"ゴリランダー"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
  protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[861,"オーロンゲ"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"],shiny_delibird:[225,"色違いデリバード"]
 };
-const rollShiny=()=>Object.keys(CARD_MON).forEach(id=>{const m=CARD_MON[id];m[2]=id!=="shiny_delibird"&&typeof m[0]==="number"&&Math.random()<.05});rollShiny();
+const rollShiny=()=>Object.keys(CARD_MON).forEach(id=>{const m=CARD_MON[id];m[2]=id!=="shiny_delibird"&&typeof m[0]==="number"&&Math.random()<.05;
+ // 色違いのカードは効果+1（攻撃は威力、防御は軽減量。元の値は bd / br に保存して毎ゲーム引き直す）
+ const c=C.find(x=>x.id===id);if(!c)return;if(c.bd===undefined){c.bd=c.d;c.br=c.r}
+ const up=m[2]?1:0;
+ if(c.t==="a"&&c.bd>0&&!c.ko&&!c.mimic&&!c.metronome&&!c.gift)c.d=c.bd+up;
+ if(c.t==="d"&&!c.b&&c.br>0)c.r=c.br+up});rollShiny();
 const spr=id=>{const m=CARD_MON[id];return id==="shiny_delibird"?"shiny/225":(m[2]?"shiny/":"")+m[0]};
 const ITEM_IMG={band:"muscle-band",glasses:"wise-glasses",orb:"life-orb",aim:"ring-target",sash:"focus-sash",jw_normal:"normal-gem",jw_fire:"fire-gem",jw_water:"water-gem",jw_elec:"electric-gem",jw_grass:"grass-gem",masterball:"master-ball",potion:"potion",super:"super-potion",hyper:"hyper-potion",pp1:"ether",pp2:"max-ether",pp3:"elixir",pp4:"max-elixir",oran:"oran-berry",himeri:"leppa-berry",cure:"full-heal"};
 const itemArt=c=>ITEM_IMG[c.id]?"<div class='card-mon item-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/"+ITEM_IMG[c.id]+".png' alt=''></div>":"";
