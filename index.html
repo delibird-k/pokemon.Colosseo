@@ -130,7 +130,7 @@ header{padding:9px 16px}
 
 .helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
 <div id="play"><div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="helperStatus"></div><div id="hand"></div></div>
@@ -141,7 +141,7 @@ header{padding:9px 16px}
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
 <div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">ゆびをふるモード</b><div class="sg" style="margin:0"><button class="btn pri" id="fingerOff" type="button">OFF</button><button class="btn" id="fingerOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)"></small></div>
-<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
+<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="openShiny">色違い設定（0%!%モード）</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
 <div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
@@ -244,7 +244,9 @@ const C=[
 {id:"sleep",n:"さいみんじゅつ",t:"s",al:"sleep",ch:.75,x:"ねむり（75%）"},
 {id:"wisp",n:"おにび",t:"s",al:"burn",ch:.75,x:"やけど（75%）"},
 {id:"wave",n:"でんじは",t:"s",al:"paralysis",ch:.75,x:"まひ（75%）"},
-{id:"shiny_delibird",n:"プレゼント",t:"a",k:"s",d:0,gift:1,secret:1,keep:1,x:"プレゼント：5・10・15・20ダメージ、またはHP10回復（各20%）"}];
+{id:"shiny_delibird",n:"プレゼント",t:"a",k:"s",d:0,gift:1,secret:1,keep:1,x:"プレゼント：5・10・15・20ダメージ、またはHP10回復（各20%）"},
+{id:"satoshi_spark",n:"1000万ボルト",t:"a",k:"s",d:24,al:"paralysis",ch:.1,secret:1,x:"サトシのピカチュウ：10まんボルトの威力+15・10%でまひ"},
+{id:"satoshi_waterstar",n:"みずしゅりけん",t:"a",k:"s",d:7,hits:4,secret:1,x:"サトシゲッコウガ：4回攻撃・1発の威力7"}];
 C.forEach((c,i)=>c.i=i);
 // 抽選表：攻撃12、通常変化3、回復5、防御9、商売4、強化5。
 const byType=t=>C.filter(c=>c.t===t);
@@ -268,20 +270,26 @@ const CARD_PRICES={
  calm:5,cosmic:7,light:7,wall:7,iron:7,acidarmor:7,barrier:7,
  healorder:8,bravecharge:7,potion:4,super:7,hyper:9,pp1:3,pp2:5,
  pp3:7,pp4:9,oran:7,himeri:5,cure:6,shop:5,sell:5,exchange:4,
- confuse:7,sleep:8,wisp:7,wave:7
+ confuse:7,sleep:8,wisp:7,wave:7,satoshi_spark:15,satoshi_waterstar:10
 };
 const pr=c=>CARD_PRICES[c.id]??(c.t==="b"?8:c.t==="d"?6:c.t==="h"?5:c.t==="a"?6:c.t==="s"?7:c.t==="u"?12:5);
 const CARD_MON={
  tackle:[19,"コラッタ"],quick:[133,"イーブイ"],flame:[392,"ゴウカザル"],spark:[25,"ピカチュウ"],ice:[245,"スイクン"],shadow:[94,"ゲンガー"],earthquake:[445,"ガブリアス"],surf:[131,"ラプラス"],sheercold:[1002,"パオジアン"],fissure:[1003,"ディンルー"],
  closecombat:[68,"カイリキー"],flareblitz:[59,"ウインディ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[812,"ゴリランダー"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
- protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[861,"オーロンゲ"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"],shiny_delibird:[225,"色違いデリバード"]
+ protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[861,"オーロンゲ"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"],shiny_delibird:[225,"色違いデリバード"],satoshi_spark:[10094,"サトシピカチュウ"],satoshi_waterstar:[10117,"サトシゲッコウガ"]
 };
-const rollShiny=()=>Object.keys(CARD_MON).forEach(id=>{const m=CARD_MON[id];m[2]=id!=="shiny_delibird"&&typeof m[0]==="number"&&Math.random()<.05;
- // 色違いのカードは効果+1（攻撃は威力、防御は軽減量。元の値は bd / br に保存して毎ゲーム引き直す）
- const c=C.find(x=>x.id===id);if(!c)return;if(c.bd===undefined){c.bd=c.d;c.br=c.r}
- const up=m[2]?1:0;
- if(c.t==="a"&&c.bd>0&&!c.ko&&!c.mimic&&!c.metronome&&!c.gift)c.d=c.bd+up;
- if(c.t==="d"&&!c.b&&c.br>0)c.r=c.br+up});rollShiny();
+const SHINY_RATE=.03;
+// 0%!%モード用：どのカード・伝説を色違いにするか（ブラウザに保存）
+let EXP_SHINY={cards:{},helpers:{}};try{const t=JSON.parse(localStorage.getItem("colosseoExpShiny")||"null");if(t&&t.cards&&t.helpers)EXP_SHINY=t}catch(_){}
+const saveExpShiny=()=>{try{localStorage.setItem("colosseoExpShiny",JSON.stringify(EXP_SHINY))}catch(_){}};
+const shinyOK=id=>{const m=CARD_MON[id];return !!m&&id!=="shiny_delibird"&&!/^satoshi/.test(id)&&typeof m[0]==="number"};
+// 色違いボーナス：攻撃威力+3／一撃必殺30%／防御+3（壁は被ダメ-8）／変化技は必中／PP消費なし。元の値は bd・br・bch に保存して引き直す
+const applyShinyCard=id=>{const m=CARD_MON[id],c=C.find(x=>x.id===id);if(!m||!c)return;if(c.bd===undefined){c.bd=c.d;c.br=c.r;c.bch=c.ch}
+ const sh=!!m[2];c.shiny=sh;
+ if(c.t==="a"&&c.bd>0&&!c.ko&&!c.mimic&&!c.metronome&&!c.gift)c.d=c.bd+(sh?3:0);
+ if(c.ko)c.ch=c.bch+(sh?.1:0);
+ if(c.t==="d"&&!c.b&&c.br>0)c.r=c.br+(sh?3:0)};
+const rollShiny=exp=>Object.keys(CARD_MON).forEach(id=>{const m=CARD_MON[id];m[2]=shinyOK(id)&&(exp?!!EXP_SHINY.cards[id]:Math.random()<SHINY_RATE);applyShinyCard(id)});rollShiny(false);
 const spr=id=>{const m=CARD_MON[id];return id==="shiny_delibird"?"shiny/225":(m[2]?"shiny/":"")+m[0]};
 const ITEM_IMG={band:"muscle-band",glasses:"wise-glasses",orb:"life-orb",aim:"ring-target",sash:"focus-sash",jw_normal:"normal-gem",jw_fire:"fire-gem",jw_water:"water-gem",jw_elec:"electric-gem",jw_grass:"grass-gem",masterball:"master-ball",potion:"potion",super:"super-potion",hyper:"hyper-potion",pp1:"ether",pp2:"max-ether",pp3:"elixir",pp4:"max-elixir",oran:"oran-berry",himeri:"leppa-berry",cure:"full-heal"};
 const itemArt=c=>ITEM_IMG[c.id]?"<div class='card-mon item-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/"+ITEM_IMG[c.id]+".png' alt=''></div>":"";
@@ -292,7 +300,7 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const ef=x=>x&&x.mimic&&G&&G.last?{...x,d:G.last.d,k:G.last.k,all:G.last.all?1:0,ko:G.last.ko?1:0}:x;
 const mimicInfo=c=>c.x+(G&&G.last?"〔次は"+(G.last.ko?"一撃必殺":"威力"+G.last.d)+"・"+(G.last.all?"全体":"単体")+"〕":"〔まだ真似る技がない〕");
-const TYPE_OF={"たいあたり":"ノーマル","でんこうせっか":"ノーマル","ほのおのパンチ":"ほのお","10まんボルト":"でんき","れいとうビーム":"こおり","シャドーボール":"ゴースト","じしん":"じめん","なみのり":"みず","ぜったいれいど":"こおり","じわれ":"じめん","インファイト":"かくとう","フレアドライブ":"ほのお","ブレイブバード":"ひこう","げきりん":"ドラゴン","ストーンエッジ":"いわ","じゃれつく":"フェアリー","すてみタックル":"ノーマル","ダストシュート":"どく","かえんほうしゃ":"ほのお","サイコキネシス":"エスパー","ムーンフォース":"フェアリー","りゅうせいぐん":"ドラゴン","きあいだま":"かくとう","ヘドロばくだん":"どく","いわなだれ":"いわ","ふぶき":"こおり","ねっぷう":"ほのお","ハイパーボイス":"ノーマル","ほうでん":"でんき","まねっこ":"ノーマル","ゆびをふる":"ノーマル","あやしいひかり":"ゴースト","さいみんじゅつ":"エスパー","おにび":"ほのお","でんじは":"でんき","だんがいのつるぎ":"じめん","こんげんのはどう":"みず","ガリョウテンセイ":"ドラゴン","シャドーダイブ":"ゴースト","ときのほうこう":"ドラゴン","あくうせつだん":"ドラゴン","アクアブレイク":"みず","アクアジェット":"みず","ハイドロポンプ":"みず","みずしゅりけん":"みず","かみなり":"でんき","パラボラチャージ":"でんき","かみなりのキバ":"でんき","ドレインパンチ":"かくとう","はなびらのまい":"くさ","ギガドレイン":"くさ","エナジーボール":"くさ","リーフブレード":"くさ","ウッドハンマー":"くさ","ノーマルジュエル":"ノーマル","ほのおジュエル":"ほのお","みずジュエル":"みず","でんきジュエル":"でんき","くさジュエル":"くさ"},TYPE_COL={"ノーマル":"#8f8e6a","ほのお":"#e0742a","みず":"#4f7fe0","でんき":"#b89300","こおり":"#3fa6a3","かくとう":"#b8332e","どく":"#9a3a98","じめん":"#a98440","ひこう":"#7d6fd6","エスパー":"#e0447a","いわ":"#8f7b1c","ゴースト":"#665087","ドラゴン":"#5a2fd8","フェアリー":"#c06c9a","くさ":"#4a9e35"};
+const TYPE_OF={"たいあたり":"ノーマル","でんこうせっか":"ノーマル","ほのおのパンチ":"ほのお","10まんボルト":"でんき","れいとうビーム":"こおり","シャドーボール":"ゴースト","じしん":"じめん","なみのり":"みず","ぜったいれいど":"こおり","じわれ":"じめん","インファイト":"かくとう","フレアドライブ":"ほのお","ブレイブバード":"ひこう","げきりん":"ドラゴン","ストーンエッジ":"いわ","じゃれつく":"フェアリー","すてみタックル":"ノーマル","ダストシュート":"どく","かえんほうしゃ":"ほのお","サイコキネシス":"エスパー","ムーンフォース":"フェアリー","りゅうせいぐん":"ドラゴン","きあいだま":"かくとう","ヘドロばくだん":"どく","いわなだれ":"いわ","ふぶき":"こおり","ねっぷう":"ほのお","ハイパーボイス":"ノーマル","ほうでん":"でんき","まねっこ":"ノーマル","ゆびをふる":"ノーマル","あやしいひかり":"ゴースト","さいみんじゅつ":"エスパー","おにび":"ほのお","でんじは":"でんき","だんがいのつるぎ":"じめん","こんげんのはどう":"みず","ガリョウテンセイ":"ドラゴン","シャドーダイブ":"ゴースト","ときのほうこう":"ドラゴン","あくうせつだん":"ドラゴン","アクアブレイク":"みず","アクアジェット":"みず","ハイドロポンプ":"みず","みずしゅりけん":"みず","かみなり":"でんき","パラボラチャージ":"でんき","かみなりのキバ":"でんき","ドレインパンチ":"かくとう","はなびらのまい":"くさ","ギガドレイン":"くさ","エナジーボール":"くさ","リーフブレード":"くさ","ウッドハンマー":"くさ","ノーマルジュエル":"ノーマル","ほのおジュエル":"ほのお","みずジュエル":"みず","でんきジュエル":"でんき","くさジュエル":"くさ","1000万ボルト":"でんき"},TYPE_COL={"ノーマル":"#8f8e6a","ほのお":"#e0742a","みず":"#4f7fe0","でんき":"#b89300","こおり":"#3fa6a3","かくとう":"#b8332e","どく":"#9a3a98","じめん":"#a98440","ひこう":"#7d6fd6","エスパー":"#e0447a","いわ":"#8f7b1c","ゴースト":"#665087","ドラゴン":"#5a2fd8","フェアリー":"#c06c9a","くさ":"#4a9e35"};
 const TYPE_SHORT={"ノーマル":"無","かくとう":"格","どく":"毒","じめん":"地","ひこう":"飛","むし":"虫","いわ":"岩","ゴースト":"霊","はがね":"鋼","ほのお":"炎","みず":"水","でんき":"電","くさ":"草","こおり":"氷","エスパー":"超","ドラゴン":"龍","あく":"悪","フェアリー":"妖"};
 const tyTag=c=>{const t=c&&TYPE_OF[c.n];return t?"<i class='ty' style='background:"+TYPE_COL[t]+"'>"+(TYPE_SHORT[t]||t)+"</i>":""};
 const bm=(b,m)=>!!m&&(b.jt?(m.t==="a"&&TYPE_OF[m.n]===b.jt):(b.k==="any"||b.k===m.k));
@@ -301,14 +309,15 @@ const mc=c=>{const a=c.t==="a",m=CARD_MON[c.id],sprite=c.id==="shiny_delibird"?"
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
 const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge","hydropump","thunder","woodhammer","aquabreak","energyball","leafblade","thunderfang","petal","drainpunch","gigadrain","parabolic"]);if(!p.masterUsed&&!has("masterball")&&Math.random()<.7)add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&!c.secret&&p.pp>0&&(!c.helperMove||G?.experiment))).i};
 const addCard=(p,k)=>{if(p.h.length>=99)return false;p.h.push(k);return true};
-const draw=(p,players=G?.P||[p],amount=null)=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}const n=amount==null?Math.max(0,9-p.h.length):Math.max(0,Number(amount)||0);for(let i=0;i<n&&p.h.length<99;i++)p.h.push((G?.fingerMode||FINGER_MODE)?(Math.random()<.2?C.find(c=>c.id==="metronome").i:C.find(c=>c.id==="pp4").i):pick(players,p))};
+const draw=(p,players=G?.P||[p],amount=null)=>{if(G?.experiment){p.h=C.map(c=>c.i);p.hp=999999;p.pp=999999;return}const n=amount==null?Math.max(0,9-p.h.length):Math.max(0,Number(amount)||0);for(let i=0;i<n&&p.h.length<99;i++)p.h.push((G?.fingerMode||FINGER_MODE)?(Math.random()<.2?C.find(c=>c.id==="metronome").i:C.find(c=>c.id==="pp4").i):pick(players,p));satoshiFix(p)};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false});
-const newGame=(P,endAt=50)=>{rollShiny();const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
+const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;rollShiny(experiment);for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}if(p.n==="サトシ"){p.satoshiSpark=Math.random()<.5;p.satoshiGren=Math.random()<.5;satoshiFix(p)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="intermediate";const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1};
 // ===== 表示 =====
 function render(){
  if(!G)return;
+ {const sb=$("shinyBtn");if(sb)sb.hidden=!G.experiment}
  const tc=$("turnCount");if(tc)tc.textContent="ターン "+Math.max(1,(G.actions||0)+1);
  const me=G.P.findIndex(p=>p.id===MY),mp=G.P[me]||{h:[],pp:0,mo:0,n:"観戦"};
  const A=G.ask&&G.ask.to===me&&S.sent!==G.ask.n?G.ask:null;CA=A;
@@ -318,23 +327,23 @@ function render(){
  {const m0=S.sel.map(j=>C[mp.h[j]]).filter(Boolean).find(c=>c.t!=="b");if(m0)S.sel=S.sel.filter(j=>{const c=C[mp.h[j]];return !c||c.t!=="b"||bm(c,ef(m0))})}
  const sc=S.sel.map(j=>C[mp.h[j]]).filter(Boolean),M=ef(sc.find(c=>c.t!=="b")),bs=sc.filter(c=>c.t==="b");
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!rt(M))||(M.t==="s")||M.id==="sell");
- const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||S.sel.includes(j)||mp.pp>S.sel.length);if(!turn||(c.t==="d"&&!c.wall))return false;
-  if((c.t==="s"||c.t==="a")&&mp.pp<1)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
+ const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||c.shiny||S.sel.includes(j)||mp.pp>S.sel.filter(k=>{const x=C[mp.h[k]];return x&&x.id!=="sub"&&!x.shiny}).length);if(!turn||(c.t==="d"&&!c.wall))return false;
+  if((c.t==="s"||c.t==="a")&&mp.pp<1&&!c.shiny)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !c.aim&&!c.sash&&!!M&&!M.gift&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
  $("fs").innerHTML=G.P.map((p,i)=>'<div class="pl '+(i===me?"p":"e")+(i===G.t&&!p.d&&G.ph!=="over"?" tn":"")+(p.d?" dd":"")+(turn&&i===S.tg?" tg":"")+'" data-i="'+i+'"><i></i><div class="pinfo"><div class="pname-row"><b class="n">'+esc(p.n)+'</b>'+(p.al?'<span class="tag">'+AIL[p.al]+'</span>':'')+(p.stun>0?'<span class="tag">行動不能 '+p.stun+'</span>':'')+(p.reflect>0?'<span class="tag">リフレクター '+p.reflect+'</span>':'')+(p.lightScreen>0?'<span class="tag">ひかりのかべ '+p.lightScreen+'</span>':'')+'</div><div class="pstats"><span>HP<b class="'+(p.hp<=10?"lo":"")+'">'+p.hp+'</b></span><span>PP<b>'+p.pp+'</b></span><span>¥<b>'+p.mo+'</b></span></div></div></div>').join("");
- const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div class=\"helper-status-card\" data-helper=\""+esc(p.helper.name)+"\" tabindex=\"0\" title=\"効果を見る\" style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0;cursor:pointer\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/40</span></div>").join("");}
+ const hb=$("hand");hb.innerHTML="";const hs=$("helperStatus");if(hs){const alive=G.P.filter(p=>p.helper&&!p.helper.dead&&p.helper.hp>0);hs.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0;";hs.innerHTML=alive.map(p=>"<div class=\"helper-status-card\" data-helper=\""+esc(p.helper.name)+"\" tabindex=\"0\" title=\"効果を見る\" style=\"display:flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);font-size:.78rem;min-width:0;cursor:pointer\"><img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+(p.helper.shiny?"shiny/":"")+p.helper.sprite+".png\" alt=\"\" style=\"width:30px;height:30px;image-rendering:pixelated\"><span><b>"+esc(p.n)+": "+esc(p.helper.name)+"</b><br>HP "+p.helper.hp+"/40</span></div>").join("");}
  const groups=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
  const typeOrder=["ノーマル","ほのお","みず","でんき","くさ","こおり","かくとう","どく","じめん","ひこう","エスパー","むし","いわ","ゴースト","ドラゴン","あく","フェアリー"];
  groups.forEach(([type,title])=>{const items=mp.h.map((k,j)=>({k,j,c:C[k]})).filter(x=>type==="a"?x.c.t==="a":type==="b"?(x.c.t==="b"||x.c.id==="masterball"):x.c.t===type);if(type==="a")items.sort((x,y)=>{const a=typeOrder.indexOf(TYPE_OF[x.c.n]||"");const b=typeOrder.indexOf(TYPE_OF[y.c.n]||"");return (a<0?999:a)-(b<0?999:b)||x.j-y.j;});if(!items.length)return;
   const group=document.createElement("div");group.className="hand-group";const head=document.createElement("div");head.className="hand-group-title";head.textContent=title;group.appendChild(head);const row=document.createElement("div");row.className="hand-group-cards";group.appendChild(row);hb.appendChild(group);
   items.forEach(({k,j,c})=>{const b=document.createElement("button");b.className="c "+c.t+(S.sel.includes(j)?" on":"");b.disabled=!ok(c,j);b.dataset.cid=c.id;
-   b.innerHTML=c.t==="s"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+((c.id==="shiny_delibird"||CARD_MON[c.id][2])?"shiny/":"")+CARD_MON[c.id][0]+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+esc(c.x)+"</span></span>":c.t==="a"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+spr(c.id)+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(c.gift?"プレゼント":((ef(c).ko?"一撃必殺":((ef(c).k==="p"?"物":ef(c).k==="s"?"特":"攻")+ef(c).d))+(TYPE_SHORT[TYPE_OF[c.n]]||TYPE_OF[c.n]||"")))+ "</span></span>":c.t==="d"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+spr(c.id)+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(c.b||c.bs?"完全防御":c.id==="cosmic"?"全"+c.r:c.k==="p"?"防"+c.r:c.k==="s"?"特防"+c.r:"全"+(c.r||0))+"</span></span>":monArt(c)+(c.t==="m"?"<b>"+c.n+"</b>":"")+"<span class='tr'><span class='tag'>"+lab(c)+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</span><small>"+(c.mimic?mimicInfo(c):c.x)+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small>";
+   b.innerHTML=c.t==="s"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+((c.id==="shiny_delibird"||CARD_MON[c.id][2])?"shiny/":"")+CARD_MON[c.id][0]+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+esc(c.x)+"</span></span>":c.t==="a"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+spr(c.id)+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(c.gift?"プレゼント":((ef(c).ko?"一撃必殺":((ef(c).k==="p"?"物":ef(c).k==="s"?"特":"攻")+ef(c).d))+(TYPE_SHORT[TYPE_OF[c.n]]||TYPE_OF[c.n]||"")))+ "</span></span>":c.t==="d"?(CARD_MON[c.id]?"<div class='hand-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+spr(c.id)+".png' alt=''></div>":"")+"<span class='tr'><span class='tag attack-summary'>"+(c.b||c.bs?"完全防御":c.id==="cosmic"?"全"+c.r:c.k==="p"?"防"+c.r:c.k==="s"?"特防"+c.r:"全"+(c.r||0))+"</span></span>":monArt(c)+(c.t==="m"?"<b>"+c.n+"</b>":"")+"<span class='tr'><span class='tag'>"+lab(c)+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</span><small>"+(c.mimic?mimicInfo(c):c.x)+((c.t==="a"||c.t==="s")&&!c.shiny?"（PP1）":"")+"</small>";
    b.onclick=()=>{if(def||c.t==="b")S.sel=S.sel.includes(j)?S.sel.filter(x=>x!==j):[...S.sel,j];else S.sel=S.sel.length===1&&S.sel[0]===j?[]:[j];render()};row.appendChild(b)})});
  let bd=null;
- if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview=Math.floor(preview/2);let wallTargets=[];if(M.t==="a"&&M.all){wallTargets=G.P.filter(q=>q!==mp&&!q.d&&((M.k==="p"&&q.reflect>0)||(M.k==="s"&&q.lightScreen>0)));if(wallTargets.length===G.P.filter(q=>q!==mp&&!q.d).length&&wallTargets.length>0)preview-=5}else if(target&&M.t==="a"){preview-=helperDamageReduction(target);if(M.k==="p"&&target.reflect>0)preview-=5;if(M.k==="s"&&target.lightScreen>0)preview-=5}preview=Math.max(0,preview);let attackLabel=M.metronome?"ランダムな技"+(target&&!rt(M)?"⇒"+target.n:""):M.t==="a"?"攻"+preview+(target&&!M.all&&!rt(M)?"⇒"+target.n+"":"")+(M.t==="a"&&!M.all&&!M.randomTarget&&rt(M)?"（ミュウ：対象ランダム）":""):lab(M);if(M.t==="a"&&M.all&&wallTargets.length>0&&wallTargets.length<G.P.filter(q=>q!==mp&&!q.d).length)attackLabel+="（壁対象は−5）";bd=[M.t==="a"?"使用した技":"使用したカード",[M,...bs],attackLabel,"",[],""]}}
+ if(turn){if(M){const target=G.P[S.tg]&&G.P[S.tg]!==mp?G.P[S.tg]:null;const boost=bs.reduce((s,c)=>s+c.d,0);let preview=M.d+boost+(M.t==="a"?helperDamageBonus(mp):0);if(M.t==="a"&&mp.al==="burn"&&M.k==="p")preview=Math.floor(preview/2);let wallTargets=[];if(M.t==="a"&&M.all){wallTargets=G.P.filter(q=>q!==mp&&!q.d&&((M.k==="p"&&q.reflect>0)||(M.k==="s"&&q.lightScreen>0)));if(wallTargets.length===G.P.filter(q=>q!==mp&&!q.d).length&&wallTargets.length>0)preview-=Math.min(...wallTargets.map(q=>wallRed(q,M.k)))}else if(target&&M.t==="a"){preview-=helperDamageReduction(target);preview-=wallRed(target,M.k)}preview=Math.max(0,preview);let attackLabel=M.metronome?"ランダムな技"+(target&&!rt(M)?"⇒"+target.n:""):M.t==="a"?"攻"+preview+(target&&!M.all&&!rt(M)?"⇒"+target.n+"":"")+(M.t==="a"&&!M.all&&!M.randomTarget&&rt(M)?"（ミュウ：対象ランダム）":""):lab(M);if(M.t==="a"&&M.all&&wallTargets.length>0&&wallTargets.length<G.P.filter(q=>q!==mp&&!q.d).length)attackLabel+="（壁対象は−5）";bd=[M.t==="a"?"使用した技":"使用したカード",[M,...bs],attackLabel,"",[],""]}}
  else if(G.bd){const b=G.bd,c=b.displayCard||ef(C[b.c]),ds=b.palkia?[PALKIA_CARD]:def?sc:b.ds?b.ds.map(i=>C[i]):null;
-  bd=[c.t==="a"?"使用した技":"使用したカード",[c,...b.b.map(i=>C[i])],b.moveName?(c.ko?"一撃必殺":c.t==="a"?"攻"+(c.d+b.bo):c.steal?"カード強奪":c.blast?"吹き飛ばし":"行動不能"):c.metronome?"ランダムな技":c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?Math.ceil((c.d+b.bo+helperDamageBonus(G.P[b.a]))/2):0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+((c.k==="p"&&G.P[b.tg].reflect>0)||(c.k==="s"&&G.P[b.tg].lightScreen>0)?5:0):0)):lab(c),ds&&(b.palkia||!c.all&&!c.randomTarget)?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
+  bd=[c.t==="a"?"使用した技":"使用したカード",[c,...b.b.map(i=>C[i])],b.moveName?(c.ko?"一撃必殺":c.t==="a"?"攻"+(c.d+b.bo):c.steal?"カード強奪":c.blast?"吹き飛ばし":"行動不能"):c.metronome?"ランダムな技":c.t==="a"?"攻"+Math.max(0,c.d+b.bo+helperDamageBonus(G.P[b.a])-(G.P[b.a].al==="burn"&&c.k==="p"?Math.ceil((c.d+b.bo+helperDamageBonus(G.P[b.a]))/2):0)-(G.P[b.tg]&&!c.all&&!c.randomTarget?helperDamageReduction(G.P[b.tg])+wallRed(G.P[b.tg],c.k):0)):lab(c),ds&&(b.palkia||!c.all&&!c.randomTarget)?G.P[b.tg].n+"の防御":"",ds||[],ds&&ds.length?(ds.some(x=>x.b||c.t==="s"&&x.bs)?"完全防御":c.t==="s"?"無効化できない":"守"+red(ds,c)):""]}
  if(bd)board(...bd);else $("pv").innerHTML="";if(G.eventMon){const em=G.eventMon,desc=em.damage!==undefined?"防御不可のイベントダメージ":"イベント効果";$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(em.name)+(em.name==="アルセウス"?"の奇跡":(em.name==="ニャース"||em.name==="ニューラ")?"のどろぼう":"の攻撃")+"</div><div style='display:flex;align-items:center;justify-content:center;gap:12px;background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:6px;margin-top:4px'><img alt='"+esc(em.name)+"' src='"+END_SPRITES[em.name]+"' style='width:88px;height:88px;object-fit:contain'><div><b>"+esc(em.name)+"</b><div>"+desc+"</div><div>"+esc(em.detail||"")+"</div></div></div></div><div><div class='zc'>"+esc(em.target)+"</div><div class='pill'>"+(em.damage!==undefined?"HP −"+em.damage:esc(em.detail||"効果発動"))+"</div></div></div>"}
  $("use").hidden=!(turn||def);$("pass").hidden=!turn;$("sing").hidden=!turn;$("skip").hidden=!def;$("sur").hidden=!(MODE==="cpu"&&G.ph!=="over"&&me>=0&&!mp.d);$("sur").textContent=S.sur?"本当に降参する？（もう一度タップ）":"降参";
  $("use").textContent=def?"防御する":"使う";$("sing").textContent=mp.pp===0?"うたう":"様子をみる";$("sing").disabled=!turn||(mp.pp===0?false:mp.h.some(k=>C[k]&&C[k].t==="a"));
@@ -354,8 +363,9 @@ function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v
 function ask(i,k,d){return new Promise(r=>{const n=++SEQ;G.ask={to:i,k,d,n};W={n,r};if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
 // ===== ゲーム進行（ホスト側） =====
 function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;p.saveMsg=p.n+"はきあいのタスキでこらえた！";out.push(p)}}if(!p.d&&p.hp<=0&&helperIsActive(p,"ホウオウ")){const h=p.helper;h.dead=true;h.hp=0;p.hp=50;p.al=null;p.saveMsg="ホウオウのさいせいのほのお！ "+p.n+"はHP50で復活した！ ホウオウは飛び去った…";out.push(p)}}return out}
+function satoshiFix(p){if(!p||(!p.satoshiSpark&&!p.satoshiGren))return;const idx=id=>C.findIndex(c=>c.id===id),m={};if(p.satoshiSpark)m[idx("spark")]=idx("satoshi_spark");if(p.satoshiGren)m[idx("waterstar")]=idx("satoshi_waterstar");p.h=p.h.map(k=>m[k]!==undefined?m[k]:k)}
 function normalizeSecret(){const s=C.find(c=>c.secret);if(!s||!G||G.experiment)return;for(const p of G.P){p.h=p.h.filter(k=>k!==s.i);if(p.secretKeep&&!p.d)p.h.push(s.i)}}
-function chk(){if(G.surrendered)return true;normalizeSecret();sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
+function chk(){if(G.surrendered)return true;normalizeSecret();G.P.forEach(satoshiFix);sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
 async function can(a){
  if(a.stun>0){a.stun--;await ev(a.n+"は時間を止められて動けない！"+(a.stun>0?"（あと"+a.stun+"ターン）":""));return false}
  if(a.al==="sleep"){if(Math.random()<.2){a.al=null;await ev(a.n+"は目を覚ました！")}else{await ev(a.n+"はぐうぐう眠っている…");return false}}
@@ -371,12 +381,12 @@ async function getDef(t,c,bo,only){
  let ix;
  if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
-  for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&ix.filter(k=>C[t.h[k]].id!=="sub").length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
+  for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&!x.shiny&&ix.filter(k=>{const y=C[t.h[k]];return y.id!=="sub"&&!y.shiny}).length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
  ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id)));
  if(!ix.length)return null;
- const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost}ix=valid;
+ const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"||card.shiny?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost}ix=valid;
  if(!ix.length)return null;
  const ds=ix.map(j=>C[t.h[j]]);if(!G.experiment){t.h=t.h.filter((_,j)=>!ix.includes(j));t.pp-=ppCost;draw(t,G.P,ix.length)}G.bd.ds=ds.map(x=>x.i);
  const d=comb(ds);await ev(t.n+"は "+d.n+"！",800);return d}
@@ -408,6 +418,7 @@ async function market(a,o,c){
  const k=a.h.splice(i,1)[0],p=pr(C[k]);let rest=p;const pm=Math.min(o.mo,rest);o.mo-=pm;rest-=pm;const pq=Math.min(o.pp,rest);o.pp-=pq;rest-=pq;const ph=rest;o.hp=Math.max(0,o.hp-ph);if(o.h.length<99)addCard(o,k);else a.h.push(k);a.mo+=p;draw(a);
  const pay=[pm?"¥"+pm:"",pq?"PP-"+pq:"",ph?"HP-"+ph:""].filter(Boolean).join("・");
  return ev(a.n+"は"+C[k].n+"を"+o.n+"に売りつけた！（"+o.n+"の支払い："+pay+"）")}
+const HELPER_RATE=.5,HELPER_SHINY_RATE=.01;
 const MASTER_HELPERS=[
 {name:"グラードン",weight:100,sprite:383,kind:"allPhysical",move:"だんがいのつるぎ",values:[5,10,15,20,25,30]},
 {name:"カイオーガ",weight:100,sprite:382,kind:"allSpecial",move:"こんげんのはどう",values:[5,10,15,20,25,30]},
@@ -428,40 +439,40 @@ const MASTER_HELPERS=[
 {name:"ミュウツー",weight:100,sprite:150,kind:"mewtwo"},
 {name:"ルギア",weight:100,sprite:249,kind:"lugia"}];
 const HELPER_DEX={"ニャース":52,"ミュウツー":150,"ミュウ":151,"ハピナス":242,"ルギア":249,"ホウオウ":250,"セレビィ":251,"オニゴーリ":362,"カイオーガ":382,"グラードン":383,"レックウザ":384,"ディアルガ":483,"パルキア":484,"ギラティナ":487,"アルセウス":493,"ゼルネアス":716,"イベルタル":717,"ジガルデ100％":718};MASTER_HELPERS.sort((a,b)=>(HELPER_DEX[a.name]||9999)-(HELPER_DEX[b.name]||9999));const HELPER_SIGNATURE_MOVES={dialga:"ときのほうこう",giratina:"シャドーダイブ"};MASTER_HELPERS.forEach(h=>{const move=h.move||HELPER_SIGNATURE_MOVES[h.kind];if(!move)return;const c={id:"helpermove_"+h.sprite+"_"+move,n:move,t:"a",k:/グラードン|レックウザ|ディアルガ|ギラティナ/.test(h.name)?"p":"s",d:h.kind==="singlePhysical"?12:h.kind==="allPhysical"?12:h.kind==="allSpecial"?11:h.kind==="dialga"?15:h.kind==="giratina"?9:0,all:h.kind==="allPhysical"||h.kind==="allSpecial"?1:0,helperSprite:h.sprite,helperMove:1,x:h.name+"の専用技（原作威力の1/10・小数点以下切り捨て）"};c.i=C.length;C.push(c)});const helperTaken=h=>!!(G&&((h.kind==="burst"&&G.usedHelpers&&G.usedHelpers.includes(h.name))||(G.P||[]).some(p=>!p.d&&(p.helpers||[]).some(x=>x.name===h.name&&!x.dead&&x.hp>0))));function rollHelper(){let pool=MASTER_HELPERS.filter(h=>!helperTaken(h));if(!pool.length)pool=MASTER_HELPERS;const total=pool.reduce((s,h)=>s+h.weight,0);let n=Math.random()*total;for(const h of pool){n-=h.weight;if(n<0)return h}return pool[0]}
-async function chooseHelperInGame(){return new Promise(resolve=>{const old=document.getElementById("helperPickOverlay");if(old)old.remove();const overlay=document.createElement("div");overlay.id="helperPickOverlay";overlay.className="helper-pick-overlay";Object.assign(overlay.style,{position:"fixed",top:"0",right:"0",bottom:"0",left:"0",width:"100vw",height:"100dvh",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",margin:"0",padding:"14px",zIndex:"2147483647",background:"rgba(0,0,0,.72)"});const descriptions={allPhysical:"相手全員に物理攻撃",allSpecial:"相手全員に特殊攻撃",singlePhysical:"相手1人に強力な物理攻撃",heal:"自分のHP・PPを回復",passiveDefense:"受けるダメージを減らす",passiveAttack:"与えるダメージを増やす",money:"お金を増やす",burst:"相手全員に大ダメージ",dialga:"特殊な攻撃",palkia:"攻撃を防ぐ",glalie:"特殊効果",mew:"攻撃先をランダムにする",zygarde:"攻防強化・状態異常防止",giratina:"相手のカードを奪う",phoenix:"倒されても一度だけ復活",celebi:"誰の行動後にも割り込んで行動（ガード不可）",mewtwo:"直前の技を威力+5で追撃（ガード不可）",lugia:"相手の手札3枚か、相手の仲間を吹き飛ばす"};overlay.innerHTML="<div class=\"helper-pick-dialog\" role=\"dialog\" aria-modal=\"true\" style=\"position:relative;margin:auto;max-height:calc(100dvh - 28px);overflow-y:auto;\"><h2>マスターボール</h2><p>仲間にするポケモンを選んでください。</p><div class=\"helper-pick-grid\"></div><button type=\"button\" class=\"btn helper-pick-cancel\">キャンセル</button></div>";const grid=overlay.querySelector(".helper-pick-grid");MASTER_HELPERS.forEach((h,i)=>{if(helperTaken(h))return;const b=document.createElement("button");b.type="button";b.className="helper-pick-option";b.innerHTML="<img alt=\"\"><span class=\"helper-pick-name\"></span><small></small>";const img=b.querySelector("img");img.src=typeof h.sprite==="number"?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png":h.sprite;b.querySelector(".helper-pick-name").textContent=h.name;b.querySelector("small").textContent=descriptions[h.kind]||"仲間になって効果を発揮";b.addEventListener("click",()=>{overlay.remove();resolve(h)});grid.appendChild(b)});overlay.querySelector(".helper-pick-cancel").addEventListener("click",()=>{overlay.remove();resolve(null)});document.body.appendChild(overlay)})}
+async function chooseHelperInGame(){return new Promise(resolve=>{const old=document.getElementById("helperPickOverlay");if(old)old.remove();const overlay=document.createElement("div");overlay.id="helperPickOverlay";overlay.className="helper-pick-overlay";Object.assign(overlay.style,{position:"fixed",top:"0",right:"0",bottom:"0",left:"0",width:"100vw",height:"100dvh",boxSizing:"border-box",display:"flex",alignItems:"center",justifyContent:"center",margin:"0",padding:"14px",zIndex:"2147483647",background:"rgba(0,0,0,.72)"});const descriptions={allPhysical:"相手全員に物理攻撃",allSpecial:"相手全員に特殊攻撃",singlePhysical:"相手1人に強力な物理攻撃",heal:"自分のHP・PPを回復",passiveDefense:"受けるダメージを減らす",passiveAttack:"与えるダメージを増やす",money:"お金を増やす",burst:"相手全員に大ダメージ",dialga:"特殊な攻撃",palkia:"攻撃を防ぐ",glalie:"特殊効果",mew:"攻撃先をランダムにする",zygarde:"攻防強化・状態異常防止",giratina:"相手のカードを奪う",phoenix:"倒されても一度だけ復活",celebi:"誰の行動後にも割り込んで行動（ガード不可）",mewtwo:"直前の技を威力+5で追撃（ガード不可）",lugia:"相手の手札3枚か、相手の仲間を吹き飛ばす"};overlay.innerHTML="<div class=\"helper-pick-dialog\" role=\"dialog\" aria-modal=\"true\" style=\"position:relative;margin:auto;max-height:calc(100dvh - 28px);overflow-y:auto;\"><h2>マスターボール</h2><p>仲間にするポケモンを選んでください。</p><div class=\"helper-pick-grid\"></div><button type=\"button\" class=\"btn helper-pick-cancel\">キャンセル</button></div>";const grid=overlay.querySelector(".helper-pick-grid");MASTER_HELPERS.forEach((h,i)=>{if(helperTaken(h))return;const b=document.createElement("button");b.type="button";b.className="helper-pick-option";b.innerHTML="<img alt=\"\"><span class=\"helper-pick-name\"></span><small></small>";const img=b.querySelector("img");img.src=typeof h.sprite==="number"?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+(EXP_SHINY.helpers[h.name]?"shiny/":"")+h.sprite+".png":h.sprite;b.querySelector(".helper-pick-name").textContent=h.name;b.querySelector("small").textContent=descriptions[h.kind]||"仲間になって効果を発揮";b.addEventListener("click",()=>{overlay.remove();resolve(h)});grid.appendChild(b)});overlay.querySelector(".helper-pick-cancel").addEventListener("click",()=>{overlay.remove();resolve(null)});document.body.appendChild(overlay)})}
 async function summonHelper(p){
  p.masterUsed=false;let h=rollHelper();
  if(G.experiment&&p.id===MY){h=await chooseHelperInGame();if(!h)return}else if(G.experiment){h=rollHelper()}
  // 新しい仲間を呼んでも、すでにいる仲間は残す。効果は仲間ごとに記録する。
  if(!G.usedHelpers)G.usedHelpers=[];G.usedHelpers.push(h.name);if(!p.helpers)p.helpers=[];
- const summoned={...h,hp:40,owner:p.id,dead:false};p.helpers.push(summoned);p.helper=summoned;
+ const shiny=G.experiment?!!EXP_SHINY.helpers[h.name]:Math.random()<HELPER_SHINY_RATE;const summoned={...h,hp:40,owner:p.id,dead:false,shiny};p.helpers.push(summoned);p.helper=summoned;
  if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
- else if(h.kind==="heal")await ev(h.name+"が出た！");
- else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev(h.name+"が出た！")}
- else if(h.kind==="passiveDefense")await ev(h.name+"が出た！");
- else if(h.kind==="passiveAttack")await ev(h.name+"が出た！");
- else if(h.kind==="mew")await ev(h.name+"が出た！");
- else if(h.kind==="zygarde")await ev(h.name+"が出た！");
- else if(h.kind==="giratina")await ev(h.name+"が出た！");
- else if(h.kind==="lugia")await ev(h.name+"が出た！");
- else if(h.kind==="phoenix")await ev(h.name+"が出た！");
- else if(h.kind==="celebi")await ev(h.name+"が出た！");
- else if(h.kind==="mewtwo")await ev(h.name+"が出た！");
- else await ev(h.name+"が出た！");
+ else if(h.kind==="heal")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="money"){const n=rd(h.values);p.mo=Math.min(999,p.mo+n);await ev((shiny?"✨色違いの":"")+h.name+"が出た！")}
+ else if(h.kind==="passiveDefense")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="passiveAttack")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="mew")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="zygarde")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="giratina")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="lugia")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="phoenix")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="celebi")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else if(h.kind==="mewtwo")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
+ else await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
 }
 async function helperAction(owner,forcedHelper=null){
- const h=forcedHelper||owner.helper;if(!h||h.dead||h.hp<=0||(!forcedHelper&&Math.random()>=.25))return;
- const ownerIndex=G.P.indexOf(owner);
+ const h=forcedHelper||owner.helper;if(!h||h.dead||h.hp<=0||(!forcedHelper&&Math.random()>=1-HELPER_RATE))return;
+ const ownerIndex=G.P.indexOf(owner);const hs=(h.shiny?"shiny/":"")+h.sprite;
  async function helperHit(t,dmg,kind,move,noGuard){
   const card=C.find(x=>x.t==="a"&&x.k===kind)||C.find(x=>x.t==="a");
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
-  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技",helperSprite:h.sprite}};
+  G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技",helperSprite:hs}};
   await ev(h.name+"の"+move+"！",500);
   if(await palkiaBlock(t,move))return;
   const guard=noGuard?null:await getDef(t,card,bo);
   if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
-  const screen=t.reflect>0&&kind==="p"?5:t.lightScreen>0&&kind==="s"?5:0;
+  const screen=wallRed(t,kind);
   const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
   t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
   await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);
@@ -469,18 +480,18 @@ async function helperAction(owner,forcedHelper=null){
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
   const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0,n:h.move};
   for(const t of G.P.filter(x=>x!==owner&&!x.d)){
-   if(Math.random()>=.75){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}
+   if((Math.random()>=.75&&!h.shiny)){await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！",400);continue}
    await helperHit(t,dmg,kind,h.move);
   }
  }else if(h.kind==="singlePhysical"){
   const ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;const t=rd(ts),dmg=rd(h.values);G.last={d:dmg,k:"p",all:0,ko:0,n:h.move};
-  if(Math.random()>=.75)await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
+  if((Math.random()>=.75&&!h.shiny))await ev(h.name+"の"+h.move+"！ "+t.n+"には当たらなかった！");
   else await helperHit(t,dmg,"p",h.move);
  }
  else if(h.kind==="money"){const n=rd(h.values);owner.mo=Math.min(999,owner.mo+n);await ev("ニャースが"+owner.n+"のお金を"+n+"円増やした！")}
  else if(h.kind==="giratina"){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&x.h.length>0);if(!ts.length){await ev("ギラティナのシャドーダイブ！ しかし盗めるカードがなかった…");return}
-  const t=rd(ts),card={id:"giratina",n:"シャドーダイブ",t:"s",d:0,steal:1,x:"ポケモンの技",helperSprite:h.sprite};
+  const t=rd(ts),card={id:"giratina",n:"シャドーダイブ",t:"s",d:0,steal:1,x:"ポケモンの技",helperSprite:hs};
   G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ギラティナ",displayCard:card};
   await ev("ギラティナのシャドーダイブ！ "+t.n+"に襲いかかる…",700);
   if(await palkiaBlock(t,"シャドーダイブ"))return;
@@ -491,7 +502,7 @@ async function helperAction(owner,forcedHelper=null){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
   if(!ts.length)return;
   const t=rd(ts),n=1+Math.floor(Math.random()*3),card={id:"dialga",n:"ときのほうこう",t:"s",d:0,x:"ポケモンの技"};
-  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ",displayCard:{...card,helperSprite:h.sprite}};
+  G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ",displayCard:{...card,helperSprite:hs}};
   await ev("ディアルガのときのほうこう！ "+t.n+"の時間が止まる…",700);
   if(await palkiaBlock(t,"ときのほうこう"))return;const guard=await getDef(t,card,0,["protect","detect"]);
   if(guard){await ev(t.n+"は時間停止を防いだ！",600);return}
@@ -511,7 +522,7 @@ async function helperAction(owner,forcedHelper=null){
   if(L.ko){
    const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
    for(const t of targets){
-    G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:h.name,displayCard:{...card,n:name,helperSprite:h.sprite}};
+    G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:h.name,displayCard:{...card,n:name,helperSprite:hs}};
     if(await palkiaBlock(t,name))continue;
     if(t.h.includes(aimI)||Math.random()<.2){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"は"+name+"で一撃でたおれた！",700)}
     else await ev(name+"は "+t.n+"に はずれた！",500);
@@ -523,7 +534,7 @@ async function helperAction(owner,forcedHelper=null){
   const withHelper=foes.filter(x=>x.helper&&!x.helper.dead&&x.helper.hp>0),withCards=foes.filter(x=>x.h.length>0);
   const killHelper=withHelper.length>0&&(!withCards.length||Math.random()<.5),pool=killHelper?withHelper:withCards;
   if(!pool.length){await ev("ルギアのエアロブラスト！ しかし何も起こらなかった…");return}
-  const t=rd(pool),card={id:"lugia",n:"エアロブラスト",t:"s",d:0,blast:1,x:"ポケモンの技",helperSprite:h.sprite};
+  const t=rd(pool),card={id:"lugia",n:"エアロブラスト",t:"s",d:0,blast:1,x:"ポケモンの技",helperSprite:hs};
   G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ルギア",displayCard:card};
   await ev("ルギアのエアロブラスト！ "+t.n+"に襲いかかる…",700);
   if(await palkiaBlock(t,"エアロブラスト"))return;
@@ -534,7 +545,7 @@ async function helperAction(owner,forcedHelper=null){
   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
   await ev("オニゴーリのぜったいれいど！",600);G.last={d:0,k:"s",all:1,ko:1,n:"ぜったいれいど"};
   for(const t of G.P.filter(x=>x!==owner&&!x.d)){
-   G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ",displayCard:{...card,helperSprite:h.sprite}};
+   G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"オニゴーリ",displayCard:{...card,helperSprite:hs}};
    if(await palkiaBlock(t,"ぜったいれいど"))continue;
    const guard=await getDef(t,card,0);
    if(guard&&(guard.b||guard.bs)){await ev(t.n+"は攻撃を防いだ！",500);continue}
@@ -547,6 +558,7 @@ function helperIsActive(p,name){const h=p&&p.helper;return !!(h&&h.name===name&&
 async function palkiaBlock(t,src){if(helperIsActive(t,"パルキア")&&Math.random()<.33){if(G.bd){G.bd.tg=G.P.indexOf(t);G.bd.palkia=1}await ev("パルキアのあくうせつだん！ "+t.n+"への"+src+"を防いだ！",900);if(G.bd)G.bd.palkia=0;return true}return false}
 function helperDamageBonus(p){return helperIsActive(p,"イベルタル")?7:helperIsActive(p,"ジガルデ100％")?5:0}
 function helperBonusLabel(p){return helperIsActive(p,"イベルタル")?"イベルタル補正＋7":"ジガルデ補正＋5"}
+function wallRed(t,k){return k==="p"&&t.reflect>0?(t.reflectAmt||5):k==="s"&&t.lightScreen>0?(t.lightScreenAmt||5):0}
 function helperDamageReduction(p){return helperIsActive(p,"ゼルネアス")?7:helperIsActive(p,"ジガルデ100％")?5:0}
 function mewOn(){return !!(G&&G.P.some(x=>!x.d&&helperIsActive(x,"ミュウ")))}
 function rt(c){return !!(c&&(c.randomTarget||(c.t==="a"&&!c.all&&mewOn())))}
@@ -555,10 +567,10 @@ function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||d
 async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
  if(c&&c.helperMove&&!G.experiment){await ev("マスターボールのポケモンの技は通常モードでは使えない！",700);return}
- if(c&&c.helperMove){const h=MASTER_HELPERS.find(x=>x.sprite===c.helperSprite);if(h){await helperAction(a,{...h,hp:40,owner:a.id,dead:false});return}}
- if(c.id==="masterball")return summonHelper(a);
+ if(c&&c.helperMove){const h=MASTER_HELPERS.find(x=>x.sprite===c.helperSprite);if(h){await helperAction(a,{...h,hp:40,owner:a.id,dead:false,shiny:!!(G.experiment&&EXP_SHINY.helpers[h.name])});return}}
+ const free=!!c.shiny;if(c.id==="masterball")return summonHelper(a);
  if(c.t==="m")return market(a,o,c);
- if(c.wall){if(c.id==="wall")a.reflect=3;else a.lightScreen=3;a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを5減らす！",900)}
+ if(c.wall){if(c.id==="wall"){a.reflect=3;a.reflectAmt=c.r}else{a.lightScreen=3;a.lightScreenAmt=c.r}if(!c.shiny)a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを"+c.r+"減らす！",900)}
  if(c.t==="h"){
   if(c.cure){const had=a.al;a.al=null;return ev(had?a.n+"の"+AIL[had]+"が治った！":"しかし何も起こらなかった…")}
   if(c.pp){const g=Math.min(c.pp,99-a.pp);a.pp+=g;return ev(a.n+"は"+c.n+"！ PP+"+g)}
@@ -568,10 +580,10 @@ async function act0(a,o,c,bo,bs){
  G.bd={a:G.P.indexOf(a),c:c.i,b:bs.map(x=>x.i),bo,ds:null,tg:G.P.indexOf(o)};await ev(a.n+"の "+c.n+"！",700);
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
- if(!G.experiment)a.pp--;
+ if(!G.experiment&&!free)a.pp--;
  if(c.t==="a"&&!c.mimic&&!c.gift)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n};
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
- if(c.gift){const outcome=rd([5,10,15,20,-10]);if(outcome<0){const healed=Math.min(10,99-t.hp);t.hp+=healed;await ev("プレゼント！ "+t.n+"のHPが"+healed+"回復した！",800);return}const guard=await getDef(t,c,bo);if(guard&&(guard.b||guard.bs)){await ev(t.n+"はプレゼントを防いだ！",700);return}const rr=guard?guard.ds.reduce((sum,x)=>sum+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.lightScreen>0?5:0;const dm=Math.max(0,outcome-rr-screen-helperDamageReduction(t));t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev("プレゼント！ "+t.n+"に"+dm+"ダメージ！"+(rr||screen?"（軽減）":""),800);return}if(c.miss&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);if(!c.all&&t!==a&&await palkiaBlock(t,c.n))return;
+ if(c.gift){const outcome=rd([5,10,15,20,-10]);if(outcome<0){const healed=Math.min(10,99-t.hp);t.hp+=healed;await ev("プレゼント！ "+t.n+"のHPが"+healed+"回復した！",800);return}const guard=await getDef(t,c,bo);if(guard&&(guard.b||guard.bs)){await ev(t.n+"はプレゼントを防いだ！",700);return}const rr=guard?guard.ds.reduce((sum,x)=>sum+(!x.k||x.k===c.k?x.r:0),0):0;const screen=wallRed(t,"s");const dm=Math.max(0,outcome-rr-screen-helperDamageReduction(t));t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev("プレゼント！ "+t.n+"に"+dm+"ダメージ！"+(rr||screen?"（軽減）":""),800);return}if(c.miss&&!c.shiny&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);if(!c.all&&t!==a&&await palkiaBlock(t,c.n))return;
  if(c.ko&&c.all){
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
@@ -584,17 +596,17 @@ async function act0(a,o,c,bo,bs){
   }
   return
  }
- if(c.t==="s"){const d=t!==a&&!c.all?await getDef(t,c,bo):null;if(d&&(d.b||d.bs))return ev(t.n+"は変化技を防いだ！");if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3))return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
+ if(c.t==="s"){const d=t!==a&&!c.all?await getDef(t,c,bo):null;if(d&&(d.b||d.bs))return ev(t.n+"は変化技を防いだ！");if(!o.h.includes(C.find(x=>x.aim)?.i)&&Math.random()>=(c.ch??.3)&&!c.shiny)return ev("しかし うまく決まらなかった！");return apply(t,c.al)}
  if(c.ko){const d=await getDef(t,c,bo);if(d&&d.b)return ev(t.n+"は攻撃を防いだ！");if(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"はぜったいれいどで一撃でたおれた！",1100)}else await ev("ぜったいれいどは はずれた！",1100);return}
  if(c.all){
   let hitAny=false;
   for(const target of G.P.filter(q=>q!==a&&!q.d)){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
-   if(c.miss&&Math.random()<Number(c.miss)){await ev(c.n+"は "+target.n+"に はずれた！",500);continue}if(await palkiaBlock(target,c.n))continue;
+   if(c.miss&&!c.shiny&&Math.random()<Number(c.miss)){await ev(c.n+"は "+target.n+"に はずれた！",500);continue}if(await palkiaBlock(target,c.n))continue;
    const guard=await getDef(target,c,bo);
    if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
-   let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);const screen=target.reflect>0&&c.k==="p"?5:target.lightScreen>0&&c.k==="s"?5:0;dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
+   let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);const screen=wallRed(target,c.k);dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":""),500);
    if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
@@ -608,7 +620,7 @@ async function act0(a,o,c,bo,bs){
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
   const d=c.id==="quick"||c.nd?null:await getDef(t,c,bo);
   if(d&&d.b){await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
-  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=t.reflect>0&&c.k==="p"?5:t.lightScreen>0&&c.k==="s"?5:0;
+  const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=wallRed(t,c.k);
   let dm=movePower;if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
@@ -619,10 +631,10 @@ async function act0(a,o,c,bo,bs){
  if(total>0&&c.drain){const g=Math.min(total,99-a.hp);if(g>0){a.hp+=g;await ev(a.n+"は "+total+"ダメージ分のHPを吸い取った！ HP+"+g,700)}}
  if(total>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}}
 function bot(p,i){
- const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0)&&!(c.mimic&&!G.last)),ix=c=>p.h.indexOf(c.i);
+ const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0||c.shiny)&&!(c.mimic&&!G.last)),ix=c=>p.h.indexOf(c.i);
  const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),T=G.cpuLevel==="beginner"?alive[Math.floor(Math.random()*alive.length)]:(G.cpuLevel==="advanced"?op[0]:alive[Math.floor(Math.random()*alive.length)]),tg=G.P.indexOf(T);
- const sts=has("s").filter(()=>p.pp>0&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&p.pp>0&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
- if(G.cpuLevel==="beginner"){const pool=H.filter(x=>x&&((x.t==="a"&&p.pp>0)||x.t==="s"||x.t==="b"||x.t==="d"||x.t==="h"||x.t==="m"));c=pool.length?rd(pool):null;}
+ const sts=has("s").filter(x=>(p.pp>0||x.shiny)&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&(p.pp>0||x.shiny)&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
+ if(G.cpuLevel==="beginner"){const pool=H.filter(x=>x&&((x.t==="a"&&(p.pp>0||x.shiny))||x.t==="s"||x.t==="b"||x.t==="d"||x.t==="h"||x.t==="m"));c=pool.length?rd(pool):null;}
  else if(G.cpuLevel==="advanced"){const attacks=has("a"),strongest=attacks.slice().sort((a,b)=>{const A=ef(a),B=ef(b);return(B.ko?80:B.d+(B.all?8:0)+(B.al?3:0))-(A.ko?80:A.d+(A.all?8:0)+(A.al?3:0))})[0];if(masters.length&&Math.random()<.7)c=masters[0];else if(p.hp<=25&&hh.length)c=hh.sort((a,b)=>b.d-a.d)[0];else if(p.pp<=3&&pc.length)c=pc.sort((a,b)=>b.pp-a.pp)[0];else if(strongest)c=strongest;else if(screens.length)c=rd(screens);else if(sts.length)c=rd(sts);else c=hh[0]||pc[0]||rd(H);}
  else if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
@@ -644,7 +656,7 @@ async function turn(p,i,extra){
  if(r.sing){if(p.pp===0){const ppPool=C.filter(c=>c.t==="h"&&c.pp),atkPool=C.filter(c=>c.t==="a"&&!c.secret&&(!c.helperMove||G?.experiment));const k=(Math.random()<.8?rd(ppPool):rd(atkPool)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"はうたった！ PPが0なので、"+C[k].n+"を1枚入手！")}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a"&&!c.secret&&(!c.helperMove||G?.experiment));const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
  const ids=[...new Set((Array.isArray(r.ids)?r.ids:[]).map(Number))].filter(k=>p.h[k]!=null),cs=ids.map(k=>C[p.h[k]]);
  const m=cs.find(c=>c.t!=="b");let T=G.P[r.tg];if(!T||T.d||T===p)T=G.P.find(q=>!q.d&&q!==p);
- if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1){{const di=ids.length?ids[0]:0;if(!(p.h[di]!=null&&C[p.h[di]].keep)){p.h.splice(di,1);draw(p,G.P,1)}}if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
+ if(r.ps||!m||(m.t==="d"&&!m.wall)||(m.t==="s"||m.t==="a"||m.wall)&&p.pp<1&&!m.shiny){{const di=ids.length?ids[0]:0;if(!(p.h[di]!=null&&C[p.h[di]].keep)){p.h.splice(di,1);draw(p,G.P,1)}}if(await can(p))await ev(p.n+"はカードを捨てて様子を見た");await burn(p)}
  else{const bs=cs.filter(b=>b.t==="b"&&!m.gift&&!m.mimic&&!m.metronome&&!m.ko&&(m.t==="a"||m.t==="s")&&bm(b,m));const rm=ids.filter(k=>!C[p.h[k]].keep);if(!G.experiment){p.h=p.h.filter((_,k)=>!rm.includes(k));if(G.fingerMode){const fixed=C.find(c=>c.id==="metronome")?.i;if(fixed!=null){p.h=p.h.filter(i=>i!==fixed);p.h.unshift(fixed)}}draw(p,G.P,rm.length)}await act(p,T,m,bs.reduce((s,b)=>s+b.d,0),bs);if((m.id==="petal"||m.id==="outrage")&&p.hp>0&&!p.d)await apply(p,"confusion")}
  chk()}
 const END_POKEMON=["イベルタル","ウルトラネクロズマ","ムゲンダイマックスムゲンダイナ"];
@@ -748,7 +760,7 @@ $("pass").onclick=()=>{if(CA&&S.sel.length===1)send(CA,{ps:1,ids:[S.sel[0]],tg:0
 $("skip").onclick=()=>{if(CA)send(CA,[])};
 function surrender(){if(!G||G.ph==="over"||MODE!=="cpu")return;G.surrendered=1;const a=G.ask,al=G.P.filter(p=>p.bot&&!p.d).sort((x,y)=>y.hp-x.hp);G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;if(W){const r=W.r;W=null;r(a?DEF[a.k]:DEF.turn)}S.sur=0;clearTimeout(S.st);pub()}
 $("sur").onclick=()=>{if(!G||G.ph==="over")return;if(!S.sur){S.sur=1;clearTimeout(S.st);S.st=setTimeout(()=>{S.sur=0;if(G)render()},3000);render();return}surrender()};
-$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);LOGALL.length=0;$("md").classList.remove("res");$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
+$("mb").onclick=()=>{if(G&&G.ph==="over"){if(R&&typeof R.close==="function")R.close();G=null;R=null;R0=null;W=null;CA=null;MODE="";MY="";host=false;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);LOGALL.length=0;$("md").classList.remove("res");$("md").hidden=true;$("ti").hidden=false;$("t1").hidden=false;$("tc").hidden=true;$("t2").hidden=true;$("t3").hidden=true;$("bk").hidden=true;$("fs").innerHTML="";$("pv").innerHTML="";$("ph").textContent="";$("hand").innerHTML="";$("shinyBtn").hidden=true;$("log").innerHTML="";$("sh").hidden=true;$("toast").classList.remove("on")}else $("md").hidden=true};
 function showRules(){
  $("mt").textContent="ルール";
  $("mx").innerHTML=`<div class="rules-layout rules-accordion">
@@ -832,7 +844,7 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
  const cardAt=(x,y)=>{const h=hand();if(!h)return null;for(const el of h.querySelectorAll(".c")){const r=el.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return el}return null};
  const detail=id=>{const c=C.find(x=>x.id===id);if(!c)return "";const e=ef(c);let l="";
   if(c.t==="a"){l=c.gift?"プレゼント":e.ko?"一撃必殺":((e.k==="p"?"物理":e.k==="s"?"特殊":"")+"威力"+e.d)}
-  return "<div class='tt'><b>"+esc(c.n)+"</b>"+tyTag(c)+"<span class='tag'>"+esc(lab(c))+"</span><span class='tag'>¥"+pr(c)+"</span></div>"+(l?"<div>"+esc(l)+"</div>":"")+"<div class='ds'>"+esc(c.mimic?mimicInfo(c):(c.x||""))+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</div>"};
+  return "<div class='tt'><b>"+esc(c.n)+"</b>"+tyTag(c)+"<span class='tag'>"+esc(lab(c))+"</span><span class='tag'>¥"+pr(c)+"</span></div>"+(l?"<div>"+esc(l)+"</div>":"")+"<div class='ds'>"+esc(c.mimic?mimicInfo(c):(c.x||""))+((c.t==="a"||c.t==="s")&&!c.shiny?"（PP1）":"")+"</div>"};
  const place=(x,y,rect)=>{tip.style.display="block";const w=tip.offsetWidth,h=tip.offsetHeight,W=innerWidth,H=innerHeight;let left,top;
   if(rect){left=rect.left+rect.width/2-w/2;top=rect.top-h-8;if(top<4)top=rect.bottom+8}else{left=x+14;top=y+18;if(left+w>W-4)left=x-w-14;if(top+h>H-4)top=y-h-14}
   tip.style.left=Math.max(4,Math.min(left,W-w-4))+"px";tip.style.top=Math.max(4,Math.min(top,H-h-4))+"px"};
@@ -905,26 +917,26 @@ const ZK_GROUPS=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h
 const zkLab=c=>c.t==="a"?(c.mimic||c.metronome?"特殊技":KL[c.k]||"攻撃"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
 const zkGroup=c=>c.t==="u"?"b":c.t;
 const LEG_FX={
-allPhysical:h=>"誰かが行動するたびに25%で発動。相手全員に物理攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
-allSpecial:h=>"誰かが行動するたびに25%で発動。相手全員に特殊攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
-singlePhysical:h=>"25%で発動。相手1人に物理攻撃「"+h.move+"」（威力20、6回に1回は威力60。75%で命中。防御カードで軽減できる）",
+allPhysical:h=>"誰かが行動するたびに50%で発動。相手全員に物理攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
+allSpecial:h=>"誰かが行動するたびに50%で発動。相手全員に特殊攻撃「"+h.move+"」（威力は"+h.values.join("・")+"のどれか。相手ごとに75%で命中。防御カードで軽減できる）",
+singlePhysical:h=>"50%で発動。相手1人に物理攻撃「"+h.move+"」（威力20、6回に1回は威力60。75%で命中。防御カードで軽減できる）",
 heal:h=>"持ち主のターン開始時に、HPかPP（ランダム）が5回復する",
 passiveDefense:h=>"いる間、持ち主が受けるダメージ−7",
 passiveAttack:h=>"いる間、持ち主が与えるダメージ＋7",
-money:h=>"呼び出した瞬間に5〜30円を獲得。その後も25%で発動するたびに5〜30円増える",
+money:h=>"呼び出した瞬間に5〜30円を獲得。その後も50%で発動するたびに5〜30円増える",
 burst:h=>"呼び出した瞬間に相手全員へ99ダメージ。使い切るとすぐ消える",
-dialga:h=>"25%で発動。相手1人を1〜3ターン行動不能にする（まもる・みきりで防げる。すでに動けない相手は防げない）",
+dialga:h=>"50%で発動。相手1人を1〜3ターン行動不能にする（まもる・みきりで防げる。すでに動けない相手は防げない）",
 palkia:h=>"いる間、持ち主に向けられた技を33%で無効にする",
-glalie:h=>"25%で発動。相手全員に「ぜったいれいど」（各30%で一撃必殺。防御カードで防げる）",
+glalie:h=>"50%で発動。相手全員に「ぜったいれいど」（各30%で一撃必殺。防御カードで防げる）",
 mew:h=>"いる間、全員の単体攻撃の対象がランダムになる",
 zygarde:h=>"いる間、受けるダメージ−5・与えるダメージ＋5。状態異常にならない",
-giratina:h=>"25%で発動。相手1人の手札を最大2枚奪う",
-lugia:h=>"25%で発動。相手1人の手札をランダムに3枚吹き飛ばす、または相手の仲間ポケモンを消し飛ばす（相手に仲間がいれば半々で選ばれ、いなければ手札。防御カードでは防げない）",
+giratina:h=>"50%で発動。相手1人の手札を最大2枚奪う",
+lugia:h=>"50%で発動。相手1人の手札をランダムに3枚吹き飛ばす、または相手の仲間ポケモンを消し飛ばす（相手に仲間がいれば半々で選ばれ、いなければ手札。防御カードでは防げない）",
 phoenix:h=>"持ち主が倒されても一度だけHP50で復活する（状態異常も治る）。復活後は飛び去る",
-celebi:h=>"25%で発動。誰かの行動のあとに割り込んで、持ち主がもう一度行動する（ガード不可）",
-mewtwo:h=>"25%で発動。直前に使われた技を威力＋5で追撃する（ガード不可。直前の技がなければ不発）"};
+celebi:h=>"50%で発動。誰かの行動のあとに割り込んで、持ち主がもう一度行動する（ガード不可）",
+mewtwo:h=>"50%で発動。直前に使われた技を威力＋5で追撃する（ガード不可。直前の技がなければ不発）"};
 function legendHtml(){const tot=MASTER_HELPERS.reduce((a,h)=>a+h.weight,0);
- return "<div class='zk-h'>伝説（マスターボールで仲間になるポケモン）</div><div class='zk-note'>マスターボールを使うと、下のポケモンのどれかがランダムで仲間になります。仲間のHPは40で、持ち主が受けたダメージの分だけ仲間のHPも減り、0になると効果が消えます。「25%で発動」は、誰かが行動するたびに判定されます。いま誰かの仲間になっているポケモンは出ません（やられて消えたポケモンは再び出ます。アルセウスは1ゲームに1回だけです）。</div>"+
+ return "<div class='zk-h'>伝説（マスターボールで仲間になるポケモン）</div><div class='zk-note'>マスターボールを使うと、下のポケモンのどれかがランダムで仲間になります。仲間のHPは40で、持ち主が受けたダメージの分だけ仲間のHPも減り、0になると効果が消えます。「50%で発動」は、誰かが行動するたびに判定されます。いま誰かの仲間になっているポケモンは出ません（やられて消えたポケモンは再び出ます。アルセウスは1ゲームに1回だけです）。出現時に1%で色違いになり、色違いの仲間の技は必ず当たります。</div>"+
  MASTER_HELPERS.map(h=>{const f=LEG_FX[h.kind]?LEG_FX[h.kind](h):"仲間になって効果を発揮";
   return "<div class='zk leg'><div class='zk-i'><div class='card-mon'><img loading='lazy' alt='' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+h.sprite+".png'></div></div><div class='zk-b'><b>"+esc(h.name)+"</b><div class='tr'><span class='tag'>"+(h.kind==="burst"?"即発動":"HP40")+"</span><span class='tag'>出現 "+(h.weight/tot*100).toFixed(1)+"%</span></div><small>"+esc(f)+"</small></div></div>"}).join("")}
 function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
@@ -933,12 +945,28 @@ function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
  let body="";
  ZK_GROUPS.forEach(([k,n])=>{if(cat!=="all"&&cat!==k)return;const items=list.filter(c=>zkGroup(c)===k);if(!items.length)return;
   body+="<div class='zk-h'>"+n+"（"+items.length+"）</div>"+items.map(c=>{const pw=c.t==="a"?(c.ko?"一撃必殺":c.d?"威力"+c.d:""):"";
-   return "<div class='zk "+c.t+"'><div class='zk-i'>"+monArt(c)+"</div><div class='zk-b'><b>"+esc(c.n)+"</b><div class='tr'><span class='tag'>"+zkLab(c)+(pw?" "+pw:"")+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</div><small>"+esc(c.x||"")+((c.t==="a"||c.t==="s")?"（PP1）":"")+"</small></div></div>"}).join("")});
+   return "<div class='zk "+c.t+"'><div class='zk-i'>"+monArt(c)+"</div><div class='zk-b'><b>"+esc(c.n)+"</b><div class='tr'><span class='tag'>"+zkLab(c)+(pw?" "+pw:"")+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</div><small>"+esc(c.x||"")+((c.t==="a"||c.t==="s")&&!c.shiny?"（PP1）":"")+"</small></div></div>"}).join("")});
  if(cat==="all"||cat==="leg")body+=legendHtml();
  $("mx").innerHTML=tabs+"<div class='zk-grid'>"+body+"</div>";
  $("mx").querySelectorAll("[data-zk]").forEach(b=>b.onclick=()=>zukan(b.dataset.zk));
  $("mb").textContent="閉じる";$("md").hidden=false}
 $("openZukan").onclick=()=>zukan("all");$("gameZukan").onclick=()=>zukan("all");
+// 色違い設定（0%!%モード）
+function showShinySettings(){
+ const BASE="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/";
+ $("mt").textContent="色違い設定（0%!%モード）";
+ const cardIds=Object.keys(CARD_MON).filter(shinyOK);
+ const row=(kind,key,name,sub,sprite,on)=>"<label class='zk'><div class='zk-i'><div class='card-mon'><img loading='lazy' alt='' data-img='"+kind+":"+esc(key)+"' src='"+BASE+(on?"shiny/":"")+sprite+".png'></div></div><div class='zk-b'><b>"+esc(name)+"</b><small>"+esc(sub)+"</small></div><input type='checkbox' data-"+kind+"='"+esc(key)+"'"+(on?" checked":"")+"></label>";
+ const cardRows=cardIds.map(id=>{const c=C.find(x=>x.id===id);return row("sc",id,c.n,CARD_MON[id][1],CARD_MON[id][0],!!EXP_SHINY.cards[id])}).join("");
+ const legRows=MASTER_HELPERS.map(h=>row("sh",h.name,h.name,"仲間にしたとき色違い",h.sprite,!!EXP_SHINY.helpers[h.name])).join("");
+ $("mx").innerHTML="<p style='font-size:.78rem;color:var(--mu);margin:0 0 8px'>0%!%モードで色違いにするカード・伝説を選びます（このモードではランダム抽選は行われず、ここで選んだものだけ色違いになります）。色違いのカードは威力+3などのボーナスが付きます。伝説は仲間にした時点の設定が使われます。</p><div class='zk-tabs'><button class='btn' id='shAllOn'>すべて色違い</button><button class='btn' id='shAllOff'>すべて通常</button></div><div class='zk-grid'><div class='zk-h'>わざ・カード（"+cardIds.length+"）</div>"+cardRows+"<div class='zk-h'>伝説（"+MASTER_HELPERS.length+"）</div>"+legRows+"</div>";
+ const setCard=(id,on)=>{EXP_SHINY.cards[id]=on;CARD_MON[id][2]=on;applyShinyCard(id)};
+ $("mx").querySelectorAll("[data-sc]").forEach(el=>el.onchange=()=>{const id=el.dataset.sc;setCard(id,el.checked);const im=$("mx").querySelector("[data-img='sc:"+id+"']");if(im)im.src=BASE+(el.checked?"shiny/":"")+CARD_MON[id][0]+".png";saveExpShiny();if(G)render()});
+ $("mx").querySelectorAll("[data-sh]").forEach(el=>el.onchange=()=>{const n=el.dataset.sh,h=MASTER_HELPERS.find(x=>x.name===n);EXP_SHINY.helpers[n]=el.checked;const im=$("mx").querySelector("[data-img='sh:"+n+"']");if(im&&h)im.src=BASE+(el.checked?"shiny/":"")+h.sprite+".png";saveExpShiny()});
+ const all=on=>{cardIds.forEach(id=>setCard(id,on));MASTER_HELPERS.forEach(h=>EXP_SHINY.helpers[h.name]=on);saveExpShiny();if(G)render();showShinySettings()};
+ $("shAllOn").onclick=()=>all(true);$("shAllOff").onclick=()=>all(false);
+ $("mb").textContent="閉じる";$("md").hidden=false}
+$("openShiny").onclick=showShinySettings;$("shinyBtn").onclick=showShinySettings;
 // PWA
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
