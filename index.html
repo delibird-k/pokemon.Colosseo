@@ -205,6 +205,8 @@ const C=[
 {id:"glasses",n:"ものしりメガネ",t:"b",k:"s",d:5,x:"特殊技に重ねて+5"},
 {id:"orb",n:"いのちのたま",t:"b",k:"any",d:10,life:1,x:"どの技でも+10・自分も5ダメージ"},
 {id:"aim",n:"ねらいのまと",t:"b",k:"any",d:0,aim:1,x:"持っている人は技の追加効果と一撃必殺が必ず当たる"},
+ {id:"megastone",n:"メガストーン",t:"b",k:"mega",d:10,mega:1,x:"メガシンカできるポケモンの技カードと一緒に出すと、アイコンがメガシンカ後になり威力+10"},
+ {id:"luckypunch",n:"ラッキーパンチ",t:"b",k:"lucky",d:0,lucky:1,x:"追加効果のある技と一緒に出すと、追加効果が必ず発動"},
 {id:"sash",n:"きあいのタスキ",t:"b",k:"none",d:0,sash:1,x:"持っていると、倒される攻撃をHP1で耐える（1回きり）"},
 {id:"jw_normal",n:"ノーマルジュエル",t:"b",k:"jewel",jt:"ノーマル",d:7,x:"ノーマルタイプの技に重ねて+7"},
 {id:"jw_fire",n:"ほのおジュエル",t:"b",k:"jewel",jt:"ほのお",d:7,x:"ほのおタイプの技に重ねて+7"},
@@ -291,7 +293,7 @@ const applyShinyCard=id=>{const m=CARD_MON[id],c=C.find(x=>x.id===id);if(!m||!c)
  if(c.t==="d"&&!c.b&&c.br>0)c.r=c.br+(sh?3:0)};
 const rollShiny=exp=>Object.keys(CARD_MON).forEach(id=>{const m=CARD_MON[id];m[2]=shinyOK(id)&&(exp?!!EXP_SHINY.cards[id]:Math.random()<SHINY_RATE);applyShinyCard(id)});rollShiny(false);
 const spr=id=>{const m=CARD_MON[id];return id==="shiny_delibird"?"shiny/225":(m[2]?"shiny/":"")+m[0]};
-const ITEM_IMG={band:"muscle-band",glasses:"wise-glasses",orb:"life-orb",aim:"ring-target",sash:"focus-sash",jw_normal:"normal-gem",jw_fire:"fire-gem",jw_water:"water-gem",jw_elec:"electric-gem",jw_grass:"grass-gem",masterball:"master-ball",potion:"potion",super:"super-potion",hyper:"hyper-potion",pp1:"ether",pp2:"max-ether",pp3:"elixir",pp4:"max-elixir",oran:"oran-berry",himeri:"leppa-berry",cure:"full-heal"};
+const ITEM_IMG={band:"muscle-band",glasses:"wise-glasses",orb:"life-orb",aim:"ring-target",megastone:"mega-stone",luckypunch:"lucky-punch",sash:"focus-sash",jw_normal:"normal-gem",jw_fire:"fire-gem",jw_water:"water-gem",jw_elec:"electric-gem",jw_grass:"grass-gem",masterball:"master-ball",potion:"potion",super:"super-potion",hyper:"hyper-potion",pp1:"ether",pp2:"max-ether",pp3:"elixir",pp4:"max-elixir",oran:"oran-berry",himeri:"leppa-berry",cure:"full-heal"};
 const itemArt=c=>ITEM_IMG[c.id]?"<div class='card-mon item-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/"+ITEM_IMG[c.id]+".png' alt=''></div>":"";
 const monArt=c=>{if(ITEM_IMG[c.id])return itemArt(c);const m=CARD_MON[c.id];return m?"<div class='card-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+((c.id==="shiny_delibird"||m[2])?"shiny/":"")+m[0]+".png' alt=''></div>":"";};
 
@@ -303,9 +305,9 @@ const mimicInfo=c=>c.x+(G&&G.last?"〔次は"+(G.last.ko?"一撃必殺":"威力"
 const TYPE_OF={"たいあたり":"ノーマル","でんこうせっか":"ノーマル","ほのおのパンチ":"ほのお","10まんボルト":"でんき","れいとうビーム":"こおり","シャドーボール":"ゴースト","じしん":"じめん","なみのり":"みず","ぜったいれいど":"こおり","じわれ":"じめん","インファイト":"かくとう","フレアドライブ":"ほのお","ブレイブバード":"ひこう","げきりん":"ドラゴン","ストーンエッジ":"いわ","じゃれつく":"フェアリー","すてみタックル":"ノーマル","ダストシュート":"どく","かえんほうしゃ":"ほのお","サイコキネシス":"エスパー","ムーンフォース":"フェアリー","りゅうせいぐん":"ドラゴン","きあいだま":"かくとう","ヘドロばくだん":"どく","いわなだれ":"いわ","ふぶき":"こおり","ねっぷう":"ほのお","ハイパーボイス":"ノーマル","ほうでん":"でんき","まねっこ":"ノーマル","ゆびをふる":"ノーマル","あやしいひかり":"ゴースト","さいみんじゅつ":"エスパー","おにび":"ほのお","でんじは":"でんき","だんがいのつるぎ":"じめん","こんげんのはどう":"みず","ガリョウテンセイ":"ドラゴン","シャドーダイブ":"ゴースト","ときのほうこう":"ドラゴン","あくうせつだん":"ドラゴン","アクアブレイク":"みず","アクアジェット":"みず","ハイドロポンプ":"みず","みずしゅりけん":"みず","かみなり":"でんき","パラボラチャージ":"でんき","かみなりのキバ":"でんき","ドレインパンチ":"かくとう","はなびらのまい":"くさ","ギガドレイン":"くさ","エナジーボール":"くさ","リーフブレード":"くさ","ウッドハンマー":"くさ","ノーマルジュエル":"ノーマル","ほのおジュエル":"ほのお","みずジュエル":"みず","でんきジュエル":"でんき","くさジュエル":"くさ","1000万ボルト":"でんき"},TYPE_COL={"ノーマル":"#8f8e6a","ほのお":"#e0742a","みず":"#4f7fe0","でんき":"#b89300","こおり":"#3fa6a3","かくとう":"#b8332e","どく":"#9a3a98","じめん":"#a98440","ひこう":"#7d6fd6","エスパー":"#e0447a","いわ":"#8f7b1c","ゴースト":"#665087","ドラゴン":"#5a2fd8","フェアリー":"#c06c9a","くさ":"#4a9e35"};
 const TYPE_SHORT={"ノーマル":"無","かくとう":"格","どく":"毒","じめん":"地","ひこう":"飛","むし":"虫","いわ":"岩","ゴースト":"霊","はがね":"鋼","ほのお":"炎","みず":"水","でんき":"電","くさ":"草","こおり":"氷","エスパー":"超","ドラゴン":"龍","あく":"悪","フェアリー":"妖"};
 const tyTag=c=>{const t=c&&TYPE_OF[c.n];return t?"<i class='ty' style='background:"+TYPE_COL[t]+"'>"+(TYPE_SHORT[t]||t)+"</i>":""};
-const bm=(b,m)=>!!m&&(b.jt?(m.t==="a"&&TYPE_OF[m.n]===b.jt):(b.k==="any"||b.k===m.k));
+const MEGA_FORMS={flamethrower:6,shadow:94,earthquake:445,focusblast:448,stoneedge:248,psychic:65,rockslide:142,hydropump:9,gigadrain:3,leafblade:254};\nconst bm=(b,m)=>!!m&&(b.mega?!!MEGA_FORMS[m.id]:b.lucky?!!(m.al||m.boostChance):b.jt?(m.t==="a"&&TYPE_OF[m.n]===b.jt):(b.k==="any"||b.k===m.k));
 const PALKIA_CARD={id:"palkia",n:"あくうせつだん",t:"d",b:1,x:"パルキアの技・完全防御",helperSprite:484};
-const mc=c=>{const a=c.t==="a",m=CARD_MON[c.id],sprite=c.id==="shiny_delibird"?"shiny/225":(c.helperSprite||(m&&(m[2]?"shiny/"+m[0]:m[0])));return "<div class='mc "+c.t+(a?" mc-attack":"")+"'>"+(!sprite&&ITEM_IMG[c.id]?itemArt(c):"")+(sprite?"<div class='card-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+sprite+".png' alt=''></div>":"")+(a?"<b>"+esc(c.n)+"</b><small class='mc-desc'>"+esc(c.mimic?mimicInfo(c):c.x||"")+"</small>":"<b>"+esc(c.n)+"</b>"+tyTag(c)+"<small>"+esc(c.x||"")+"</small>")+"</div>";};function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
+const mc=c=>{const a=c.t==="a",m=CARD_MON[c.id],sprite=c.megaSprite?"mega/"+c.megaSprite:(c.id==="shiny_delibird"?"shiny/225":(c.helperSprite||(m&&(m[2]?"shiny/"+m[0]:m[0]))));return "<div class='mc "+c.t+(a?" mc-attack":"")+"'>"+(!sprite&&ITEM_IMG[c.id]?itemArt(c):"")+(sprite?"<div class='card-mon'><img loading='lazy' src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+sprite+".png' alt=''></div>":"")+(a?"<b>"+esc(c.n)+"</b><small class='mc-desc'>"+esc(c.mimic?mimicInfo(c):c.x||"")+"</small>":"<b>"+esc(c.n)+"</b>"+tyTag(c)+"<small>"+esc(c.x||"")+"</small>")+"</div>";};function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
 const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge","hydropump","thunder","woodhammer","aquabreak","energyball","leafblade","thunderfang","petal","drainpunch","gigadrain","parabolic"]);if(!p.masterUsed&&!has("masterball")&&Math.random()<.7)add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&!c.secret&&p.pp>0&&(!c.helperMove||G?.experiment))).i};
 const addCard=(p,k)=>{if(p.h.length>=99)return false;p.h.push(k);return true};
@@ -572,7 +574,7 @@ async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
  if(c&&c.helperMove&&!G.experiment){await ev("マスターボールのポケモンの技は通常モードでは使えない！",700);return}
  if(c&&c.helperMove){const h=MASTER_HELPERS.find(x=>x.sprite===c.helperSprite);if(h){await helperAction(a,{...h,hp:40,owner:a.id,dead:false,shiny:!!(G.experiment&&EXP_SHINY.helpers[h.name])});return}}
- const free=!!c.shiny;if(c.id==="masterball")return summonHelper(a);
+ const free=!!c.shiny;if(c.id==="masterball")return summonHelper(a);\n const megaItem=bs.find(x=>x.mega),luckyItem=bs.find(x=>x.lucky);if(megaItem&&MEGA_FORMS[c.id])c={...c,megaSprite:MEGA_FORMS[c.id]};if(luckyItem&&(c.al||c.boostChance))c={...c,luckyGuaranteed:true};
  if(c.t==="m")return market(a,o,c);
  if(c.wall){if(c.id==="wall"){a.reflect=3;a.reflectAmt=c.r}else{a.lightScreen=3;a.lightScreenAmt=c.r}if(!c.shiny)a.pp--;return ev(a.n+"は"+c.n+"を使った！ 3ターン"+(c.id==="wall"?"物理技":"特殊技")+"のダメージを"+c.r+"減らす！",900)}
  if(c.t==="h"){
@@ -612,7 +614,7 @@ async function act0(a,o,c,bo,bs){
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);const screen=wallRed(target,c.k);dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":""),500);
-   if(dm>0&&target.hp>0&&c.al&&(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
+   if(dm>0&&target.hp>0&&c.al&&(c.luckyGuaranteed||target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
@@ -620,7 +622,7 @@ async function act0(a,o,c,bo,bs){
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
   // 威力1.5倍の抽選は技ごとに1回。アイテム等の加算後の威力全体に倍率をかける。
   let movePower=c.d+bo+helperDamageBonus(a);
-  if(c.boostChance&&Math.random()<c.boostChance){const before=movePower;movePower=Math.round(movePower*1.5);await ev(c.n+"の最終威力が1.5倍になった！ "+before+"→"+movePower,500)}
+  if(c.boostChance&&(c.luckyGuaranteed||Math.random()<c.boostChance)){const before=movePower;movePower=Math.round(movePower*1.5);await ev(c.n+"の最終威力が1.5倍になった！ "+before+"→"+movePower,500)}
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
   const d=c.id==="quick"||c.nd?null:await getDef(t,c,bo);
   if(d&&d.b){await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
@@ -629,7 +631,7 @@ async function act0(a,o,c,bo,bs){
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
   await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
-  if(dm>0&&t.hp>0&&c.al&&(o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
+  if(dm>0&&t.hp>0&&c.al&&(c.luckyGuaranteed||o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(total>0&&c.drain){const g=Math.min(total,99-a.hp);if(g>0){a.hp+=g;await ev(a.n+"は "+total+"ダメージ分のHPを吸い取った！ HP+"+g,700)}}
@@ -769,7 +771,7 @@ function showRules(){
  $("mt").textContent="ルール";
  $("mx").innerHTML=`<div class="rules-layout rules-accordion">
  <details class="rule-card"><summary>基本ルール</summary><p>HP50・PP10・20円で開始。最後まで生き残れば勝ち（最大9人）。</p><p>カードを使って行動。使わないときはカードを1枚捨てて交代できます。</p></details>
- <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋5</li><li>ものしりメガネ：特殊＋5</li><li>いのちのたま：技＋10、自分も5ダメージ</li><li>タイプジュエル：同タイプ技＋7</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
+ <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋5</li><li>ものしりメガネ：特殊＋5</li><li>いのちのたま：技＋10、自分も5ダメージ</li><li>メガストーン：対応するポケモンの技と一緒に出すと、アイコンがメガシンカ後になり威力＋10</li><li>ラッキーパンチ：追加効果のある技と一緒に出すと、追加効果が必ず発動</li><li>タイプジュエル：同タイプ技＋7</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
  <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのりは全体攻撃です。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
  <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：毎ターン20%で回復</li><li>こんらん：自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
