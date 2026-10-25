@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-5";
+const BUILD="20261026-6";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1287,7 +1287,19 @@ const AI_VOICE={
 "ネモ":{o:["それはね、","いい？ "],c:["んだよ！","よ！ 試してみてね"],st:(h,p,m)=>"HP"+h+"、PP"+p+"、お金"+m+"円！ まだまだバトルできるよ！",tg:t=>t+"！ どう動くか楽しみなんだ！"}
 };
 const AI_TIPS=["カードを選んで「使う」を押すと行動できる","使わないときは、カードを1枚捨てて交代できる","防御カードを出すと、相手の攻撃を軽くできる","PPが0だと技が使えないから、回復カードで補給するといい","お金があると、ショップで強いカードを買える","HPが0になると脱落で、最後まで生き残れば勝てる","色違いのカードは威力が上がって、PPも減らない"];
-const AIC={last:0,per:{},hist:{}};
+// キャラクターごとの会話傾向。口調だけでなく、自発的に話す話題にも性格を反映する
+const AI_PERSONALITY={
+ "グリーン":{topics:["strategy","bluff","card","strategy","other"],style:"自信家。勝負の主導権や相手の読みを意識する"},
+ "シルバー":{topics:["strategy","bluff","other","strategy","card"],style:"寡黙で警戒心が強い。馴れ合いを避け、実力を重視する"},
+ "ハルカ":{topics:["deal","event","card","other","deal"],style:"明るく親しみやすい。協力や意外な展開を前向きに受け止める"},
+ "ジュン":{topics:["card","event","strategy","other","card"],style:"せっかちで熱血。考え込むより行動と勢いを好む"},
+ "チェレン":{topics:["strategy","card","bluff","strategy","deal"],style:"冷静で分析的。資源管理や判断の根拠を重視する"},
+ "セレナ":{topics:["deal","bluff","event","card","deal"],style:"礼儀正しく落ち着いている。丁寧な駆け引きと品位を大切にする"},
+ "ハウ":{topics:["deal","event","other","card","deal"],style:"おおらかでマイペース。楽しさや食べ物、仲間との雰囲気を大事にする"},
+ "ホップ":{topics:["strategy","deal","card","event","strategy"],style:"熱心で前向き。努力や作戦、仲間との協力を語る"},
+ "ネモ":{topics:["card","strategy","event","bluff","card"],style:"バトルへの好奇心が強い。相手の戦い方や次の展開にわくわくする"}
+};
+const AIC={last:0,per:{},hist:{},lastSpeaker:null};
 const aiPick=a=>a[Math.floor(Math.random()*a.length)];
 function aiLine(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
  if(V&&kind==="state")return V.st(Math.max(0,p.hp),p.pp,p.mo);
@@ -1309,13 +1321,14 @@ function aiAmbient(){
  if(now<AIC.nextAmbient||now<AIC.last)return;
  const bots=G.P.filter(p=>p.bot&&!p.d);
  if(!bots.length){AIC.nextAmbient=now+12000;return}
+ // 同じ話者が続かないようにしつつ、性格に合う話題を選ぶ
  let pool=bots.filter(p=>p.n!==AIC.lastSpeaker);
  if(!pool.length)pool=bots;
- const p=aiPick(pool);
+ const p=aiPick(pool),persona=AI_PERSONALITY[p.n]||{topics:["strategy","card","other"]};
  let kind;
  if(p.hp<=15&&Math.random()<.55)kind="lowhp";
  else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.25)kind="target";
- else kind=aiPick(["strategy","card","other","bluff","event","strategy","card","deal"]);
+ else kind=aiPick(persona.topics);
  const delay=500+Math.random()*1200;
  AIC.lastSpeaker=p.n;
  AIC.nextAmbient=now+delay+14000+Math.random()*11000;
