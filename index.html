@@ -140,8 +140,27 @@ header{padding:9px 16px}
 #ctoast{position:absolute;right:8px;top:54px;max-width:70%;background:#2f4f6f;color:#fff;border-radius:12px;padding:6px 12px;font-size:.84rem;z-index:6;pointer-events:none;box-shadow:0 3px 10px #0004}#ctoast[hidden]{display:none}
 #netbar{position:absolute;left:0;right:0;top:0;z-index:10;text-align:center;background:#e0872f;color:#fff;font-weight:800;padding:6px;font-size:.88rem}#netbar[hidden]{display:none}
 .rtb{width:100%;border-collapse:collapse;margin:8px 0 2px;font-size:.76rem}.rtb th,.rtb td{border-bottom:1px solid var(--bd);padding:3px 2px;text-align:center}.rtb td:nth-child(2){text-align:left;overflow-wrap:anywhere}.rtb tr.me td{background:var(--cd);font-weight:800}.rtb th{color:var(--mu);font-weight:700}
-#volp{position:absolute;right:8px;top:48px;z-index:9;background:var(--pn);border:2px solid var(--ac);border-radius:12px;padding:8px 12px;box-shadow:0 4px 14px #0004;min-width:230px}#volp[hidden]{display:none}.vr{display:flex;align-items:center;gap:8px;margin:5px 0}.vr input[type=range]{flex:1;min-width:0}.vr b{min-width:3.3em;text-align:right;font-size:.82rem}</style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><span id="tmr" hidden></span><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="chatBtn" hidden title="チャット">💬<b id="chatBadge" hidden></b></button><button class="btn" id="sndBtn" title="効果音">🔊</button><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
+#volp{position:absolute;right:8px;top:48px;z-index:9;background:var(--pn);border:2px solid var(--ac);border-radius:12px;padding:8px 12px;box-shadow:0 4px 14px #0004;min-width:230px}#volp[hidden]{display:none}.vr{display:flex;align-items:center;gap:8px;margin:5px 0}.vr input[type=range]{flex:1;min-width:0}.vr b{min-width:3.3em;text-align:right;font-size:.82rem}
+/* ===== スマホ向けの画面調整 ===== */
+header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:contents}
+#play{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.acts{flex:none;background:var(--pn);border-top:1px solid var(--bd)}
+#chat{position:fixed;right:max(0px,calc((100vw - 960px)/2));bottom:0}
+@media(max-width:520px){
+ h1{font-size:.82rem;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px}
+ header{gap:4px}#turnCount{font-size:.78rem!important}#tmr{font-size:.76rem;padding:1px 6px}
+ header .btn{padding:4px 8px;font-size:.8rem}
+ #menuBtn{display:inline-block}
+ #hmenu{display:none}#hmenu.open{display:flex;flex-direction:column;gap:6px;position:absolute;right:8px;top:100%;z-index:9;background:var(--pn);border:2px solid var(--ac);border-radius:12px;padding:8px;box-shadow:0 4px 14px #0004;min-width:150px}
+ #hmenu.open .btn{width:100%;text-align:left;font-size:.9rem;padding:8px 12px}
+ #chat{width:100%;height:min(56dvh,420px);border-radius:14px 14px 0 0}
+ #stamps{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}#stamps button{flex:none}
+ #ctoast{top:46px;max-width:84%}
+ .rtb{font-size:.68rem}.rtb th,.rtb td{padding:3px 1px}
+ .acts .btn{padding:9px 12px}
+}
+</style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><span id="tmr" hidden></span><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="chatBtn" hidden title="チャット">💬<b id="chatBadge" hidden></b></button><button class="btn" id="sndBtn" title="効果音">🔊</button><button class="btn" id="menuBtn" title="メニュー">☰</button><span id="hmenu"><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></span></div></header>
 <div id="play"><div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="helperStatus"></div><div id="hand"></div></div>
@@ -366,12 +385,11 @@ const Z_MOVE_NAMES={"ノーマル":"ウルトラダッシュアタック","ほ�
 const PALKIA_CARD={id:"palkia",n:"あくうせつだん",t:"d",b:1,x:"パルキアの技・完全防御",helperSprite:484};
 const mc=c=>{const a=c.t==="a",m=CARD_MON[c.id],megaUrl=typeof c.megaSprite==="string"&&c.megaSprite.startsWith("url:")?c.megaSprite.slice(4):null,sprite=c.megaSprite&&!megaUrl?(c.shiny?"shiny/"+c.megaSprite:String(c.megaSprite)):(c.id==="shiny_delibird"?"shiny/225":(c.helperSprite||(m&&(m[2]?"shiny/"+m[0]:m[0]))));const src=megaUrl|| (sprite?"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+sprite+".png":"");return "<div class='mc "+(c.id==="bag"?"b":c.t)+(a?" mc-attack":"")+"'>"+(!src&&ITEM_IMG[c.id]?itemArt(c):"")+(src?"<div class='card-mon'><img loading='lazy' src='"+src+"' alt=''></div>":"")+(a?"<b>"+esc(c.n)+"</b><small class='mc-desc'>"+esc(c.mimic?mimicInfo(c):c.x||"")+"</small>":"<b>"+esc(c.n)+"</b>"+tyTag(c)+"<small>"+esc(c.x||"")+"</small>")+"</div>";};function board(c1,a,t1,c2,d,t2){$("pv").innerHTML="<div class='bd2'><div><div class='zc'>"+esc(c1)+"</div><div class='zn'>"+a.map(mc).join("")+"</div>"+(t1?"<div class='pill'>"+t1+"</div>":"")+"</div><div><div class='zc'>"+esc(c2)+"</div><div class='zn'>"+d.map(mc).join("")+"</div>"+(t2?"<div class='pill'>"+t2+"</div>":"")+"</div></div>"}
 const END_SPRITES={"イベルタル":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/717.png","ウルトラネクロズマ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10157.png","ムゲンダイマックスムゲンダイナ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10190.png","アルセウス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/493.png","ニャース":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png","ニューラ":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/215.png","ハピナス":"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/242.png"};
-const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.h.map(k=>C[k]).filter(Boolean),has=id=>H.some(c=>c.id===id),pool=[];const add=ids=>ids.forEach(id=>{const c=C.find(x=>x.id===id);if(c)pool.push(c)});if(p.hp<=25&&p.hp<99)add(["hyper","super","oran","potion"]);if(p.pp<=4)add(["pp4","pp3","pp2","pp1","himeri"]);if(p.al&&p.hp>25)add(["cure"]);if(alive.length&&p.pp>0)add(["sheercold","fissure","earthquake","surf","outrage","closecombat","flareblitz","bravebird","stoneedge","moonblast","dracometeor","focusblast","psychic","flamethrower","rockslide","blizzard","heatwave","discharge","hydropump","thunder","woodhammer","aquabreak","energyball","leafblade","thunderfang","petal","drainpunch","gigadrain","parabolic"]);if(!p.masterUsed&&!has("masterball")&&Math.random()<.7)add(["masterball"]);if(p.pp>0)add(["protect","detect","cotton","amnesia","cosmic","iron","light","wall"]);if(p.mo>=5)add(["shop"]);if(!pool.length)add(p.pp<=2?["pp4","pp3","pp2"]:["hyper","super","potion","pp4","pp3"]);const unique=[...new Map(pool.map(c=>[c.i,c])).values()];return rd(unique.length?unique:C.filter(c=>c.t==="a"&&!c.secret&&p.pp>0&&(!c.helperMove||G?.experiment))).i};
 const addCard=(p,k)=>{if(p.h.length>=99)return false;p.h.push(k);return true};
 const draw=(p,players=G?.P||[p],amount=null)=>{if(G?.experiment){p.h=C.filter(c=>c.id!=="zcrystal"||!p.zUsed).map(c=>c.i);p.hp=999999;p.pp=999999;return}const n=amount==null?Math.max(0,9-p.h.length):Math.max(0,Number(amount)||0);for(let i=0;i<n&&p.h.length<99;i++)p.h.push((G?.fingerMode||FINGER_MODE)?(Math.random()<.2?C.find(c=>c.id==="metronome").i:C.find(c=>c.id==="pp4").i):pick(players,p));satoshiFix(p)};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false,zUsed:false});
-const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;rollShiny(experiment);for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}if(p.n==="サトシ"){p.satoshiSpark=Math.random()<.5;p.satoshiGren=Math.random()<.5;satoshiFix(p)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[],stats:{},dead:[],chat:[],cs:0}};
-let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="intermediate";const S={sel:[],tg:-1,n:0,sent:0,es:0};
+const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;rollShiny(experiment);for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}if(p.n==="サトシ"){p.satoshiSpark=Math.random()<.5;p.satoshiGren=Math.random()<.5;satoshiFix(p)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[],stats:{},dead:[],chat:[],cs:0}};
+let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2;const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1,bag:-1};
 // ===== 表示 =====
 function render(){
@@ -414,7 +432,7 @@ function render(){
   const g=$("shg");g.innerHTML="";if(bag){ids.forEach(k=>{const c=C[k],b=document.createElement("button");b.className="c b";b.innerHTML=monArt(c)+"<b>"+c.n+"</b><span class='tag'>"+c.jt+"タイプ</span><small>"+c.x+"</small>";b.onclick=()=>send(A,k);g.appendChild(b)})}else if(ex){g.innerHTML='<label>支払う数値<select id="exfrom"><option value="hp">HP（現在 '+mp.hp+'）</option><option value="pp">PP（現在 '+mp.pp+'）</option><option value="mo">お金（現在 ¥'+mp.mo+'）</option></select></label><label>交換先<select id="exto"><option value="hp">HP</option><option value="pp">PP</option><option value="mo">お金</option></select></label><label>交換する量<input id="examount" type="number" min="1" step="1" value="1"></label><p id="expreview"></p><button class="btn pri" id="exconfirm">両替する</button>';const update=()=>{const f=$("exfrom").value,t=$("exto").value,n=Math.floor(Number($("examount").value)||0),v={hp:mp.hp,pp:mp.pp,mo:mp.mo},max={hp:99,pp:99,mo:Infinity};$("expreview").textContent=f===t?"交換元と交換先を別々に選んでください":n<1||n>v[f]||v[t]+n>max[t]?"交換できない数値です":v[f]+" → "+(v[f]-n)+"、"+v[t]+" → "+(v[t]+n)+"（1:1）";$("exconfirm").disabled=f===t||n<1||n>v[f]||v[t]+n>max[t]};$("exfrom").onchange=update;$("exto").onchange=update;$("examount").oninput=update;$("exconfirm").onclick=()=>send(A,{from:$("exfrom").value,to:$("exto").value,amount:Number($("examount").value)});update()}else{ids.forEach((k,j)=>{const c=C[k],b=document.createElement("button");b.className="c "+c.t;b.innerHTML=monArt(c)+"<b>"+c.n+"</b><span class='tag'>"+lab(c)+" ¥"+pr(c)+"</span><small>"+c.x+"</small>";b.disabled=sh&&mp.mo<pr(c);b.onclick=()=>send(A,j);g.appendChild(b)})}$("shn").textContent=(ex||bag)?"キャンセル":"やめる";$("shn").onclick=()=>send(A,(ex||bag)?{cancel:true}:-1)}
  $("log").innerHTML=G.L.map(x=>"<div>"+esc(x)+"</div>").join("");
  if(G.e&&G.e.s!==S.es){S.es=G.e.s;sfxFor(G.e.t);if(typeof logPush==="function")logPush(G.e.t);const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
- if(G.ph==="over"){$("mt").textContent=G.lost?"接続が切れました":G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";if(!S.os){S.os=1;if(!G.lost)sfx(G.w===me?"win":"lose")}$("mx").innerHTML=resultHtml(me);$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu");$("md").hidden=false}
+ if(G.ph==="over"){$("mt").textContent=G.lost?"接続が切れました":G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";if(!S.os){S.os=1;if(!G.lost)sfx(G.w===me?"win":"lose")}$("mx").innerHTML=resultHtml(me);$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu"||(MODE==="net"&&host&&!G.lost));$("md").hidden=false}
 }
 function pub(){if(G&&host)statSync();if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
 async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
@@ -697,11 +715,9 @@ async function act0(a,o,c,bo,bs){
  if(total>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0||c.shiny)&&!(c.mimic&&!G.last)),ix=c=>p.h.indexOf(c.i);
- const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),T=G.cpuLevel==="beginner"?alive[Math.floor(Math.random()*alive.length)]:(G.cpuLevel==="advanced"?op[0]:alive[Math.floor(Math.random()*alive.length)]),tg=G.P.indexOf(T);
+ const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),T=alive[Math.floor(Math.random()*alive.length)],tg=G.P.indexOf(T);
  const sts=has("s").filter(x=>(p.pp>0||x.shiny)&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&(p.pp>0||x.shiny)&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
- if(G.cpuLevel==="beginner"){const pool=H.filter(x=>x&&((x.t==="a"&&(p.pp>0||x.shiny))||x.t==="s"||x.t==="b"||x.t==="d"||x.t==="h"||x.t==="m"));c=pool.length?rd(pool):null;}
- else if(G.cpuLevel==="advanced"){const attacks=has("a"),strongest=attacks.slice().sort((a,b)=>{const A=ef(a),B=ef(b);return(B.ko?80:B.d+(B.all?8:0)+(B.al?3:0))-(A.ko?80:A.d+(A.all?8:0)+(A.al?3:0))})[0];if(masters.length&&Math.random()<.7)c=masters[0];else if(p.hp<=25&&hh.length)c=hh.sort((a,b)=>b.d-a.d)[0];else if(p.pp<=3&&pc.length)c=pc.sort((a,b)=>b.pp-a.pp)[0];else if(strongest)c=strongest;else if(screens.length)c=rd(screens);else if(sts.length)c=rd(sts);else c=hh[0]||pc[0]||rd(H);}
- else if(masters.length&&Math.random()<.5)c=masters[0];
+ if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
  else if(p.al&&cu.length&&Math.random()<.8)c=cu[0];
  else if(p.hp<=20&&hh.length&&Math.random()<.7)c=hh.sort((a,b)=>b.d-a.d)[0];
@@ -989,7 +1005,7 @@ function applyTheme(){const r=document.documentElement;if(THEME==="auto")r.remov
 const nextTheme=()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%3];applyTheme()};
 $("tb").onclick=nextTheme;$("themeBtn").onclick=nextTheme;applyTheme();
 // もう一度遊ぶ（コンピューター戦）
-$("again").onclick=()=>{if(MODE!=="cpu")return;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");startCpu(CPU_COUNT)};
+$("again").onclick=()=>{if(MODE==="net"&&host){rematchNet();return}if(MODE!=="cpu")return;SEQ++;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.es=0;S.sur=0;clearTimeout(S.st);$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");startCpu(CPU_COUNT)};
 // カード図鑑
 const ZK_GROUPS=[["a","攻撃"],["b","強化・アイテム"],["d","防御"],["h","回復"],["s","変化"],["m","商売"]];
 const zkLab=c=>c.t==="a"?(c.mimic||c.metronome?"特殊技":KL[c.k]||"攻撃"):{b:"強化",d:"防御",h:"回復",s:"変化",m:"商売",u:"呼び出し"}[c.t];
@@ -1057,17 +1073,29 @@ const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 let ZK_SHINY=false;try{ZK_SHINY=localStorage.getItem("colosseoZkShiny")==="on"}catch(_){}
 const zkBar=()=>"<div class='zk-tabs'><button class='btn"+(ZK_SHINY?" pri":"")+"' id='zkShiny'>✨ 色違い表示："+(ZK_SHINY?"ON":"OFF")+"</button></div>";
 const zkSprite=h=>ZK_SHINY?h.replace(/sprites\/pokemon\/(?:shiny\/)?(\d+)\.png/g,"sprites/pokemon/shiny/$1.png"):h.replace(/sprites\/pokemon\/shiny\/(\d+)\.png/g,"sprites/pokemon/$1.png");
+/* --- 対人戦：もう一度遊ぶ（ホストが押すと、今つながっている全員で再開）--- */
+function rematchNet(){
+ if(!G||!host||MODE!=="net"||G.ph!=="over"||!R||G.lost)return;
+ const ps=R.peers(),old=G,keep=old.P.filter(p=>ps.some(q=>q.peer===p.id));
+ if(keep.length<2){const b=$("again");b.textContent="人数が足りません";setTimeout(()=>{b.textContent="もう一度遊ぶ"},1600);return}
+ SEQ++;W=null;CA=null;STAT.actor=null;clearTimeout(S.st);
+ G=newGame(keep.map(p=>mk(String(p.on||p.n).slice(0,8),p.id,0)),old.endAt);
+ G.limit=old.limit;G.rid=(old.rid||0)+1;G.chat=(old.chat||[]).slice(-40);G.cs=old.cs||0;
+ const ann=G.endAt===1;if(ann)G.endStarted=true;
+ pub();
+ if(ann)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 /* --- 戦績集計（HPの増減から自動で算出）--- */
 function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
 function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++}}}
 function resultHtml(me){
  if(G.lost)return "ホストとの通信が切れたため、対戦を終了しました。";
  let h=G.w>=0?esc(G.P[G.w].n)+" の勝利！":"引き分け";
- if(G.experiment||!G.stats)return h;
+ const note=(MODE==="net"&&!host)?'<p style="margin:10px 0 0;font-size:.82rem;color:var(--mu)">ホストが「もう一度遊ぶ」を押すと、同じメンバーで再開します。</p>':"";
+ if(G.experiment||!G.stats)return h+note;
  const ord=[];if(G.w>=0)ord.push(G.P[G.w].id);const dd=G.dead||[];for(let k=dd.length-1;k>=0;k--)if(!ord.includes(dd[k]))ord.push(dd[k]);G.P.forEach(p=>{if(!ord.includes(p.id))ord.push(p.id)});
  const mx=Math.max(0,...G.P.map(p=>(G.stats[p.id]||{}).dealt||0));
  const rows=ord.map((id,r)=>{const p=G.P.find(x=>x.id===id),s=G.stats[id]||{};const mvp=mx>0&&s.dealt===mx?" 🏆":"";return '<tr'+(p.id===MY?' class="me"':'')+'><td>'+(r+1)+'</td><td>'+esc(p.n)+mvp+'</td><td>'+(s.dealt||0)+'</td><td>'+(s.taken||0)+'</td><td>'+(s.healed||0)+'</td><td>'+(s.kills||0)+'</td><td>'+(s.acts||0)+'</td></tr>'}).join("");
- return h+'<table class="rtb"><tr><th>順位</th><th>なまえ</th><th>与ダメ</th><th>被ダメ</th><th>回復</th><th>KO</th><th>行動</th></tr>'+rows+'</table><small style="color:var(--mu)">🏆＝与ダメージ最多</small>';
+ return h+'<table class="rtb"><tr><th>順位</th><th>なまえ</th><th>与ダメ</th><th>被ダメ</th><th>回復</th><th>KO</th><th>行動</th></tr>'+rows+'</table><small style="color:var(--mu)">🏆＝与ダメージ最多</small>'+note;
 }
 /* --- 効果音（WebAudio合成・ミュート可）--- */
 let AC=null,MG=null,VOICES=0,SND=true,VOL=150;try{const v=localStorage.getItem("colosseoVol");if(v!==null&&isFinite(+v))VOL=Math.max(0,Math.min(300,+v))}catch(_){}
@@ -1112,6 +1140,7 @@ $("chatBtn").onclick=()=>{$("chat").hidden=chatOpen();if(chatOpen()){S.cu=0;rend
 $("chatX").onclick=()=>{$("chat").hidden=true};
 const chatLine=(m,my)=>m.y?'<div class="cm sys">'+esc(m.t)+'</div>':'<div class="cm'+(m.n===my?' me':'')+'"><b>'+esc(m.n)+'</b>'+(m.s>=0&&STAMPS[m.s]?'<span class="stp">'+STAMPS[m.s][0]+'</span> '+esc(STAMPS[m.s][1]):esc(m.t))+'</div>';
 function renderExtras(){
+ if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  const net=MODE==="net";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
  if(G.ph!=="over")S.os=0;
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
@@ -1125,5 +1154,11 @@ function renderExtras(){
  if(chatOpen()){const l=$("chatList"),at=l.scrollTop+l.clientHeight>=l.scrollHeight-30,h=msgs.map(m=>chatLine(m,my)).join("");if(l.dataset.h!==String(last)){l.innerHTML=h;l.dataset.h=String(last);if(at||true)l.scrollTop=l.scrollHeight}}
 }
 /* --- 通信状態表示 --- */
-window.NETSTAT=k=>{const b=$("netbar");if(k==="reconnecting"){b.textContent="⚠ 接続が切れました。再接続しています…";b.hidden=false}else if(k==="ok"){b.textContent="✅ 再接続しました";b.hidden=false;setTimeout(()=>{b.hidden=true},2000);sfx("ask")}else if(k==="lost"){b.hidden=true;if(G&&G.ph!=="over"){G.ph="over";G.w=-1;G.ask=null;G.lost=1;render()}}};
+window.NETSTAT=k=>{const b=$("netbar");if(k==="reconnecting"){if(G&&G.ph==="over")return;b.textContent="⚠ 接続が切れました。再接続しています…";b.hidden=false}else if(k==="ok"){b.textContent="✅ 再接続しました";b.hidden=false;setTimeout(()=>{b.hidden=true},2000);sfx("ask")}else if(k==="lost"){b.hidden=true;if(G&&G.ph!=="over"){G.ph="over";G.w=-1;G.ask=null;G.lost=1;render()}}};
+
+/* --- スマホ：ヘッダーメニューとチャットのキーボード対応 --- */
+{const mb=$("menuBtn"),hm=$("hmenu");mb.onclick=e=>{e.stopPropagation();hm.classList.toggle("open")};
+ document.addEventListener("click",e=>{if(hm.classList.contains("open")&&(!e.target.closest("#hmenu")||e.target.closest("#hmenu .btn")))hm.classList.remove("open")});
+ const vv=window.visualViewport,place=()=>{const c=$("chat");if(!vv||c.hidden)return;const kb=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);c.style.bottom=kb+"px";c.style.maxHeight=Math.max(160,vv.height-60)+"px"};
+ if(vv){vv.addEventListener("resize",place);vv.addEventListener("scroll",place)}$("chatIn").addEventListener("focus",()=>setTimeout(place,250));$("chatIn").addEventListener("blur",()=>setTimeout(()=>{$("chat").style.bottom="0px";$("chat").style.maxHeight=""},150))}
 </script>
