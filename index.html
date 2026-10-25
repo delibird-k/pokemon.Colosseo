@@ -134,7 +134,7 @@ header{padding:9px 16px}
 #chatBtn{position:relative;padding:4px 9px}#chatBadge{position:absolute;top:-6px;right:-6px;background:#d9534f;color:#fff;border-radius:9px;font-size:.62rem;padding:0 5px;min-width:16px}#sndBtn{padding:4px 9px}
 #chat{position:absolute;right:0;bottom:0;width:min(380px,100%);height:min(62%,440px);background:var(--pn);border:2px solid var(--ac);border-radius:14px 14px 0 0;z-index:8;display:flex;flex-direction:column;box-shadow:0 -4px 16px #0003}#chat[hidden]{display:none}
 .ch-h{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--ac);color:#fff;border-radius:11px 11px 0 0}.ch-h .btn{padding:2px 9px}
-#chatList{flex:1;min-height:0;overflow:auto;padding:6px 10px;font-size:.84rem;line-height:1.5}.cm{padding:2px 0;word-break:break-all}.cm b{color:var(--ac);margin-right:4px}.cm.me b{color:#4b4be0}.cm.sys{color:var(--mu);font-size:.74rem;text-align:center}.stp{font-size:1.4rem;vertical-align:middle}
+#chatList{flex:1;min-height:0;overflow:auto;padding:6px 10px;font-size:.84rem;line-height:1.5}.cm{padding:2px 0;word-break:break-all}.cm b{color:var(--ac);margin-right:4px}.cm.me b{color:#4b4be0}.cm.sys{color:var(--mu);font-size:.74rem;text-align:center}.stp{font-size:inherit;vertical-align:baseline}
 #stamps{display:flex;flex-wrap:wrap;gap:4px;padding:4px 8px;border-top:1px solid var(--bd)}#stamps button{border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:14px;padding:3px 8px;font:inherit;font-size:.74rem;cursor:pointer}
 .ch-in{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--bd)}.ch-in input{flex:1;min-width:0;padding:8px;font:inherit;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx)}
 #ctoast{position:absolute;right:8px;top:54px;max-width:70%;background:#2f4f6f;color:#fff;border-radius:12px;padding:6px 12px;font-size:.84rem;z-index:6;pointer-events:none;box-shadow:0 3px 10px #0004}#ctoast[hidden]{display:none}
@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-10";
+const BUILD="20261026-11";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
