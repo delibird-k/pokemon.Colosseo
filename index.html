@@ -159,6 +159,11 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
  .rtb{font-size:.68rem}.rtb th,.rtb td{padding:3px 1px}
  .acts .btn{padding:9px 12px}
 }
+
+/* チャットを開いたら、チャットは右側の縦長パネル／ゲーム画面は左側に並べる */
+#chat{top:0;bottom:0;right:max(0px,calc((100vw - 960px)/2));width:min(340px,36vw);height:auto;border-radius:0;border-width:0 0 0 2px;box-shadow:-3px 0 12px #0002}
+.ch-h{border-radius:0}
+@media(max-width:520px){#chat{width:max(172px,46vw);height:auto;border-radius:0}#stamps{flex-wrap:wrap;overflow-x:visible}#ctoast{max-width:70%}}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><span id="tmr" hidden></span><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="chatBtn" hidden title="チャット">💬<b id="chatBadge" hidden></b></button><button class="btn" id="sndBtn" title="効果音">🔊</button><button class="btn" id="menuBtn" title="メニュー">☰</button><span id="hmenu"><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></span></div></header>
 <div id="play"><div class="fs" id="fs"></div>
@@ -1170,9 +1175,9 @@ window.NETSTAT=k=>{const b=$("netbar");if(k==="reconnecting"){if(G&&G.ph==="over
 $("ver").textContent=BUILD;
 $("refreshBtn").onclick=async()=>{try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}catch(_){}try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(_){}location.reload()};
 
-/* --- チャット欄を開いている間は、ゲーム画面側を縮めて手札・ボタンに被らないようにする --- */
+/* --- チャット欄を開いている間は、ゲーム画面を左側に縮めてチャットと横並びにする --- */
 {const c=$("chat"),m=document.querySelector("main");
- const dock=()=>{if(c.hidden){m.style.paddingBottom="";return}const kb=parseFloat(c.style.bottom)||0;m.style.paddingBottom=(c.offsetHeight+kb)+"px"};
+ const dock=()=>{m.style.paddingBottom="";m.style.paddingRight=c.hidden?"":c.offsetWidth+"px"};
  new MutationObserver(dock).observe(c,{attributes:true,attributeFilter:["hidden","style"]});
  window.addEventListener("resize",dock);if(window.visualViewport)window.visualViewport.addEventListener("resize",dock)}
 </script>
