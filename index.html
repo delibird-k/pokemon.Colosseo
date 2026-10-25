@@ -563,10 +563,10 @@ async function helperAction(owner,forcedHelper=null){
   const L=G.last;
   if(!L||!(L.d>0||L.ko)){await ev("ミュウツーは真似る技がなかった…");return}
   const name="超・"+(L.n||"わざ"),ts=G.P.filter(x=>x!==owner&&!x.d);if(!ts.length)return;
-  const targets=L.all?ts:[rd(ts)];
+  const targets=L.all?ts:[rd(ts)],aimI=C.find(x=>x.aim).i;
   await ev("ミュウツーが直前の技を真似た！ "+name+"！（ガード不可）",800);
   if(L.ko){
-   const card=C.find(x=>x.id==="sheercold"),aimI=C.find(x=>x.aim).i;
+   const card=C.find(x=>x.id==="sheercold");
    for(const t of targets){
     G.bd={a:ownerIndex,c:card.i,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:h.name,displayCard:{...card,n:name,helperSprite:hs}};
     if(await palkiaBlock(t,name))continue;
