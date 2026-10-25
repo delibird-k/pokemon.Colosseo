@@ -153,7 +153,7 @@ header{padding:9px 16px}
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
 <label for="tl" style="display:block;margin:10px 0 4px">持ち時間（対人戦・1回の操作）</label><select class="in" id="tl"><option value="0">なし</option><option value="15">15秒</option><option value="30">30秒</option><option value="45">45秒</option><option value="60">60秒</option></select>
 <div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">ゆびをふるモード</b><div class="sg" style="margin:0"><button class="btn pri" id="fingerOff" type="button">OFF</button><button class="btn" id="fingerOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)"></small></div>
-<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="openShiny">色違い設定（0%!%モード）</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
+<div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
 <div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
 <div id="t3" hidden><p id="sw"></p><ul id="lb"></ul><button class="btn pri w" id="st" hidden>ゲーム開始</button></div>
@@ -1044,7 +1044,7 @@ function showShinySettings(){
  const all=on=>{cardIds.forEach(id=>setCard(id,on));MASTER_HELPERS.forEach(h=>EXP_SHINY.helpers[h.name]=on);saveExpShiny();if(G)render();showShinySettings()};
  $("shAllOn").onclick=()=>all(true);$("shAllOff").onclick=()=>all(false);
  $("mb").textContent="閉じる";$("md").hidden=false}
-$("openShiny").onclick=showShinySettings;$("shinyBtn").onclick=showShinySettings;
+$("shinyBtn").onclick=showShinySettings;
 // PWA
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 </script>
