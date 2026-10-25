@@ -514,14 +514,14 @@ async function helperAction(owner,forcedHelper=null){
   const ci=card.i,bo=dmg-card.d,ti=G.P.indexOf(t);
   G.bd={a:ownerIndex,c:ci,b:[],bo,ds:null,tg:ti,moveName:h.name+"・"+move,displayCard:{...card,n:move,x:"ポケモンの技",helperSprite:hs}};
   await ev(h.name+"の"+move+"！",500);
-  if(await palkiaBlock(t,move))return;
+  if(await palkiaBlock(t,move))return false;
   const guard=noGuard?null:await getDef(t,card,bo);
-  if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return}
+  if(guard&&(guard.b||guard.bs)){await ev(t.n+"はポケモンの攻撃を防いだ！",500);return false}
   const reduction=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===kind?x.r:0),0):0;
   const screen=wallRed(t,kind);
   const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
   t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
-  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);
+  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);return actual;
  }
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
   const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0,n:h.move};
@@ -573,7 +573,7 @@ async function helperAction(owner,forcedHelper=null){
     if(t.h.includes(aimI)||Math.random()<.2){hurtHelper(t,t.hp);t.hp=0;await ev(t.n+"は"+name+"で一撃でたおれた！",700)}
     else await ev(name+"は "+t.n+"に はずれた！",500);
    }
-  }else for(const t of targets){if(t.d)continue;await helperHit(t,L.d+5,L.k||"s",name,true)}
+  }else for(const t of targets){if(t.d)continue;const actual=await helperHit(t,L.d+5,L.k||"s",name,true);if(actual===false||actual===undefined||actual<=0)continue;if(L.cureBurn&&t.al==="burn"){t.al=null;await ev(t.n+"のやけどが治った！",500)}if(L.al&&t.hp>0&&(t.h.includes(aimI)||Math.random()<(L.ch??.3)))await apply(t,L.al);if(L.drain){const healed=Math.min(actual,99-owner.hp);if(healed>0){owner.hp+=healed;await ev(owner.n+"は"+name+"でHPを"+healed+"回復した！",500)}}if(L.recoil){owner.hp=Math.max(0,owner.hp-L.recoil);await ev(owner.n+"は"+name+"の反動で"+L.recoil+"ダメージ！",500)}}
  }
  else if(h.kind==="lugia"){
   const turnNow=G.actions||0,last=h.aeroLastTarget||{};
@@ -631,7 +631,7 @@ async function act0(a,o,c,bo,bs){
  let t=o;if(a.al==="confusion"){if(Math.random()<.5){t=a;await ev("こんらんして自分を攻撃！",800)}else await ev("なんとか技を出した！",600)}
  const mewRt=c.t==="a"&&!c.all&&!c.randomTarget&&t!==a&&mewOn();if(c.randomTarget||mewRt){const targets=G.P.filter(q=>q!==a&&!q.d);if(targets.length){t=targets[Math.floor(Math.random()*targets.length)];o=t;G.bd.tg=G.P.indexOf(t);await ev((mewRt?"ミュウの力で":"")+"対象はランダムに決まった！ "+t.n+"！",500)}}
  if(!G.experiment&&!free)a.pp--;
- if(c.t==="a"&&!c.mimic&&!c.gift)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n};
+ if(c.t==="a"&&!c.mimic&&!c.gift)G.last={d:Math.max(0,c.d+bo),k:c.k,all:c.all?1:0,ko:c.ko?1:0,n:c.n,al:c.al||null,ch:c.ch??.3,drain:c.drain||0,recoil:c.recoil||0,cureBurn:c.cureBurn||0,hits:c.hits||1,boostChance:c.boostChance||0,statusBoost:c.statusBoost||0,noGuard:c.noGuard||0,noSub:c.noSub||0};
  // 単体技は防御フェイズ前に命中判定。全体技は対象ごとに判定する。
  if(c.gift){const outcome=rd([5,10,15,20,-10]);if(outcome<0){const healed=Math.min(10,99-t.hp);t.hp+=healed;await ev("プレゼント！ "+t.n+"のHPが"+healed+"回復した！",800);return}const guard=await getDef(t,c,bo);if(guard&&(guard.b||guard.bs)){await ev(t.n+"はプレゼントを防いだ！",700);return}const rr=guard?guard.ds.reduce((sum,x)=>sum+(!x.k||x.k===c.k?x.r:0),0):0;const screen=wallRed(t,"s");const dm=Math.max(0,outcome-rr-screen-helperDamageReduction(t));t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);await ev("プレゼント！ "+t.n+"に"+dm+"ダメージ！"+(rr||screen?"（軽減）":""),800);return}if(c.miss&&!c.shiny&&!c.all&&Math.random()<Number(c.miss))return ev(c.n+"は はずれた！",800);if(!c.all&&t!==a&&await palkiaBlock(t,c.n))return;
  if(c.ko&&c.all){
