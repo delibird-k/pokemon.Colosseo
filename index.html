@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-8";
+const BUILD="20261026-9";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1136,8 +1136,8 @@ setInterval(tickTimer,250);
 function addChat(n,t,sys,st=-1){if(!G)return;G.cs=(G.cs||0)+1;G.chat=[...(G.chat||[]),{i:G.cs,n,t,y:sys?1:0,s:st}].slice(-40);pub()}
 function hostChat(ps){if(!G)return;for(const q of ps){if(q.sameTab)continue;const c=q.presence&&q.presence.chat;if(!c||typeof c!=="object"||LASTC[q.peer]===c.s)continue;LASTC[q.peer]=c.s;const pl=G.P.find(x=>x.id===q.peer);if(!pl)continue;const now=Date.now();if(now-(LASTT[q.peer]||0)<700)continue;LASTT[q.peer]=now;const si=Number.isInteger(c.st)&&STAMPS[c.st]?c.st:-1,t=si>=0?"":String(c.t||"").replace(/[\u0000-\u001f]/g,"").slice(0,40).trim();if(si<0&&!t)continue;addChat(pl.on||pl.n,t,0,si)}}
 function sendChat(text,st){if(!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
- if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st);if(MODE==="cpu")aiReply(st==null?text:"",st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
-$("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[0]+' '+x[1]+'</button>').join("");
+ if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st);if(MODE==="cpu")aiReply(st==null?text:STAMPS[st]?.[1]||"",st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
+$("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[1]+'</button>').join("");
 $("stamps").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(null,+b.dataset.i)};
 const doSend=()=>{const i=$("chatIn");sendChat(i.value);i.value=""};
 $("chatSend").onclick=doSend;$("chatIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();doSend()}});
@@ -1317,7 +1317,7 @@ function aiLine(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
  if(V&&kind==="target"){const t=G.P.filter(x=>!x.d&&x!==p).sort((a,b)=>a.hp-b.hp)[0];if(t)return V.tg(t.n);kind="other"}
  if(V&&kind==="rules")return aiPick(V.o)+aiPick(AI_TIPS)+aiPick(V.c);
  const bank=B[kind]||B.other||AI_DEFAULT.other,h=AIC.hist[p.n]||(AIC.hist[p.n]=[]),fresh=bank.filter(x=>!h.includes(x)),t=aiPick(fresh.length?fresh:bank);h.push(t);if(h.length>5)h.shift();return t}
-function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,input!=null?aiConversationLine(p,input,kind):aiLine(p,kind),0,-1)},delay)}
+function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,input==="__stamp__"?aiLine(p,kind):(input!=null?aiConversationLine(p,input,kind):aiLine(p,kind)),0,-1)},delay)}
 function aiKind(text,st){if(st!=null&&st>=0)return STAMP_KIND[st]||"other";const t=String(text||"");
  const R=[["strategy",/作戦|戦略|読み合い|読み|次の手|先読み|どう攻め|守り方|防御策/],["deal",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組|休戦/],["event",/イベント|終末|隕石|襲撃|乱入|ハプニング|何が起き/],["card",/カード|手札|技|アイテム|ショップ|マスターボール|Zワザ|Z技|メガシンカ|防御/],["bluff",/はったり|ブラフ|駆け引き|本気か|嘘|うそ|信じるな/],["sorry",/ごめん|すまん|すみません|申し訳/],["thanks",/ありがと|感謝|サンキュ/],["bye",/ばいばい|バイバイ|またね|また明日|おつかれ|お疲れ|落ちる|ノシ/],["hello",/こんにち|こんばん|おはよ|やあ|やっほ|はじめまして|よろしく|hello|\bhi\b/i],["rude",/うざ|うるさ|きらい|嫌い|ばか|バカ|アホ|くそ|クソ|最悪|死ね/],["taunt",/弱|よわ|ざこ|雑魚|へた|下手|負け|まけ|勝つ|倒す|覚悟|余裕/],["ally",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組/],["target",/だれを|誰を|狙|ねらう|ターゲット|だれが|誰が/],["state",/HP|ＨＰ|PP|ＰＰ|お金|所持金|いくら|調子|元気|手札|何枚|残り/],["rules",/ルール|やり方|どうやって|どうすれば|コツ|アドバイス|ヒント|使い方|教えて/],["intro",/だれ|誰|名前|自己紹介|何者/],["cheer",/がんばれ|頑張れ|ファイト|応援|いけー|いっけ/],["sad",/かなしい|悲しい|つらい|辛い|疲れ|へこ|むり|無理|泣|しんどい/],["laugh",/笑|[wｗ]{2,}|草|ワロ|おもしろ|面白|ウケ/],["lucky",/運|色違い|ガチャ|レア/],["food",/すき|好き|たべ|食べ|ごはん|ご飯|おなか|お腹|おやつ|ラーメン|カレー/],["praise",/すご|つよ|強い|ナイス|うま|上手|いいね|さすが|えらい|最高|かっこ/],["q",/[？?]|ですか|かな|なに|何|どう|どれ|いつ|なんで/]];
  for(const [k,re] of R)if(re.test(t))return k;return"other"}
@@ -1366,7 +1366,7 @@ function aiContinueThought(p,line,topic){
 }
 function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{who=[aiPick(bots)];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
- who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100,tx))}
+ who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100,st!=null?"__stamp__":tx))}
 function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
 function aiAmbient(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
