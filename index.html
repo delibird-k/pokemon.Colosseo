@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-6";
+const BUILD="20261026-7";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1299,20 +1299,54 @@ const AI_PERSONALITY={
  "ホップ":{topics:["strategy","deal","card","event","strategy"],style:"熱心で前向き。努力や作戦、仲間との協力を語る"},
  "ネモ":{topics:["card","strategy","event","bluff","card"],style:"バトルへの好奇心が強い。相手の戦い方や次の展開にわくわくする"}
 };
-const AIC={last:0,per:{},hist:{},lastSpeaker:null};
+const AI_DIALOGUE={
+ "グリーン":{self:"俺はグリーン。強さには自信がある。お前は何を目指してる？",like:"好きなもの？ 強い相手との勝負に決まってるだろ",battle:"勝つために考える。それだけだ。お前はどう攻める？",praise:"見る目があるな。だが、まだ本気じゃないぜ",challenge:"いい度胸だ。口だけじゃないってところを見せてみな",follow:"それで、お前はどう思う？",default:"なるほどな。"+ "それで、そう思った理由は？"},
+ "シルバー":{self:"……シルバーだ。名前を覚える必要はない。強さで覚えろ",like:"……強さだ。口先じゃなく、実力のある奴がいい",battle:"……勝つために隙を探す。それだけだ。お前は？",praise:"……ふん。悪い気はしない",challenge:"……言ったな。後悔するなよ",follow:"……で、お前はどうする",default:"……なるほど。それで？"},
+ "ハルカ":{self:"私はハルカ！ ポケモンとの冒険もバトルも大好きだよ。きみは？",like:"好きなもの？ 冒険とポケモン！ あと、おいしいものもね",battle:"作戦を考えるのも楽しいけど、思い切って動くのも大事だよね！",praise:"えへへ、ありがとう！ きみのいいところも教えてよ",challenge:"受けて立つよ！ せっかくだから楽しい勝負にしようね",follow:"きみはどう？ もっと聞かせて！",default:"そうなんだ！ それって、いつからそう思ってたの？"},
+ "ジュン":{self:"俺はジュン！ じっとしてるより、まずやってみるタイプだぜ！",like:"好きなもの？ 熱い勝負に決まってるだろ！ あとスピードもな！",battle:"迷ってる暇があったら動く！ でも勢いだけじゃ勝てないのも分かってるぜ",praise:"おう！ そう言われると燃えてくるぜ！",challenge:"よっしゃ、勝負だ！ 絶対に手加減しないからな！",follow:"で、お前はどうなんだ？",default:"おっ、そう来たか！ それで次はどうするんだ？"},
+ "チェレン":{self:"チェレンだよ。物事を整理して考えるのが好きなんだ。君は？",like:"好きなのは、考えた作戦がうまく機能した瞬間かな",battle:"状況を分析して選択肢を絞る。君は直感と計画、どちらを重視する？",praise:"ありがとう。評価してくれた点を、もう少し詳しく聞いてもいいかな",challenge:"挑戦は歓迎するよ。感情的にならず、最善手を探そう",follow:"君ならどう判断する？ 理由も聞いてみたいな",default:"興味深いね。そう考える根拠は何だい？"},
+ "セレナ":{self:"セレナです。旅の中で経験を重ねて、自分らしさを見つけたいと思っています。あなたは？",like:"好きなのは、自分らしく挑戦することですわ。あなたは何がお好き？",battle:"勝つことだけでなく、どう戦うかも大切にしたいですわね",praise:"ありがとうございます。そう感じてくださった理由も聞いてみたいですわ",challenge:"お受けしますわ。お互いに悔いのない勝負にしましょう",follow:"あなたならどうなさいます？ よかったら聞かせてください",default:"そうなのですね。もう少し詳しく聞かせていただけますか？"},
+ "ハウ":{self:"ハウだよ〜。楽しいことが好きなんだ〜。きみは何が好き？",like:"おいしいごはんとポケモンかな〜。食べたら元気出るよね〜",battle:"楽しみながら考えるのがいいよね〜。きみはどんな戦い方が好き？",praise:"えへへ〜、ありがと〜。きみのことも教えてよ〜",challenge:"いいね〜！ 楽しく全力で勝負しよ〜",follow:"きみはどう思う〜？ ゆっくり聞かせて〜",default:"そっか〜。それってどんな感じなの〜？"},
+ "ホップ":{self:"俺はホップ！ 強くなるために学び続けてるんだ。君の目標は何だ？",like:"強くなることと、新しい戦い方を学ぶことだな！",battle:"勝負のあとに振り返るのも大切だぞ。君は負けたとき、どう切り替える？",praise:"ありがとう！ どこがよかったか教えてくれたら、もっと伸ばせそうだ！",challenge:"いいぞ！ お互い全力でぶつかって、学べる勝負にしよう！",follow:"君ならどうする？ 俺にも考えを聞かせてくれ！",default:"なるほどな！ それで、君はどうしたいんだ？"},
+ "ネモ":{self:"ネモだよ！ バトルが大好き！ きみはどんな勝負が好き？",like:"もちろんバトル！ 初めて見る戦い方に出会うとワクワクするんだ！",battle:"相手がどう動くか考えるのも最高！ きみの得意な戦い方、知りたいな！",praise:"ありがとう！ きみのバトルももっと見てみたいな！",challenge:"やった！ その本気、受け止めるよ！ 最高の勝負にしよう！",follow:"ねえ、きみはどう思う？ もっと話そうよ！",default:"それ、面白いね！ どうしてそう思ったの？"}
+};
+const AIC={last:0,per:{},hist:{},lastSpeaker:null,talk:{}};
 const aiPick=a=>a[Math.floor(Math.random()*a.length)];
 function aiLine(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
  if(V&&kind==="state")return V.st(Math.max(0,p.hp),p.pp,p.mo);
  if(V&&kind==="target"){const t=G.P.filter(x=>!x.d&&x!==p).sort((a,b)=>a.hp-b.hp)[0];if(t)return V.tg(t.n);kind="other"}
  if(V&&kind==="rules")return aiPick(V.o)+aiPick(AI_TIPS)+aiPick(V.c);
  const bank=B[kind]||B.other||AI_DEFAULT.other,h=AIC.hist[p.n]||(AIC.hist[p.n]=[]),fresh=bank.filter(x=>!h.includes(x)),t=aiPick(fresh.length?fresh:bank);h.push(t);if(h.length>5)h.shift();return t}
-function aiSay(p,kind,delay){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,aiLine(p,kind),0,-1)},delay)}
+function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,input!=null?aiConversationLine(p,input,kind):aiLine(p,kind),0,-1)},delay)}
 function aiKind(text,st){if(st!=null&&st>=0)return STAMP_KIND[st]||"other";const t=String(text||"");
  const R=[["strategy",/作戦|戦略|読み合い|読み|次の手|先読み|どう攻め|守り方|防御策/],["deal",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組|休戦/],["event",/イベント|終末|隕石|襲撃|乱入|ハプニング|何が起き/],["card",/カード|手札|技|アイテム|ショップ|マスターボール|Zワザ|Z技|メガシンカ|防御/],["bluff",/はったり|ブラフ|駆け引き|本気か|嘘|うそ|信じるな/],["sorry",/ごめん|すまん|すみません|申し訳/],["thanks",/ありがと|感謝|サンキュ/],["bye",/ばいばい|バイバイ|またね|また明日|おつかれ|お疲れ|落ちる|ノシ/],["hello",/こんにち|こんばん|おはよ|やあ|やっほ|はじめまして|よろしく|hello|\bhi\b/i],["rude",/うざ|うるさ|きらい|嫌い|ばか|バカ|アホ|くそ|クソ|最悪|死ね/],["taunt",/弱|よわ|ざこ|雑魚|へた|下手|負け|まけ|勝つ|倒す|覚悟|余裕/],["ally",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組/],["target",/だれを|誰を|狙|ねらう|ターゲット|だれが|誰が/],["state",/HP|ＨＰ|PP|ＰＰ|お金|所持金|いくら|調子|元気|手札|何枚|残り/],["rules",/ルール|やり方|どうやって|どうすれば|コツ|アドバイス|ヒント|使い方|教えて/],["intro",/だれ|誰|名前|自己紹介|何者/],["cheer",/がんばれ|頑張れ|ファイト|応援|いけー|いっけ/],["sad",/かなしい|悲しい|つらい|辛い|疲れ|へこ|むり|無理|泣|しんどい/],["laugh",/笑|[wｗ]{2,}|草|ワロ|おもしろ|面白|ウケ/],["lucky",/運|色違い|ガチャ|レア/],["food",/すき|好き|たべ|食べ|ごはん|ご飯|おなか|お腹|おやつ|ラーメン|カレー/],["praise",/すご|つよ|強い|ナイス|うま|上手|いいね|さすが|えらい|最高|かっこ/],["q",/[？?]|ですか|かな|なに|何|どう|どれ|いつ|なんで/]];
  for(const [k,re] of R)if(re.test(t))return k;return"other"}
+function aiConversationLine(p,text,kind){
+ const n=p.n,D=AI_DIALOGUE[n]||AI_DIALOGUE["ハルカ"],tx=String(text||"").trim(),mem=AIC.talk[n]||(AIC.talk[n]={count:0,last:"",lastKind:"",same:0});
+ const prev=mem.last,repeat=mem.lastKind===kind;mem.count++;mem.same=repeat?mem.same+1:0;
+ let line;
+ if(/自己紹介|何者|名前|だれ|誰/.test(tx))line=D.self;
+ else if(/好き|すき|趣味|好物|食べ物|何が好き/.test(tx))line=D.like;
+ else if(/バトル|戦い方|戦略|作戦|どう攻め|勝つには|強くなる/.test(tx))line=D.battle;
+ else if(/ありがと|ありがとう|感謝|すごい|強い|ナイス|上手|さすが/.test(tx))line=D.praise;
+ else if(/勝負|倒す|負けない|弱い|雑魚|挑戦|かかってこい/.test(tx))line=D.challenge;
+ else if(/なぜ|なんで|どうして|理由|どう思う|どう考え/.test(tx))line=D.follow;
+ else if(/また|さっき|前に|覚えてる|覚えてる？/.test(tx)&&prev)line=aiPick([n==="シルバー"?"……さっきの話か。覚えてる。"+prev.slice(0,16)+"……だったな": "さっきは「"+prev.slice(0,18)+"」って言ってたね。そこ、もう少し聞きたいな",D.follow]);
+ else if(kind==="sorry")line=aiPick([AI_CHAT[n]?.sorry?.[0]||"気にしないで",D.follow]);
+ else if(kind==="thanks")line=aiPick([AI_CHAT[n]?.thanks?.[0]||"どういたしまして",D.follow]);
+ else if(kind==="hello"&&mem.count===1)line=aiPick([AI_CHAT[n]?.hello?.[0]||D.self,D.self]);
+ else if(repeat&&prev)line=aiPick([D.follow,"さっきの話の続きかな？ もう少し詳しく聞かせて",D.default]);
+ else if(/\?$|？|ですか|かな|何|どう|いつ|どこ|誰/.test(tx))line=D.follow;
+ else {
+  const clean=tx.replace(new RegExp(n,"g"),"").replace(/[、。！？!?…〜〜]+$/,"").trim();
+  line=clean?aiPick(["「"+clean.slice(0,20)+"」ってことか。"+D.follow,"なるほど、「"+clean.slice(0,18)+"」なんだね。"+D.follow,D.default]):D.default;
+ }
+ mem.last=tx.slice(0,40);mem.lastKind=kind;
+ return line;
+}
 function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{who=[aiPick(bots)];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
- who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100))}
+ who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100,tx))}
 function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
 function aiAmbient(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
