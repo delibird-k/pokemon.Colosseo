@@ -129,8 +129,19 @@ header{padding:9px 16px}
 .c .tag,.c .ty{white-space:normal;max-width:100%;overflow-wrap:anywhere}
 
 .helper-pick-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:14px}.helper-pick-dialog{width:min(620px,100%);max-height:90dvh;overflow:auto;background:var(--pn);color:var(--tx);border:2px solid var(--ac);border-radius:16px;padding:16px;box-shadow:0 12px 40px #0006}.helper-pick-dialog h2{margin:0 0 6px;font-size:1.2rem}.helper-pick-dialog p{margin:0 0 12px}.helper-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.helper-pick-option{min-width:0;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:8px;text-align:left;padding:7px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);cursor:pointer}.helper-pick-option img{grid-row:1/3;width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.helper-pick-name{font-weight:700;overflow-wrap:anywhere}.helper-pick-option small{font-size:.72rem;line-height:1.35;color:var(--mu)}.helper-pick-cancel{margin-top:12px;width:100%}@media(max-width:390px){.helper-pick-grid{grid-template-columns:1fr}.helper-pick-dialog{padding:12px}}
+
+#tmr{font-size:.85rem;font-weight:800;background:#fff3;border-radius:10px;padding:1px 8px;white-space:nowrap}#tmr.warn{background:#d9534f;animation:tp .5s infinite alternate}@keyframes tp{to{opacity:.55}}
+#chatBtn{position:relative;padding:4px 9px}#chatBadge{position:absolute;top:-6px;right:-6px;background:#d9534f;color:#fff;border-radius:9px;font-size:.62rem;padding:0 5px;min-width:16px}#sndBtn{padding:4px 9px}
+#chat{position:absolute;right:0;bottom:0;width:min(380px,100%);height:min(62%,440px);background:var(--pn);border:2px solid var(--ac);border-radius:14px 14px 0 0;z-index:8;display:flex;flex-direction:column;box-shadow:0 -4px 16px #0003}#chat[hidden]{display:none}
+.ch-h{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--ac);color:#fff;border-radius:11px 11px 0 0}.ch-h .btn{padding:2px 9px}
+#chatList{flex:1;min-height:0;overflow:auto;padding:6px 10px;font-size:.84rem;line-height:1.5}.cm{padding:2px 0;word-break:break-all}.cm b{color:var(--ac);margin-right:4px}.cm.me b{color:#4b4be0}.cm.sys{color:var(--mu);font-size:.74rem;text-align:center}.stp{font-size:1.4rem;vertical-align:middle}
+#stamps{display:flex;flex-wrap:wrap;gap:4px;padding:4px 8px;border-top:1px solid var(--bd)}#stamps button{border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:14px;padding:3px 8px;font:inherit;font-size:.74rem;cursor:pointer}
+.ch-in{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--bd)}.ch-in input{flex:1;min-width:0;padding:8px;font:inherit;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx)}
+#ctoast{position:absolute;right:8px;top:54px;max-width:70%;background:#2f4f6f;color:#fff;border-radius:12px;padding:6px 12px;font-size:.84rem;z-index:6;pointer-events:none;box-shadow:0 3px 10px #0004}#ctoast[hidden]{display:none}
+#netbar{position:absolute;left:0;right:0;top:0;z-index:10;text-align:center;background:#e0872f;color:#fff;font-weight:800;padding:6px;font-size:.88rem}#netbar[hidden]{display:none}
+.rtb{width:100%;border-collapse:collapse;margin:8px 0 2px;font-size:.76rem}.rtb th,.rtb td{border-bottom:1px solid var(--bd);padding:3px 2px;text-align:center}.rtb td:nth-child(2){text-align:left;overflow-wrap:anywhere}.rtb tr.me td{background:var(--cd);font-weight:800}.rtb th{color:var(--mu);font-weight:700}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
-<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><div style="display:flex;gap:5px"><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
+<header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><span id="tmr" hidden></span><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="chatBtn" hidden title="チャット">💬<b id="chatBadge" hidden></b></button><button class="btn" id="sndBtn" title="効果音">🔊</button><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></div></header>
 <div id="play"><div class="fs" id="fs"></div>
 <div id="pv"></div><div id="ph"></div>
 <div id="helperStatus"></div><div id="hand"></div></div>
@@ -140,6 +151,7 @@ header{padding:9px 16px}
 <h2>Pokémon Colosseo</h2>
 <input class="in" id="nm" maxlength="8" placeholder="なまえ（8文字まで）" value="プレイヤー">
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
+<label for="tl" style="display:block;margin:10px 0 4px">持ち時間（対人戦・1回の操作）</label><select class="in" id="tl"><option value="0">なし</option><option value="15">15秒</option><option value="30">30秒</option><option value="45">45秒</option><option value="60">60秒</option></select>
 <div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">ゆびをふるモード</b><div class="sg" style="margin:0"><button class="btn pri" id="fingerOff" type="button">OFF</button><button class="btn" id="fingerOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)"></small></div>
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="openShiny">色違い設定（0%!%モード）</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p></div>
 <div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
@@ -149,6 +161,8 @@ header{padding:9px 16px}
 </div></div>
 <div class="ov" id="sh" hidden><div class="md"><h2 id="sht"></h2><p id="shm"></p><div class="sg" id="shg"></div><button class="btn" id="shn">やめる</button></div></div>
 <div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button><button class="btn" id="again">もう一度遊ぶ</button></div></div>
+<div id="netbar" hidden></div><div id="ctoast" hidden></div>
+<div id="chat" hidden><div class="ch-h"><b>チャット</b><button class="btn" id="chatX">✕</button></div><div id="chatList"></div><div id="stamps"></div><div class="ch-in"><input id="chatIn" maxlength="40" placeholder="メッセージ（40文字まで）" autocomplete="off"><button class="btn pri" id="chatSend">送信</button></div></div>
 </main>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -356,17 +370,18 @@ const advancedPick=(p,players)=>{const alive=players.filter(q=>q!==p&&!q.d),H=p.
 const addCard=(p,k)=>{if(p.h.length>=99)return false;p.h.push(k);return true};
 const draw=(p,players=G?.P||[p],amount=null)=>{if(G?.experiment){p.h=C.filter(c=>c.id!=="zcrystal"||!p.zUsed).map(c=>c.i);p.hp=999999;p.pp=999999;return}const n=amount==null?Math.max(0,9-p.h.length):Math.max(0,Number(amount)||0);for(let i=0;i<n&&p.h.length<99;i++)p.h.push((G?.fingerMode||FINGER_MODE)?(Math.random()<.2?C.find(c=>c.id==="metronome").i:C.find(c=>c.id==="pp4").i):pick(players,p));satoshiFix(p)};
 const mk=(n,id,bot)=>({id,n,hp:50,pp:10,mo:20,h:[],al:null,fz:0,bot,d:0,reflect:0,lightScreen:0,helper:null,masterUsed:false,zUsed:false});
-const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;rollShiny(experiment);for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}if(p.n==="サトシ"){p.satoshiSpark=Math.random()<.5;p.satoshiGren=Math.random()<.5;satoshiFix(p)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[]}};
+const newGame=(P,endAt=50)=>{const experiment=!!(P[0]&&P[0].n==="0%!%"),fingerMode=FINGER_MODE;rollShiny(experiment);for(let j=P.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[P[j],P[k]]=[P[k],P[j]]}if(experiment)P.forEach(p=>{p.hp=999999;p.pp=999999;p.h=C.map(c=>c.i)});else if(fingerMode)P.forEach(p=>{p.h=[C.find(c=>c.id==="metronome").i,...Array(8).fill(C.find(c=>c.id==="pp4").i)]});else P.forEach(p=>draw(p,P));if(!experiment){const secret=C.find(c=>c.id==="shiny_delibird");P.forEach(p=>{if(secret&&p.n==="色違いデリバード"){p.secretKeep=true;if(!p.h.includes(secret.i))p.h.push(secret.i)}if(p.n==="サトシ"){p.satoshiSpark=Math.random()<.5;p.satoshiGren=Math.random()<.5;satoshiFix(p)}})}return{P,t:0,ph:"play",ask:null,bd:null,e:null,L:[],w:-1,cpuLevel:CPU_LEVEL,fingerMode,endAt:Math.max(1,Math.min(999,Number(endAt)||50)),actions:0,endStarted:false,experiment,experimentVitals:experiment?P.map(p=>({id:p.id,hp:p.hp,pp:p.pp})):[],stats:{},dead:[],chat:[],cs:0}};
 let G=null,MY="",MODE="",R=null,R0=null,host=false,SEQ=0,W=null,CA=null,CPU_COUNT=2,CPU_LEVEL="intermediate";const S={sel:[],tg:-1,n:0,sent:0,es:0};
 const DEF={turn:{ps:1,ids:[0],tg:0},def:[],shop:-1,sell:-1,bag:-1};
 // ===== 表示 =====
 function render(){
  if(!G)return;
+ renderExtras();
  {const sb=$("shinyBtn");if(sb)sb.hidden=!G.experiment}
  const tc=$("turnCount");if(tc)tc.textContent="ターン "+Math.max(1,(G.actions||0)+1);
  const me=G.P.findIndex(p=>p.id===MY),mp=G.P[me]||{h:[],pp:0,mo:0,n:"観戦"};
  const A=G.ask&&G.ask.to===me&&S.sent!==G.ask.n?G.ask:null;CA=A;
- if(A?A.n!==S.n:S.n){S.n=A?A.n:0;S.sel=[];if(A&&A.k==="def"){const pl=$("play");if(pl)pl.scrollTop=0}}
+ if(A?A.n!==S.n:S.n){if(A&&A.n!==S.n)sfx(A.k==="turn"?"myturn":"ask");S.n=A?A.n:0;S.sel=[];if(A&&A.k==="def"){const pl=$("play");if(pl)pl.scrollTop=0}}
  const ops=G.P.map((p,i)=>i).filter(i=>i!==me&&!G.P[i].d);
  if(ops.length===1)S.tg=ops[0];else if(!ops.includes(S.tg))S.tg=-1;
  {const m0=S.sel.map(j=>C[mp.h[j]]).filter(Boolean).find(c=>c.t!=="b");if(m0)S.sel=S.sel.filter(j=>{const c=C[mp.h[j]];return !c||c.t!=="b"||bm(c,ef(m0))})}
@@ -398,14 +413,14 @@ function render(){
  if(ch){const sh=A.k==="shop",ex=A.k==="exchange",bag=A.k==="bag",ids=sh?A.d.o:bag?C.filter(c=>c.jt).map(c=>c.i):mp.h;$("sht").textContent=sh?"ショップ":ex?"両替":bag?"バッグ":"売る";$("shm").textContent=sh?"所持金 ¥"+mp.mo+"（価格はカードごとに異なります）":ex?"HP・PP・お金を1:1で交換します。HP・PPは最大99。":bag?"タイプ強化アイテムを1個選んで入手しよう。":"売るカードを選ぼう（相手が代金を支払う）";
   const g=$("shg");g.innerHTML="";if(bag){ids.forEach(k=>{const c=C[k],b=document.createElement("button");b.className="c b";b.innerHTML=monArt(c)+"<b>"+c.n+"</b><span class='tag'>"+c.jt+"タイプ</span><small>"+c.x+"</small>";b.onclick=()=>send(A,k);g.appendChild(b)})}else if(ex){g.innerHTML='<label>支払う数値<select id="exfrom"><option value="hp">HP（現在 '+mp.hp+'）</option><option value="pp">PP（現在 '+mp.pp+'）</option><option value="mo">お金（現在 ¥'+mp.mo+'）</option></select></label><label>交換先<select id="exto"><option value="hp">HP</option><option value="pp">PP</option><option value="mo">お金</option></select></label><label>交換する量<input id="examount" type="number" min="1" step="1" value="1"></label><p id="expreview"></p><button class="btn pri" id="exconfirm">両替する</button>';const update=()=>{const f=$("exfrom").value,t=$("exto").value,n=Math.floor(Number($("examount").value)||0),v={hp:mp.hp,pp:mp.pp,mo:mp.mo},max={hp:99,pp:99,mo:Infinity};$("expreview").textContent=f===t?"交換元と交換先を別々に選んでください":n<1||n>v[f]||v[t]+n>max[t]?"交換できない数値です":v[f]+" → "+(v[f]-n)+"、"+v[t]+" → "+(v[t]+n)+"（1:1）";$("exconfirm").disabled=f===t||n<1||n>v[f]||v[t]+n>max[t]};$("exfrom").onchange=update;$("exto").onchange=update;$("examount").oninput=update;$("exconfirm").onclick=()=>send(A,{from:$("exfrom").value,to:$("exto").value,amount:Number($("examount").value)});update()}else{ids.forEach((k,j)=>{const c=C[k],b=document.createElement("button");b.className="c "+c.t;b.innerHTML=monArt(c)+"<b>"+c.n+"</b><span class='tag'>"+lab(c)+" ¥"+pr(c)+"</span><small>"+c.x+"</small>";b.disabled=sh&&mp.mo<pr(c);b.onclick=()=>send(A,j);g.appendChild(b)})}$("shn").textContent=(ex||bag)?"キャンセル":"やめる";$("shn").onclick=()=>send(A,(ex||bag)?{cancel:true}:-1)}
  $("log").innerHTML=G.L.map(x=>"<div>"+esc(x)+"</div>").join("");
- if(G.e&&G.e.s!==S.es){S.es=G.e.s;if(typeof logPush==="function")logPush(G.e.t);const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
- if(G.ph==="over"){$("mt").textContent=G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";$("mx").textContent=G.w>=0?G.P[G.w].n+" の勝利！":"引き分け";$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu");$("md").hidden=false}
+ if(G.e&&G.e.s!==S.es){S.es=G.e.s;sfxFor(G.e.t);if(typeof logPush==="function")logPush(G.e.t);const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
+ if(G.ph==="over"){$("mt").textContent=G.lost?"接続が切れました":G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";if(!S.os){S.os=1;if(!G.lost)sfx(G.w===me?"win":"lose")}$("mx").innerHTML=resultHtml(me);$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu");$("md").hidden=false}
 }
-function pub(){if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
+function pub(){if(G&&host)statSync();if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
 async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
 function reply(n,v){if(W&&W.n===n){const r=W.r;W=null;G.ask=null;r(v)}}
 function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v}}).catch(()=>{});render()}}
-function ask(i,k,d){return new Promise(r=>{const n=++SEQ;G.ask={to:i,k,d,n};W={n,r};if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
+function ask(i,k,d){return new Promise(r=>{const n=++SEQ,lim=(MODE==="net"&&G.limit>0&&!G.P[i].bot)?G.limit:0;G.ask={to:i,k,d,n,lim};W={n,r};if(lim)setTimeout(()=>reply(n,DEF[k]),lim*1000+1500);else if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
 // ===== ゲーム進行（ホスト側） =====
 function sashSave(){const out=[];if(!G||G.experiment)return out;for(const p of G.P){if(!p.d&&p.hp<=0){const k=p.h.findIndex(i=>C[i]&&C[i].sash);if(k>=0){p.h.splice(k,1);p.sashUsed=true;p.hp=1;p.saveMsg=p.n+"はきあいのタスキでこらえた！";out.push(p)}}if(!p.d&&p.hp<=0&&helperIsActive(p,"ホウオウ")){const h=p.helper,rv=h.shiny?99:50;h.dead=true;h.hp=0;p.hp=rv;p.al=null;p.saveMsg="ホウオウのさいせいのほのお！ "+p.n+"はHP"+rv+"で復活した！ ホウオウは飛び去った…";out.push(p)}}return out}
 function satoshiFix(p){if(!p||(!p.satoshiSpark&&!p.satoshiGren))return;const idx=id=>C.findIndex(c=>c.id===id),m={};if(p.satoshiSpark)m[idx("spark")]=idx("satoshi_spark");if(p.satoshiGren)m[idx("waterstar")]=idx("satoshi_waterstar");p.h=p.h.map(k=>m[k]!==undefined?m[k]:k)}
@@ -700,7 +715,7 @@ function bot(p,i){
  if((c.t==="a"||c.t==="s")&&!c.gift&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i,extra){
- G.bd=null;G.ask=null;if(!extra){if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--}await ev(p.n+(extra?"の割り込み行動":"のターン"),600);if(!extra&&p.helper&&p.helper.kind==="heal"&&!p.helper.dead&&p.helper.hp>0){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
+ STAT.actor=p.id;if(!extra)stOf(p.id).acts++;G.bd=null;G.ask=null;if(!extra){if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--}await ev(p.n+(extra?"の割り込み行動":"のターン"),600);if(!extra&&p.helper&&p.helper.kind==="heal"&&!p.helper.dead&&p.helper.hp>0){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
  if(!await can(p)){await burn(p);chk();return}
  const r=(p.bot?bot(p,i):await ask(i,"turn",{}))||DEF.turn;
  if(r.sing){if(p.pp===0){const ppPool=C.filter(c=>c.t==="h"&&c.pp),atkPool=C.filter(c=>c.t==="a"&&!c.secret&&(!c.helperMove||G?.experiment));const k=(Math.random()<.8?rd(ppPool):rd(atkPool)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"はうたった！ PPが0なので、"+C[k].n+"を1枚入手！")}else{const hasMove=p.h.some(k=>C[k]&&C[k].t==="a");if(hasMove){await ev(p.n+"は技カードを持っているため、様子をみられない！")}else{const pool=C.filter(c=>c.t==="a"&&!c.secret&&(!c.helperMove||G?.experiment));const other=C.filter(c=>c.t==="s"||c.t==="d"||c.t==="h"||c.t==="b"||c.t==="m");const k=(Math.random()<.8?rd(pool):rd(other)).i;if(!addCard(p,k)){await ev(p.n+"の手札は99枚でいっぱいだ！");return}await ev(p.n+"は様子をみた！ "+C[k].n+"を1枚入手！")}}await burn(p);chk();return}
@@ -730,16 +745,16 @@ async function endEvent(p){
 }
 async function afterAction(p){
  G.actions=(G.actions||0)+1;
- for(const owner of G.P.filter(x=>!x.d&&x.helper&&!x.helper.dead)){await helperAction(owner);if(chk())return}
+ for(const owner of G.P.filter(x=>!x.d&&x.helper&&!x.helper.dead)){STAT.actor=owner.id;await helperAction(owner);if(chk())return}
  if(!G.endStarted&&G.actions>=G.endAt){G.endStarted=true;G.eventMon=null;await ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！");}
- else if(G.endStarted&&Math.random()<.25)await endEvent(p);
+ else if(G.endStarted&&Math.random()<.25){STAT.actor=null;await endEvent(p)}
 }
 async function loop(){let i=0;for(;;){const p=G.P[i];if(!p.d){G.t=i;await turn(p,i);if(G.ph==="over")return;await afterAction(p);if(chk())return}i=(i+1)%G.P.length}}
 // ===== タイトル・ロビー =====
 const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
 function startCpu(count=CPU_COUNT){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let j=cpuNames.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[cpuNames[j],cpuNames[k]]=[cpuNames[k],cpuNames[j]]}for(let i=2;i<=CPU_COUNT;i++)P.push(mk(cpuNames[i-2],"bot"+i,1));G=newGame(P, $("endAt").value);LOGALL.length=0;const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;$("ti").hidden=true;$("md").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
-function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;host=true;LOGALL.length=0;$("ti").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
+function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);G.limit=Math.max(0,+$("tl").value||0);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;host=true;LOGALL.length=0;$("ti").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 function onP(){
  const ps=R.peers(),me=ps.find(p=>p.sameTab);MY=me?me.peer:"";
  if(!G){const hp=ps.find(p=>p.presence.g&&!p.sameTab);
@@ -748,39 +763,52 @@ function onP(){
   const h=!!(L[0]&&L[0].sameTab);$("st").hidden=!h||L.length<2;$("sw").textContent=h?(L.length<2?"部屋 "+CODE+"：2人以上で開始できます":"部屋 "+CODE+"：準備できたら開始！"):"部屋 "+CODE+"：ホストの開始を待っています…";return}
  if(host){
   if(G.ask){const pe=ps.find(p=>p.peer===G.P[G.ask.to].id);if(pe&&pe.presence.cmd&&pe.presence.cmd.a===G.ask.n)reply(G.ask.n,pe.presence.cmd.v)}
-  G.P.forEach((p,i)=>{if(!p.bot&&p.id!==MY&&!ps.some(q=>q.peer===p.id)){p.bot=1;p.n=p.n.slice(0,6)+"(AI)";if(G.ask&&G.ask.to===i)reply(G.ask.n,DEF[G.ask.k])}})
+  G.P.forEach((p,i)=>{const here=ps.some(q=>q.peer===p.id);if(!p.bot&&p.id!==MY&&!here){p.bot=1;p.disc=1;p.on=p.n;p.n=p.n.slice(0,6)+"(AI)";addChat("",p.on+"の接続が切れました。AIが代行します",1);if(G.ask&&G.ask.to===i)reply(G.ask.n,DEF[G.ask.k])}else if(p.disc&&here){p.bot=0;p.disc=0;p.n=p.on||p.n;addChat("",p.n+"が復帰しました！",1)}});hostChat(ps)
  }else{const hp=ps.find(p=>p.presence.g);if(hp){G=JSON.parse(JSON.stringify(hp.presence.g));render()}else{G.ph="over";G.w=-1;render()}}}
 
 /* GitHub Pages 用の対人通信。PeerJS のデータ接続を使い、ホストがゲーム状態を管理する。 */
 function makeRoomService(){
  const makeGuest=(roomId,limit=15000)=>new Promise((resolve,reject)=>{
-  const peer=new Peer();let done=false,conn=null,local={peer:"",presence:{},sameTab:true},remote={peer:roomId,presence:{},sameTab:false},players={},cb=()=>{},isOpen=false;
+  const peer=new Peer();let done=false,conn=null,local={peer:"",presence:{},sameTab:true},remote={peer:roomId,presence:{},sameTab:false},players={},cb=()=>{},isOpen=false,lastMsg=Date.now(),lost=false,tries=0,rc=false,hb=0;
   const finishErr=e=>{if(done)return;done=true;try{peer.destroy()}catch(_){}reject(e instanceof Error?e:new Error("部屋に接続できませんでした"))};
+  const status=(k)=>{try{window.NETSTAT&&window.NETSTAT(k)}catch(_){}};
+  const giveUp=()=>{if(lost)return;lost=true;clearInterval(hb);status("lost")};
+  const onMsg=msg=>{lastMsg=Date.now();if(!msg||typeof msg!=="object")return;if(msg.type==="host-state"){remote.presence=msg.host||{};players=msg.players||{};if(msg.g)remote.presence.g=msg.g;cb()}else if(msg.type==="host-presence"){remote.presence=msg.host||{};players=msg.players||{};cb()}};
+  const attach=c=>{conn=c;c.on("data",onMsg);c.on("close",()=>{if(c!==conn)return;if(!done){finishErr(new Error("ホストとの接続が切れました"));return}dropped()})};
+  const dropped=()=>{if(lost||rc)return;rc=true;tries=0;status("reconnecting");retry()};
+  const retry=()=>{if(lost)return;if(++tries>10){giveUp();return}
+   try{if(peer.destroyed){giveUp();return}if(peer.disconnected)peer.reconnect()}catch(_){}
+   let ok=false;const c=peer.connect(roomId,{reliable:true});
+   c.on("open",()=>{ok=true;rc=false;tries=0;lastMsg=Date.now();attach(c);try{c.send({type:"guest-presence",data:local.presence})}catch(_){}status("ok")});
+   c.on("error",()=>{});
+   setTimeout(()=>{if(!ok&&!lost){try{c.close()}catch(_){}retry()}},2500)};
   peer.on("error",e=>finishErr(e));
-  peer.on("open",id=>{local.peer=id;conn=peer.connect(roomId,{reliable:true});conn.on("open",()=>{isOpen=true;done=true;resolve(roomObject())});conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="host-state"){remote.presence=msg.host||{};players=msg.players||{};if(msg.g)remote.presence.g=msg.g;cb()}else if(msg.type==="host-presence"){remote.presence=msg.host||{};players=msg.players||{};cb()}});conn.on("close",()=>{finishErr(new Error("ホストとの接続が切れました"))});});
+  peer.on("disconnected",()=>{if(done&&!lost){try{peer.reconnect()}catch(_){}}});
+  peer.on("open",id=>{local.peer=id;const c=peer.connect(roomId,{reliable:true});attach(c);c.on("open",()=>{isOpen=true;done=true;lastMsg=Date.now();hb=setInterval(()=>{if(lost)return;if(conn&&conn.open)try{conn.send({type:"ping"})}catch(_){}if(!rc&&Date.now()-lastMsg>16000){try{conn.close()}catch(_){}dropped()}},5000);resolve(roomObject())})});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&done&&!lost&&!rc&&conn&&!conn.open)dropped()});
   const roomObject=()=>({
    presence:async data=>{local.presence={...local.presence,...data};if(conn&&conn.open)conn.send({type:"guest-presence",data});return true},
    onPeers:fn=>{cb=fn||(()=>{});if(isOpen)cb()},
    peers:()=>{const arr=[{peer:local.peer,presence:local.presence,sameTab:true}];if(remote.presence)arr.push({peer:roomId,presence:remote.presence,sameTab:false});for(const [id,pres] of Object.entries(players||{})){if(id!==local.peer&&id!==roomId)arr.push({peer:id,presence:pres,sameTab:false})}return arr},
-   close:()=>{try{conn&&conn.close();peer.destroy()}catch(_){}}
+   close:()=>{lost=true;clearInterval(hb);try{conn&&conn.close();peer.destroy()}catch(_){}}
   });
   setTimeout(()=>{if(!done)finishErr(new Error("部屋が見つかりません。ホストが先に同じ6桁の番号で入室してください。"))},limit);
  });
  const makeHost=roomId=>new Promise((resolve,reject)=>{
-  const peer=new Peer(roomId);let done=false,local={peer:roomId,presence:{},sameTab:true},remotes={},connections={},cb=()=>{};
+  const peer=new Peer(roomId);const seen={};let hbT=0;let done=false,local={peer:roomId,presence:{},sameTab:true},remotes={},connections={},cb=()=>{};
   const roster=()=>Object.fromEntries(Object.entries(remotes).map(([id,p])=>[id,p.presence||{}]));
   const broadcast=()=>{const msg={type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}})};
   const onChange=()=>{broadcast();cb()};
-  const attach=conn=>{conn.on("data",msg=>{if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{delete remotes[conn.peer];delete connections[conn.peer];onChange()});};
+  const attach=conn=>{conn.on("data",msg=>{seen[conn.peer]=Date.now();if(!msg||typeof msg!=="object")return;if(msg.type==="guest-presence"){remotes[conn.peer]=remotes[conn.peer]||{peer:conn.peer,presence:{},sameTab:false};remotes[conn.peer].presence={...remotes[conn.peer].presence,...msg.data};onChange()} });conn.on("close",()=>{if(connections[conn.peer]!==conn)return;delete remotes[conn.peer];delete connections[conn.peer];delete seen[conn.peer];onChange()});};
   const timer=setTimeout(()=>{if(!done){done=true;try{peer.destroy()}catch(_){};reject(new Error("部屋の作成に時間がかかっています。通信環境を確認して再試行してください。"))}},15000);
-  peer.on("open",()=>{if(done)return;done=true;clearTimeout(timer);resolve(roomObject())});
-  peer.on("connection",conn=>{connections[conn.peer]=conn;remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
+  peer.on("open",()=>{if(done)return;done=true;clearTimeout(timer);hbT=setInterval(()=>{const now=Date.now();Object.values(connections).forEach(c=>{if(c.open)try{c.send({type:"hb"})}catch(_){}if(seen[c.peer]&&now-seen[c.peer]>16000)try{c.close()}catch(_){}})},5000);resolve(roomObject())});peer.on("disconnected",()=>{if(done){try{peer.reconnect()}catch(_){}}});
+  peer.on("connection",conn=>{const old=connections[conn.peer];connections[conn.peer]=conn;seen[conn.peer]=Date.now();if(old&&old!==conn)try{old.close()}catch(_){}remotes[conn.peer]={peer:conn.peer,presence:{},sameTab:false};attach(conn);conn.on("open",()=>{try{conn.send({type:"host-presence",host:local.presence,players:roster()})}catch(_){}});onChange()});
   peer.on("error",e=>{if(!done){done=true;clearTimeout(timer);try{peer.destroy()}catch(_){};reject(e)}});
   const roomObject=()=>({
    presence:async data=>{local.presence={...local.presence,...data};const msg=data.g?{type:"host-state",host:local.presence,players:roster(),g:data.g}:{type:"host-presence",host:local.presence,players:roster()};Object.values(connections).forEach(conn=>{if(conn.open)try{conn.send(msg)}catch(_){}});return true},
    onPeers:fn=>{cb=fn||(()=>{});cb()},
    peers:()=>[{peer:roomId,presence:local.presence,sameTab:true},...Object.values(remotes)],
-   close:()=>{try{Object.values(connections).forEach(conn=>{try{conn.close()}catch(_){}});Object.keys(remotes).forEach(id=>{delete remotes[id];delete connections[id]});peer.destroy()}catch(_){}}
+   close:()=>{clearInterval(hbT);try{Object.values(connections).forEach(conn=>{try{conn.close()}catch(_){}});Object.keys(remotes).forEach(id=>{delete remotes[id];delete connections[id]});peer.destroy()}catch(_){}}
   });
  });
  return {join:async(roomId,onWait)=>{
@@ -821,7 +849,7 @@ function showRules(){
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
  <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル10ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
  <details class="rule-card"><summary>特殊ルール・技</summary><p>「まねっこ」は直前の技を再現。「ゆびをふる」は攻撃技をランダムに使用。</p><p>ゆびをふるモードでは手札が「ゆびをふる」「ピーピーマックス」になります。</p><p>タイプ相性による威力変化はありません。きあいのタスキは倒される攻撃をHP1で耐え、消費されます。</p></details>
- <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p></details>
+ <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p><p>対人戦では、ホストが設定した持ち時間を過ぎると自動で「カードを捨てて交代」「防御せず受ける」になります。通信が切れたプレイヤーはAIが代行し、復帰すると操作を取り戻せます。💬からスタンプ・チャットが使えます。🔊で効果音のON/OFFを切り替えられます。</p></details>
  </div>`;
  $("mb").textContent="閉じる"; $("md").hidden=false
 }
@@ -1019,4 +1047,67 @@ function showShinySettings(){
 $("openShiny").onclick=showShinySettings;$("shinyBtn").onclick=showShinySettings;
 // PWA
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+<script>
+/* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
+const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
+const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
+/* --- 戦績集計（HPの増減から自動で算出）--- */
+function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
+function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++}}}
+function resultHtml(me){
+ if(G.lost)return "ホストとの通信が切れたため、対戦を終了しました。";
+ let h=G.w>=0?esc(G.P[G.w].n)+" の勝利！":"引き分け";
+ if(G.experiment||!G.stats)return h;
+ const ord=[];if(G.w>=0)ord.push(G.P[G.w].id);const dd=G.dead||[];for(let k=dd.length-1;k>=0;k--)if(!ord.includes(dd[k]))ord.push(dd[k]);G.P.forEach(p=>{if(!ord.includes(p.id))ord.push(p.id)});
+ const mx=Math.max(0,...G.P.map(p=>(G.stats[p.id]||{}).dealt||0));
+ const rows=ord.map((id,r)=>{const p=G.P.find(x=>x.id===id),s=G.stats[id]||{};const mvp=mx>0&&s.dealt===mx?" 🏆":"";return '<tr'+(p.id===MY?' class="me"':'')+'><td>'+(r+1)+'</td><td>'+esc(p.n)+mvp+'</td><td>'+(s.dealt||0)+'</td><td>'+(s.taken||0)+'</td><td>'+(s.healed||0)+'</td><td>'+(s.kills||0)+'</td><td>'+(s.acts||0)+'</td></tr>'}).join("");
+ return h+'<table class="rtb"><tr><th>順位</th><th>なまえ</th><th>与ダメ</th><th>被ダメ</th><th>回復</th><th>KO</th><th>行動</th></tr>'+rows+'</table><small style="color:var(--mu)">🏆＝与ダメージ最多</small>';
+}
+/* --- 効果音（WebAudio合成・ミュート可）--- */
+let AC=null,SND=true;try{SND=localStorage.getItem("colosseoSound")!=="off"}catch(_){}
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(_){return null}}if(AC.state==="suspended")AC.resume().catch(()=>{});return AC}
+function tone(f,d,ty="sine",v=.07,t0=0,f2){const a=ac();if(!a)return;const t=a.currentTime+t0,o=a.createOscillator(),g=a.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}
+function noise(d,v=.1,t0=0){const a=ac();if(!a)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();f.type="lowpass";f.frequency.value=1800;s.buffer=b;g.gain.value=v;s.connect(f);f.connect(g);g.connect(a.destination);s.start(a.currentTime+t0)}
+const SFX={hit:()=>{noise(.14,.16);tone(170,.15,"square",.06,0,55)},heal:()=>{tone(523,.12,"sine",.07);tone(784,.2,"sine",.07,.1)},status:()=>{tone(300,.12,"sawtooth",.04,0,200);tone(220,.18,"sawtooth",.04,.1,150)},guard:()=>{tone(700,.07,"square",.04);tone(520,.12,"square",.04,.06)},doom:()=>{tone(90,.7,"sawtooth",.09,0,45);tone(135,.7,"sawtooth",.05,.05,60)},ko:()=>{tone(400,.35,"triangle",.08,0,80)},myturn:()=>{tone(880,.1,"sine",.07);tone(1175,.16,"sine",.07,.09)},ask:()=>{tone(660,.1,"sine",.05)},tick:()=>tone(1000,.06,"square",.04),pop:()=>{tone(600,.06,"sine",.05);tone(900,.08,"sine",.05,.05)},win:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.22,"triangle",.08,i*.13))},lose:()=>{[392,349,311,262].forEach((f,i)=>tone(f,.28,"triangle",.07,i*.16))}};
+function sfx(k){if(!SND)return;const f=SFX[k];if(f)try{f()}catch(_){}}
+function sfxFor(t){t=String(t||"");if(/終末の時/.test(t))sfx("doom");else if(/ダメージ/.test(t)&&!/吸い取/.test(t))sfx("hit");else if(/回復|HP\+|PP\+/.test(t))sfx("heal");else if(/になった！|こんらん|まひして|こおって/.test(t))sfx("status");else if(/は (まもる|みきり|みがわり|ニードルガード|たたみがえし)|を防/.test(t))sfx("guard")}
+document.addEventListener("pointerdown",()=>{if(SND)ac()});
+const sndBtn=$("sndBtn");sndBtn.textContent=SND?"🔊":"🔇";sndBtn.onclick=()=>{SND=!SND;try{localStorage.setItem("colosseoSound",SND?"on":"off")}catch(_){}sndBtn.textContent=SND?"🔊":"🔇";if(SND){ac();sfx("ask")}};
+/* --- 持ち時間設定 --- */
+try{const v=localStorage.getItem("colosseoTimeLimit");if(v!=null&&[...$("tl").options].some(o=>o.value===v))$("tl").value=v;else $("tl").value="30"}catch(_){$("tl").value="30"}
+$("tl").onchange=()=>{try{localStorage.setItem("colosseoTimeLimit",$("tl").value)}catch(_){}};
+function tickTimer(){const e=$("tmr");if(!G||!G.ask||!G.ask.lim||G.ph==="over"||!G.P[G.ask.to]){if(!e.hidden)e.hidden=true;TL.n=0;return}
+ if(TL.n!==G.ask.n){TL.n=G.ask.n;TL.end=Date.now()+G.ask.lim*1000;TL.beep=-1}
+ const r=Math.max(0,Math.ceil((TL.end-Date.now())/1000)),mine=G.P[G.ask.to].id===MY;
+ e.hidden=false;e.className=(mine&&r<=5)?"warn":"";e.textContent="⏱ "+(mine?"あなた":G.P[G.ask.to].n.slice(0,4))+" "+r;
+ if(mine&&r<=5&&r>0&&TL.beep!==r){TL.beep=r;sfx("tick")}}
+setInterval(tickTimer,250);
+/* --- チャット／スタンプ --- */
+function addChat(n,t,sys,st=-1){if(!G)return;G.cs=(G.cs||0)+1;G.chat=[...(G.chat||[]),{i:G.cs,n,t,y:sys?1:0,s:st}].slice(-40);pub()}
+function hostChat(ps){if(!G)return;for(const q of ps){if(q.sameTab)continue;const c=q.presence&&q.presence.chat;if(!c||typeof c!=="object"||LASTC[q.peer]===c.s)continue;LASTC[q.peer]=c.s;const pl=G.P.find(x=>x.id===q.peer);if(!pl)continue;const now=Date.now();if(now-(LASTT[q.peer]||0)<700)continue;LASTT[q.peer]=now;const si=Number.isInteger(c.st)&&STAMPS[c.st]?c.st:-1,t=si>=0?"":String(c.t||"").replace(/[\u0000-\u001f]/g,"").slice(0,40).trim();if(si<0&&!t)continue;addChat(pl.on||pl.n,t,0,si)}}
+function sendChat(text,st){if(!G||MODE!=="net")return;text=String(text||"").slice(0,40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
+ if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
+$("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[0]+' '+x[1]+'</button>').join("");
+$("stamps").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(null,+b.dataset.i)};
+const doSend=()=>{const i=$("chatIn");sendChat(i.value);i.value=""};
+$("chatSend").onclick=doSend;$("chatIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();doSend()}});
+const chatOpen=()=>!$("chat").hidden;
+$("chatBtn").onclick=()=>{$("chat").hidden=chatOpen();if(chatOpen()){S.cu=0;renderExtras();const l=$("chatList");l.scrollTop=l.scrollHeight}};
+$("chatX").onclick=()=>{$("chat").hidden=true};
+const chatLine=(m,my)=>m.y?'<div class="cm sys">'+esc(m.t)+'</div>':'<div class="cm'+(m.n===my?' me':'')+'"><b>'+esc(m.n)+'</b>'+(m.s>=0&&STAMPS[m.s]?'<span class="stp">'+STAMPS[m.s][0]+'</span> '+esc(STAMPS[m.s][1]):esc(m.t))+'</div>';
+function renderExtras(){
+ const net=MODE==="net";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
+ if(G.ph!=="over")S.os=0;
+ const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
+ if(!net)return;
+ const me=G.P.find(p=>p.id===MY),my=me?me.n:"",msgs=G.chat||[],last=msgs.length?msgs[msgs.length-1].i:0;
+ if(last<(S.cl||0)){S.cl=0;S.cu=0}
+ if(last>(S.cl||0)){const nw=msgs.filter(m=>m.i>(S.cl||0));S.cl=last;const other=nw.filter(m=>!m.y&&m.n!==my);
+  if(other.length){sfx("pop");if(!chatOpen()){S.cu=(S.cu||0)+other.length;const m=other[other.length-1],t=$("ctoast");t.textContent=m.n+"："+(m.s>=0&&STAMPS[m.s]?STAMPS[m.s][0]+" "+STAMPS[m.s][1]:m.t);t.hidden=false;clearTimeout(S.ctt);S.ctt=setTimeout(()=>{t.hidden=true},3000)}}}
+ const bd=$("chatBadge");bd.hidden=!(S.cu>0);bd.textContent=S.cu>9?"9+":S.cu||"";
+ if(chatOpen()){const l=$("chatList"),at=l.scrollTop+l.clientHeight>=l.scrollHeight-30,h=msgs.map(m=>chatLine(m,my)).join("");if(l.dataset.h!==String(last)){l.innerHTML=h;l.dataset.h=String(last);if(at||true)l.scrollTop=l.scrollHeight}}
+}
+/* --- 通信状態表示 --- */
+window.NETSTAT=k=>{const b=$("netbar");if(k==="reconnecting"){b.textContent="⚠ 接続が切れました。再接続しています…";b.hidden=false}else if(k==="ok"){b.textContent="✅ 再接続しました";b.hidden=false;setTimeout(()=>{b.hidden=true},2000);sfx("ask")}else if(k==="lost"){b.hidden=true;if(G&&G.ph!=="over"){G.ph="over";G.w=-1;G.ask=null;G.lost=1;render()}}};
 </script>
