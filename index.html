@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-4";
+const BUILD="20261026-5";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1151,7 +1151,7 @@ function renderExtras(){
  if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  if(MODE==="net"&&G.bv!==BUILD&&!S.vbw){S.vbw=1;const vb=$("netbar");vb.textContent="⚠ 相手と版が違います。タイトル画面の「最新版に更新」を押してください";vb.hidden=false;setTimeout(()=>{if(vb.textContent.startsWith("⚠ 相手"))vb.hidden=true},9000)}
  const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
- if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
+ if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;AIC.nextAmbient=Date.now()+9000+Math.random()*5000;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}aiAmbient();if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
  if(G.ph!=="over"){S.os=0;S.aiw=0}else if(MODE==="cpu"&&!S.aiw){S.aiw=1;const wp=G.w>=0&&G.P[G.w];if(wp&&wp.bot)aiReact("win",wp,1)}
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
  if(!G.shn)S.shn=0;else if(S.shn==null)S.shn=G.shn.n;else if(G.shn.n!==S.shn){if(G.shn.n>S.shn&&G.shn.by!==MY)sfx("shiny");if(G.shn.n>S.shn&&G.shn.by===MY&&MODE==="cpu"){const bs=G.P.filter(x=>x.bot);if(bs.length)aiReact("shiny",bs[Math.floor(Math.random()*bs.length)])}S.shn=G.shn.n}
@@ -1302,4 +1302,23 @@ function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{who=[aiPick(bots)];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
  who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100))}
 function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
+function aiAmbient(){
+ if(MODE!=="cpu"||!G||G.ph!=="play")return;
+ const now=Date.now();
+ if(!AIC.nextAmbient){AIC.nextAmbient=now+9000+Math.random()*5000;return}
+ if(now<AIC.nextAmbient||now<AIC.last)return;
+ const bots=G.P.filter(p=>p.bot&&!p.d);
+ if(!bots.length){AIC.nextAmbient=now+12000;return}
+ let pool=bots.filter(p=>p.n!==AIC.lastSpeaker);
+ if(!pool.length)pool=bots;
+ const p=aiPick(pool);
+ let kind;
+ if(p.hp<=15&&Math.random()<.55)kind="lowhp";
+ else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.25)kind="target";
+ else kind=aiPick(["strategy","card","other","bluff","event","strategy","card","deal"]);
+ const delay=500+Math.random()*1200;
+ AIC.lastSpeaker=p.n;
+ AIC.nextAmbient=now+delay+14000+Math.random()*11000;
+ aiSay(p,kind,delay);
+}
 </script>
