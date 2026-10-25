@@ -1025,8 +1025,9 @@ function zukan(cat){cat=cat||"all";$("mt").textContent="カード図鑑";
   body+="<div class='zk-h'>"+n+"（"+items.length+"）</div>"+items.map(c=>{const pw=c.t==="a"?(c.ko?"一撃必殺":c.d?"威力"+c.d:""):"";
    return "<div class='zk "+c.t+"'><div class='zk-i'>"+monArt(c)+"</div><div class='zk-b'><b>"+esc(c.n)+"</b><div class='tr'><span class='tag'>"+zkLab(c)+(pw?" "+pw:"")+"</span><span class='tag'>¥"+pr(c)+"</span>"+tyTag(c)+"</div><small>"+esc(c.x||"")+((c.t==="a"||c.t==="s")&&!c.shiny?"（PP1）":"")+"</small></div></div>"}).join("")});
  if(cat==="all"||cat==="leg")body+=legendHtml();
- $("mx").innerHTML=tabs+"<div class='zk-grid'>"+body+"</div>";
+ $("mx").innerHTML=zkBar()+tabs+"<div class='zk-grid'>"+zkSprite(body)+"</div>";
  $("mx").querySelectorAll("[data-zk]").forEach(b=>b.onclick=()=>zukan(b.dataset.zk));
+ {const zb=$("zkShiny");if(zb)zb.onclick=()=>{ZK_SHINY=!ZK_SHINY;try{localStorage.setItem("colosseoZkShiny",ZK_SHINY?"on":"off")}catch(_){}zukan(cat)};$("mx").querySelectorAll("img").forEach(im=>{if(im.src.includes("/shiny/"))im.onerror=()=>{im.onerror=null;im.src=im.src.replace("/shiny/","/")}})}
  $("mb").textContent="閉じる";$("md").hidden=false}
 $("openZukan").onclick=()=>zukan("all");$("gameZukan").onclick=()=>zukan("all");
 // 色違い設定（0%!%モード）
@@ -1052,6 +1053,10 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
+/* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
+let ZK_SHINY=false;try{ZK_SHINY=localStorage.getItem("colosseoZkShiny")==="on"}catch(_){}
+const zkBar=()=>"<div class='zk-tabs'><button class='btn"+(ZK_SHINY?" pri":"")+"' id='zkShiny'>✨ 色違い表示："+(ZK_SHINY?"ON":"OFF")+"</button></div>";
+const zkSprite=h=>ZK_SHINY?h.replace(/sprites\/pokemon\/(?:shiny\/)?(\d+)\.png/g,"sprites/pokemon/shiny/$1.png"):h.replace(/sprites\/pokemon\/shiny\/(\d+)\.png/g,"sprites/pokemon/$1.png");
 /* --- 戦績集計（HPの増減から自動で算出）--- */
 function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
 function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++}}}
