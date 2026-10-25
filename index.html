@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-9";
+const BUILD="20261026-10";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1144,7 +1144,7 @@ $("chatSend").onclick=doSend;$("chatIn").addEventListener("keydown",e=>{if(e.key
 const chatOpen=()=>!$("chat").hidden;
 $("chatBtn").onclick=()=>{$("chat").hidden=chatOpen();if(chatOpen()){S.cu=0;renderExtras();const l=$("chatList");l.scrollTop=l.scrollHeight}};
 $("chatX").onclick=()=>{$("chat").hidden=true};
-const chatLine=(m,my)=>m.y?'<div class="cm sys">'+esc(m.t)+'</div>':'<div class="cm'+(m.n===my?' me':'')+'"><b>'+esc(m.n)+'</b>'+(m.s>=0&&STAMPS[m.s]?'<span class="stp">'+STAMPS[m.s][0]+'</span> '+esc(STAMPS[m.s][1]):esc(m.t))+'</div>';
+const chatLine=(m,my)=>m.y?'<div class="cm sys">'+esc(m.t)+'</div>':'<div class="cm'+(m.n===my?' me':'')+'"><b>'+esc(m.n)+'</b>'+(m.s>=0&&STAMPS[m.s]?'<span class="stp">'+esc(STAMPS[m.s][1])+'</span>':esc(m.t))+'</div>';
 function renderExtras(){
  /* 色違いの抽選結果はホストのものに全員をそろえる（端末ごとに違って見える不具合の修正）*/
  if(G.sh){const sig=G.sh.join(",");if(S.shs!==sig){S.shs=sig;const on=new Set(G.sh);for(const id of Object.keys(CARD_MON)){CARD_MON[id][2]=on.has(id);applyShinyCard(id)}}}
@@ -1371,21 +1371,27 @@ function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now
 function aiAmbient(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
  const now=Date.now();
- if(!AIC.nextAmbient){AIC.nextAmbient=now+9000+Math.random()*5000;return}
+ if(!AIC.nextAmbient){AIC.nextAmbient=now+6500+Math.random()*4000;return}
  if(now<AIC.nextAmbient||now<AIC.last)return;
  const bots=G.P.filter(p=>p.bot&&!p.d);
- if(!bots.length){AIC.nextAmbient=now+12000;return}
- // 同じ話者が続かないようにしつつ、性格に合う話題を選ぶ
+ if(!bots.length){AIC.nextAmbient=now+9000;return}
+ // キャラクターの性格に合う話題を選び、時々ほかのCPUが自然に会話を返す
  let pool=bots.filter(p=>p.n!==AIC.lastSpeaker);
  if(!pool.length)pool=bots;
  const p=aiPick(pool),persona=AI_PERSONALITY[p.n]||{topics:["strategy","card","other"]};
  let kind;
- if(p.hp<=15&&Math.random()<.55)kind="lowhp";
- else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.25)kind="target";
+ if(p.hp<=15&&Math.random()<.45)kind="lowhp";
+ else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.2)kind="target";
  else kind=aiPick(persona.topics);
- const delay=500+Math.random()*1200;
+ const delay=450+Math.random()*900;
  AIC.lastSpeaker=p.n;
- AIC.nextAmbient=now+delay+14000+Math.random()*11000;
+ AIC.nextAmbient=now+delay+7500+Math.random()*6500;
  aiSay(p,kind,delay);
+ if(bots.length>1&&Math.random()<.58){
+  const others=bots.filter(q=>q!==p);
+  const q=aiPick(others),replyKinds={hello:["other","q"],praise:["thanks","other"],thanks:["praise","other"],laugh:["laugh","other"],food:["food","other"],strategy:["strategy","card"],card:["card","strategy"],deal:["deal","taunt"],event:["event","other"],target:["target","strategy"],lowhp:["cheer","other"],other:["q","other"]};
+  const opts=replyKinds[kind]||["other","q"],rk=aiPick(opts);
+  setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play"&&!q.d)aiSay(q,rk,250+Math.random()*500)},1900+Math.random()*900);
+ }
 }
 </script>
