@@ -870,7 +870,7 @@ function showRules(){
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
  <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル10ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
  <details class="rule-card"><summary>特殊ルール・技</summary><p>「まねっこ」は直前の技を再現。「ゆびをふる」は攻撃技をランダムに使用。</p><p>ゆびをふるモードでは手札が「ゆびをふる」「ピーピーマックス」になります。</p><p>タイプ相性による威力変化はありません。きあいのタスキは倒される攻撃をHP1で耐え、消費されます。</p></details>
- <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p><p>対人戦では、ホストが設定した持ち時間を過ぎると自動で「カードを捨てて交代」「防御せず受ける」になります。通信が切れたプレイヤーはAIが代行し、復帰すると操作を取り戻せます。💬からスタンプ・チャットが使えます。🔊で効果音のON/OFFを切り替えられます。</p></details>
+ <details class="rule-card"><summary>コンピューター・対人戦</summary><p>CPUは状況に応じて行動します。</p><p>コンピューター戦でも💬からCPUとチャットできます。CPUはキャラごとに性格が違い、話しかけたりスタンプを送ると返事をしてくれます。名前を呼ぶと、そのキャラが答えます。</p><p>対人戦は各端末で同じ6桁の部屋番号を入力し、ホストが開始。ネット接続が必要です（最大9人）。</p><p>対人戦では、ホストが設定した持ち時間を過ぎると自動で「カードを捨てて交代」「防御せず受ける」になります。通信が切れたプレイヤーはAIが代行し、復帰すると操作を取り戻せます。💬からスタンプ・チャットが使えます。🔊で効果音のON/OFFを切り替えられます。</p></details>
  </div>`;
  $("mb").textContent="閉じる"; $("md").hidden=false
 }
@@ -1092,7 +1092,7 @@ function rematchNet(){
  if(ann)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 /* --- 戦績集計（HPの増減から自動で算出）--- */
 function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
-function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++}}}
+function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl;if(-dl>=12){if(p.bot)aiReact("hurt",p);const ap=a&&a!==p.id&&G.P.find(x=>x.id===a);if(ap&&ap.bot)aiReact("hit",ap)}}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++;if(p.bot)aiReact("ko",p,1);const kp=a&&a!==p.id&&G.P.find(x=>x.id===a);if(kp&&kp.bot)aiReact("kill",kp)}}}
 function resultHtml(me){
  if(G.lost)return "ホストとの通信が切れたため、対戦を終了しました。";
  let h=G.w>=0?esc(G.P[G.w].n)+" の勝利！":"引き分け";
@@ -1135,8 +1135,8 @@ setInterval(tickTimer,250);
 /* --- チャット／スタンプ --- */
 function addChat(n,t,sys,st=-1){if(!G)return;G.cs=(G.cs||0)+1;G.chat=[...(G.chat||[]),{i:G.cs,n,t,y:sys?1:0,s:st}].slice(-40);pub()}
 function hostChat(ps){if(!G)return;for(const q of ps){if(q.sameTab)continue;const c=q.presence&&q.presence.chat;if(!c||typeof c!=="object"||LASTC[q.peer]===c.s)continue;LASTC[q.peer]=c.s;const pl=G.P.find(x=>x.id===q.peer);if(!pl)continue;const now=Date.now();if(now-(LASTT[q.peer]||0)<700)continue;LASTT[q.peer]=now;const si=Number.isInteger(c.st)&&STAMPS[c.st]?c.st:-1,t=si>=0?"":String(c.t||"").replace(/[\u0000-\u001f]/g,"").slice(0,40).trim();if(si<0&&!t)continue;addChat(pl.on||pl.n,t,0,si)}}
-function sendChat(text,st){if(!G||MODE!=="net")return;text=String(text||"").slice(0,40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
- if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
+function sendChat(text,st){if(!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
+ if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st);if(MODE==="cpu")aiReply(st==null?text:"",st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
 $("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[0]+' '+x[1]+'</button>').join("");
 $("stamps").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(null,+b.dataset.i)};
 const doSend=()=>{const i=$("chatIn");sendChat(i.value);i.value=""};
@@ -1150,8 +1150,8 @@ function renderExtras(){
  if(G.sh){const sig=G.sh.join(",");if(S.shs!==sig){S.shs=sig;const on=new Set(G.sh);for(const id of Object.keys(CARD_MON)){CARD_MON[id][2]=on.has(id);applyShinyCard(id)}}}
  if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  if(MODE==="net"&&G.bv!==BUILD&&!S.vbw){S.vbw=1;const vb=$("netbar");vb.textContent="⚠ 相手と版が違います。タイトル画面の「最新版に更新」を押してください";vb.hidden=false;setTimeout(()=>{if(vb.textContent.startsWith("⚠ 相手"))vb.hidden=true},9000)}
- const net=MODE==="net";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
- if(G.ph!=="over")S.os=0;
+ const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
+ if(G.ph!=="over"){S.os=0;S.aiw=0}else if(MODE==="cpu"&&!S.aiw){S.aiw=1;const wp=G.w>=0&&G.P[G.w];if(wp&&wp.bot)aiReact("win",wp,1)}
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
  if(!G.shn)S.shn=0;else if(S.shn==null)S.shn=G.shn.n;else if(G.shn.n!==S.shn){if(G.shn.n>S.shn&&G.shn.by!==MY)sfx("shiny");S.shn=G.shn.n}
  if(!net)return;
@@ -1180,4 +1180,24 @@ $("refreshBtn").onclick=async()=>{try{const rs=await navigator.serviceWorker.get
  const dock=()=>{m.style.paddingBottom="";m.style.paddingRight=c.hidden?"":c.offsetWidth+"px"};
  new MutationObserver(dock).observe(c,{attributes:true,attributeFilter:["hidden","style"]});
  window.addEventListener("resize",dock);if(window.visualViewport)window.visualViewport.addEventListener("resize",dock)}
+
+/* ===== CPUとのチャット（キャラごとの性格つき）===== */
+const AI_CHAT={
+"グリーン":{hello:["ふん、来たか。せいぜい楽しませてくれよ","よう。今日も勝つのは俺だぜ"],praise:["当然だろ。俺を誰だと思ってる","ふっ、悪い気はしないな"],taunt:["言ってろ。すぐ黙らせてやる","口だけは達者だな"],thanks:["礼はいらない。勝負で返せ"],sorry:["気にするな。勝負は勝負だ"],q:["俺に聞くのか？ 答えは勝負で見せてやる"],other:["ふん、まあいい","余裕だな。だが勝つのは俺だ"],hit:["見たか！ これが実力の差だ","まだまだこんなもんじゃないぜ"],hurt:["ちっ…やるじゃないか","この程度で俺が倒れるか"],ko:["…俺が負けるとはな。次は覚えてろ"],kill:["悪いな、勝負の世界は厳しいんだ"],win:["当然の結果だ。出直してこい"]},
+"シルバー":{hello:["……よう","……仲良くする気はない"],praise:["……ふん","おだてても手加減はしない"],taunt:["……うるさい","口を動かす暇があるなら手を動かせ"],thanks:["……礼を言われる筋合いはない"],sorry:["……どうでもいい"],q:["……自分で考えろ"],other:["……","……勝手にしろ"],hit:["……この程度か","……まだ終わらない"],hurt:["……チッ","……やるな"],ko:["……俺の負けだ。……次は勝つ"],kill:["……弱い奴に興味はない"],win:["……当然だ。強さがすべてだ"]},
+"ハルカ":{hello:["こんにちは！ いっしょにがんばろうね！","よろしくね！ 楽しい勝負にしようっ"],praise:["えへへ、ありがとう！ うれしいな","わあ、ほめられちゃった！"],taunt:["むっ、負けないよ！ 私だって強いんだから","いい勝負にしようね！ 手加減しないよっ"],thanks:["どういたしまして！","えへへ、こちらこそ！"],sorry:["ぜんぜん大丈夫だよ！","気にしないで、元気出していこっ"],q:["えっと…どうだろう？ いっしょに考えよっか"],other:["うんうん！","あはは、そうなんだ！"],hit:["やったあ！ 当たったよ！","よーし、この調子でいくよっ"],hurt:["いたたっ！ でもまだまだ平気だよ","わっ、やられちゃった…でも負けないっ"],ko:["あぅ…負けちゃった。でも楽しかったよ！"],kill:["ごめんね、でも勝負だから！"],win:["やったー！ 勝てたよ、みんなありがとう！"]},
+"ジュン":{hello:["おう！ 待ってたぜ！ さっさと始めようぜ","よし来たな！ 全力でいくからな！"],praise:["へへっ、わかってるじゃねーか！","おう、もっと褒めてもいいぜ！"],taunt:["なにぃ！？ 上等だ、受けて立つぜ！","言ったな！ あとで後悔するなよ！"],thanks:["おう！ 礼なんていいって！"],sorry:["いいってことよ！ 次いこうぜ次！"],q:["そんなの勢いで決まってるだろ！"],other:["よし、わかった！ ……たぶんな！","うおお、燃えてきたぜ！"],hit:["どうだ！ 俺の本気は！","まだまだ！ ここから一気にいくぜ！"],hurt:["ぐっ…やるじゃねーか！ 燃えてきたぜ！","いってぇ！ でもこれくらいで止まるかよ！"],ko:["くそーっ！ 次こそ負けねーからな！"],kill:["悪いな、勝負は先手必勝ってやつだ！"],win:["よっしゃあ！ 俺の勝ちだー！"]},
+"チェレン":{hello:["こんにちは。公平な勝負をしよう","よろしく。まずは状況を見極めさせてもらうよ"],praise:["ありがとう。ただ、まだ分析の途中なんだ","冷静に評価してくれて助かるよ"],taunt:["挑発に乗る気はないよ。理詰めで勝つだけだ","根拠のない自信は危ういと思うけどね"],thanks:["どういたしまして。礼儀は大事だからね"],sorry:["謝る必要はないよ。勝負の中のことだ"],q:["確率で考えるなら…と言いたいけど、運もあるね"],other:["なるほど。一理あるね","ふむ、興味深い意見だ"],hit:["計算どおりだ","悪いけど、これも戦略だよ"],hurt:["…想定外だ。作戦を練り直そう","やるね。少し評価を改めるよ"],ko:["僕の読みが甘かったか…反省しないとね"],kill:["悪く思わないでほしい。勝つための最善手だった"],win:["勝因は準備と冷静さだよ。いい勝負だった"]},
+"セレナ":{hello:["ごきげんよう。素敵な勝負にしましょうね","よろしくお願いします。お手柔らかに"],praise:["まあ、ありがとうございます。うれしいです","ふふ、光栄ですわ"],taunt:["あらあら、強気ですね。でも負けませんよ","ふふっ、望むところです"],thanks:["いえいえ、どういたしまして"],sorry:["お気になさらないで。大丈夫ですよ"],q:["そうですね…少し考えさせてください"],other:["ふふ、そうなんですね","まあ、おもしろいですね"],hit:["ごめんなさい、決めさせていただきますね","美しく決まりましたわ"],hurt:["あっ…少し痛いですね。でも大丈夫です","やりますね。私も気を引き締めます"],ko:["残念ですが、ここまでのようです。いい勝負でした"],kill:["ごめんなさい、これも勝負ですから"],win:["ありがとうございました。とても楽しかったです"]},
+"ハウ":{hello:["やあ〜。いっしょに楽しもうよ〜","よろしくね〜。お腹すいたなぁ"],praise:["えへへ〜、ありがと〜","そう言われると照れるなぁ〜"],taunt:["あはは、元気だなぁ〜。負けないよ〜","ん〜、勝負だね〜。がんばるよ〜"],thanks:["いいよいいよ〜"],sorry:["だいじょ〜ぶ、気にしないでね〜"],q:["ん〜、むずかしいなぁ。おやつ食べながら考えよ〜"],other:["そっかぁ〜","ふむふむ〜"],hit:["やった〜、当たったぁ！","えへへ、うまくいったよ〜"],hurt:["いててて〜…でもまだいけるよ〜","うわぁ〜、びっくりしたぁ"],ko:["あちゃ〜、負けちゃった。楽しかったよ〜"],kill:["ごめんね〜。でも勝負だからね〜"],win:["やった〜！ 勝てたよ〜。ごはん行こ〜！"]},
+"ホップ":{hello:["よろしくな！ いい勝負しようぜ！","来たな！ 俺、ワクワクしてるぞ！"],praise:["へへっ、ありがとな！ もっとがんばるぞ！","おう！ 嬉しいぞ！"],taunt:["負けないぞ！ 俺だって強くなったんだ！","いいぜ、その勝負受けて立つ！"],thanks:["どういたしまして！ 仲間だもんな！"],sorry:["気にすんなって！ 次がんばろうぜ！"],q:["うーん、俺にもわかんないぞ！ でも一緒に考えよう！"],other:["おう！ そうだな！","よーし、燃えてきたぞ！"],hit:["やったぞ！ 俺の勝ちパターンだ！","いけるいける！ 絶好調だぞ！"],hurt:["うわっ！ でも、まだ終わらないぞ！","やるなぁ！ ますます燃えてきたぞ！"],ko:["くぅ〜、負けたぞ！ でも次は絶対勝つからな！"],kill:["悪いな！ でも手は抜けないんだ！"],win:["やったぞー！ 最高のバトルだったぞ！"]},
+"ネモ":{hello:["やっほー！ バトルできてうれしい！","よろしく！ どんな戦い方をするのかな？ 楽しみ！"],praise:["わあ、ありがとう！ きみのバトルもすごく気になる！","うれしい！ もっと熱いバトルしよう！"],taunt:["いいね、その気迫！ ワクワクしてきた！","望むところ！ 全力でぶつかろう！"],thanks:["こちらこそ！ バトルってほんと最高だよね！"],sorry:["全然OK！ バトルは何が起きるかわからないから面白いんだよ"],q:["いい質問！ 実際に試してみるのが一番早いよ！"],other:["なるほど！ それ、おもしろいね！","うんうん、もっと聞かせて！"],hit:["決まった！ 今の手応え、最高！","やった！ 作戦どおり！"],hurt:["わっ、いい攻撃！ すごく勉強になる！","やるね！ そうこなくっちゃ！"],ko:["負けちゃった…でもすっごく楽しかった！ もう一回やろう！"],kill:["ごめんね、でも全力で戦うのが礼儀だよね！"],win:["やった！ 最高のバトルをありがとう！"]}
+};
+const AI_DEFAULT={hello:["よろしく！"],praise:["ありがとう！"],taunt:["負けないぞ！"],thanks:["どういたしまして"],sorry:["気にしないで"],q:["どうだろうね"],other:["なるほど"],hit:["よし！"],hurt:["やるね！"],ko:["負けたか…"],kill:["悪いね"],win:["勝った！"]};
+const STAMP_KIND=["hello","praise","praise","thanks","sorry","taunt","taunt","praise","other","other"];
+const AIC={last:0,per:{},line:{}};
+function aiSay(p,kind,delay){const g=G,bank=(AI_CHAT[p.n]||AI_DEFAULT)[kind]||(AI_CHAT[p.n]||AI_DEFAULT).other||["…"];let t=bank[Math.floor(Math.random()*bank.length)];if(bank.length>1&&AIC.line[p.n]===t)t=bank.find(x=>x!==t)||t;AIC.line[p.n]=t;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G===g&&MODE==="cpu")addChat(p.n,t,0,-1)},delay)}
+function aiKind(text,st){if(st!=null&&st>=0)return STAMP_KIND[st]||"other";const t=String(text||"");if(/ごめん|すまん|すみません|申し訳/.test(t))return"sorry";if(/ありがと|感謝|サンキュ/.test(t))return"thanks";if(/こんにち|こんばん|おはよ|やあ|やっほ|はじめまして|よろしく|hello|\bhi\b/i.test(t))return"hello";if(/弱|よわ|ざこ|雑魚|へた|下手|負け|まけ|勝つ|かつ|倒す|覚悟|余裕/.test(t))return"taunt";if(/すご|つよ|強い|ナイス|うま|上手|いいね|さすが|えらい|最高|かっこ/.test(t))return"praise";if(/[？?]|ですか|かな|なに|何|どう|どれ|いつ|なんで|教えて/.test(t))return"q";return"other"}
+function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),named=bots.filter(p=>String(text||"").includes(p.n));let who=named.length?named:[bots[Math.floor(Math.random()*bots.length)]];if(!named.length&&bots.length>1&&Math.random()<.35){const o=bots.filter(p=>p!==who[0]);who.push(o[Math.floor(Math.random()*o.length)])}who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100))}
+function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
 </script>
