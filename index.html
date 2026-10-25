@@ -199,6 +199,23 @@ const C=[
 {id:"energyball",n:"エナジーボール",t:"a",k:"s",d:9,x:""},
 {id:"leafblade",n:"リーフブレード",t:"a",k:"p",d:9,boostChance:.3,x:"30%で威力1.5倍"},
 {id:"woodhammer",n:"ウッドハンマー",t:"a",k:"p",d:12,recoil:4,x:"反動4"},
+ {id:"muddywater",n:"だくりゅう",t:"a",k:"s",d:9,all:1,x:"全体攻撃"},
+ {id:"heatcrash",n:"ヒートスタンプ",t:"a",k:"p",d:10,x:"単体攻撃"},
+ {id:"needle_guard",n:"ニードルガード",t:"d",r:0,b:1,bs:1,needle:1,x:"攻撃技・変化技を防ぐ。物理技を防ぐと相手に5ダメージ"},
+ {id:"mysticalfire",n:"マジカルフレイム",t:"a",k:"s",d:7,x:"単体攻撃"},
+ {id:"matblock",n:"たたみがえし",t:"d",r:0,b:1,bs:1,x:"攻撃技・変化技を完全に防ぐ"},
+ {id:"spiritshackle",n:"かげぬい",t:"a",k:"p",d:8,noGuard:1,x:"ガード不可"},
+ {id:"dd_lariat",n:"DDラリアット",t:"a",k:"p",d:8,x:"単体攻撃"},
+ {id:"sparklingaria",n:"うたかたのアリア",t:"a",k:"s",d:9,all:1,cureBurn:1,x:"全体攻撃・相手のやけどを治す"},
+ {id:"drumbeating",n:"ドラムアタック",t:"a",k:"p",d:8,x:"単体攻撃"},
+ {id:"pyroball",n:"かえんボール",t:"a",k:"p",d:12,x:"単体攻撃"},
+ {id:"snipeshot",n:"ねらいうち",t:"a",k:"s",d:8,boostChance:.3,x:"30%で威力1.5倍"},
+ {id:"triple_arrows",n:"3ぼんのや",t:"a",k:"p",d:9,boostChance:.3,x:"30%で威力1.5倍"},
+ {id:"infernalparade",n:"ひゃっきやこう",t:"a",k:"s",d:6,statusBoost:1,x:"相手が状態異常なら威力2倍"},
+ {id:"ceaselessedge",n:"ひけん・ちえなみ",t:"a",k:"p",d:6,x:"単体攻撃"},
+ {id:"flowertrick",n:"トリックフラワー",t:"a",k:"p",d:7,boostChance:1,x:"必ず威力1.5倍"},
+ {id:"torchsong",n:"フレアソング",t:"a",k:"s",d:8,noSub:1,x:"みがわりの人形では防げない"},
+ {id:"aquastep",n:"アクアステップ",t:"a",k:"p",d:8,x:"単体攻撃"},
 {id:"mimic",n:"まねっこ",t:"a",d:0,mimic:1,x:"直前に使われた技の威力・物理/特殊・単体/全体をそのまま真似る"},
 {id:"metronome",n:"ゆびをふる",t:"a",d:0,metronome:1,x:"どれかの攻撃技をランダムに選んで使う"},
 {id:"band",n:"ちからのハチマキ",t:"b",k:"p",d:2,x:"物理技に重ねて+2"},
@@ -266,7 +283,7 @@ const CARD_PRICES={
  moonblast:8,dracometeor:9,focusblast:8,sludgebomb:7,rockslide:6,blizzard:9,
  heatwave:8,hypervoice:6,discharge:7,aquabreak:6,aquajet:5,hydropump:9,
  waterstar:8,thunder:9,parabolic:7,thunderfang:6,drainpunch:7,petal:8,
- gigadrain:7,energyball:6,leafblade:8,woodhammer:8,mimic:6,metronome:6,
+ gigadrain:7,energyball:6,leafblade:8,woodhammer:8,muddywater:8,heatcrash:8,needle_guard:10,mysticalfire:7,matblock:8,spiritshackle:8,dd_lariat:7,sparklingaria:8,drumbeating:8,pyroball:9,snipeshot:8,triple_arrows:9,infernalparade:8,ceaselessedge:8,flowertrick:9,torchsong:8,aquastep:8,mimic:6,metronome:6,
  band:8,glasses:8,orb:12,aim:20,sash:10,zcrystal:12,
  jw_normal:7,jw_fire:7,jw_water:7,jw_elec:7,jw_grass:7,
  masterball:15,protect:10,detect:10,sub:8,harden:4,cotton:9,amnesia:7,
@@ -278,7 +295,7 @@ const CARD_PRICES={
 const pr=c=>CARD_PRICES[c.id]??(c.t==="b"?8:c.t==="d"?6:c.t==="h"?5:c.t==="a"?6:c.t==="s"?7:c.t==="u"?12:5);
 const CARD_MON={
  tackle:[19,"コラッタ"],quick:[133,"イーブイ"],flame:[392,"ゴウカザル"],spark:[25,"ピカチュウ"],ice:[245,"スイクン"],shadow:[94,"ゲンガー"],earthquake:[445,"ガブリアス"],surf:[131,"ラプラス"],sheercold:[1002,"パオジアン"],fissure:[1003,"ディンルー"],
- closecombat:[308,"チャーレム"],flareblitz:[257,"バシャーモ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[812,"ゴリランダー"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
+ closecombat:[308,"チャーレム"],flareblitz:[257,"バシャーモ"],bravebird:[398,"ムクホーク"],outrage:[149,"カイリュー"],stoneedge:[248,"バンギラス"],playrough:[778,"ミミッキュ"],doubleedge:[128,"ケンタロス"],gunkshot:[89,"ベトベトン"],flamethrower:[6,"リザードン"],psychic:[65,"フーディン"],moonblast:[987,"ハバタクカミ"],dracometeor:[635,"サザンドラ"],focusblast:[448,"ルカリオ"],sludgebomb:[569,"ダストダス"],rockslide:[142,"プテラ"],blizzard:[144,"フリーザー"],heatwave:[146,"ファイヤー"],hypervoice:[295,"バクオング"],discharge:[479,"ロトム"],aquabreak:[319,"サメハダー"],aquajet:[395,"エンペルト"],hydropump:[9,"カメックス"],waterstar:[658,"ゲッコウガ"],muddywater:[260,"ラグラージ"],heatcrash:[500,"エンブオー"],needle_guard:[652,"ブリガロン"],mysticalfire:[655,"マフォクシー"],matblock:[658,"ゲッコウガ"],spiritshackle:[724,"ジュナイパー"],dd_lariat:[727,"ガオガエン"],sparklingaria:[730,"アシレーヌ"],drumbeating:[812,"ゴリランダー"],pyroball:[815,"エースバーン"],snipeshot:[818,"インテレオン"],triple_arrows:[10166,"ヒスイジュナイパー"],infernalparade:[10233,"ヒスイバクフーン"],ceaselessedge:[10236,"ヒスイダイケンキ"],flowertrick:[908,"マスカーニャ"],torchsong:[911,"ラウドボーン"],aquastep:[914,"ウェーニバル"],thunder:[145,"サンダー"],parabolic:[939,"ハラバリー"],thunderfang:[405,"レントラー"],drainpunch:[992,"テツノカイナ"],petal:[549,"ドレディア"],gigadrain:[3,"フシギバナ"],energyball:[930,"オリーヴァ"],leafblade:[254,"ジュカイン"],woodhammer:[389,"ドダイトス"],mimic:[151,"ミュウ"],metronome:[35,"ピッピ"],
  protect:[143,"カビゴン"],detect:[539,"ダゲキ"],sub:["substitute","みがわりの人形"],harden:[11,"トランセル"],cotton:[547,"エルフーン"],amnesia:[199,"ヤドキング"],calm:[196,"エーフィ"],cosmic:[337,"ルナトーン"],light:[122,"バリヤード"],wall:[861,"オーロンゲ"],iron:[208,"ハガネール"],acidarmor:[317,"マルノーム"],barrier:[80,"ヤドラン"],healorder:[416,"ビークイン"],bravecharge:[490,"マナフィ"],confuse:[178,"ネイティオ"],sleep:[97,"スリーパー"],wisp:[609,"シャンデラ"],wave:[26,"ライチュウ"],shiny_delibird:[225,"色違いデリバード"],satoshi_spark:[10094,"サトシピカチュウ"],satoshi_waterstar:[10117,"サトシゲッコウガ"]
 };
 const SHINY_RATE=.025;
@@ -303,7 +320,7 @@ const red=(ds,c)=>ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0);
 const comb=ds=>({n:ds.map(x=>x.n).join("＋"),ds,bs:ds.some(x=>x.bs),b:ds.some(x=>x.b)});
 const ef=x=>x&&x.mimic&&G&&G.last?{...x,d:G.last.d,k:G.last.k,all:G.last.all?1:0,ko:G.last.ko?1:0}:x;
 const mimicInfo=c=>c.x+(G&&G.last?"〔次は"+(G.last.ko?"一撃必殺":"威力"+G.last.d)+"・"+(G.last.all?"全体":"単体")+"〕":"〔まだ真似る技がない〕");
-const TYPE_OF={"たいあたり":"ノーマル","でんこうせっか":"ノーマル","ほのおのパンチ":"ほのお","10まんボルト":"でんき","れいとうビーム":"こおり","シャドーボール":"ゴースト","じしん":"じめん","なみのり":"みず","ぜったいれいど":"こおり","じわれ":"じめん","インファイト":"かくとう","フレアドライブ":"ほのお","ブレイブバード":"ひこう","げきりん":"ドラゴン","ストーンエッジ":"いわ","じゃれつく":"フェアリー","すてみタックル":"ノーマル","ダストシュート":"どく","かえんほうしゃ":"ほのお","サイコキネシス":"エスパー","ムーンフォース":"フェアリー","りゅうせいぐん":"ドラゴン","きあいだま":"かくとう","ヘドロばくだん":"どく","いわなだれ":"いわ","ふぶき":"こおり","ねっぷう":"ほのお","ハイパーボイス":"ノーマル","ほうでん":"でんき","まねっこ":"ノーマル","ゆびをふる":"ノーマル","あやしいひかり":"ゴースト","さいみんじゅつ":"エスパー","おにび":"ほのお","でんじは":"でんき","だんがいのつるぎ":"じめん","こんげんのはどう":"みず","ガリョウテンセイ":"ドラゴン","シャドーダイブ":"ゴースト","ときのほうこう":"ドラゴン","あくうせつだん":"ドラゴン","アクアブレイク":"みず","アクアジェット":"みず","ハイドロポンプ":"みず","みずしゅりけん":"みず","かみなり":"でんき","パラボラチャージ":"でんき","かみなりのキバ":"でんき","ドレインパンチ":"かくとう","はなびらのまい":"くさ","ギガドレイン":"くさ","エナジーボール":"くさ","リーフブレード":"くさ","ウッドハンマー":"くさ","ノーマルジュエル":"ノーマル","ほのおジュエル":"ほのお","みずジュエル":"みず","でんきジュエル":"でんき","くさジュエル":"くさ","1000万ボルト":"でんき"},TYPE_COL={"ノーマル":"#8f8e6a","ほのお":"#e0742a","みず":"#4f7fe0","でんき":"#b89300","こおり":"#3fa6a3","かくとう":"#b8332e","どく":"#9a3a98","じめん":"#a98440","ひこう":"#7d6fd6","エスパー":"#e0447a","いわ":"#8f7b1c","ゴースト":"#665087","ドラゴン":"#5a2fd8","フェアリー":"#c06c9a","くさ":"#4a9e35"};
+const TYPE_OF={"たいあたり":"ノーマル","でんこうせっか":"ノーマル","ほのおのパンチ":"ほのお","10まんボルト":"でんき","れいとうビーム":"こおり","シャドーボール":"ゴースト","じしん":"じめん","なみのり":"みず","ぜったいれいど":"こおり","じわれ":"じめん","インファイト":"かくとう","フレアドライブ":"ほのお","ブレイブバード":"ひこう","げきりん":"ドラゴン","ストーンエッジ":"いわ","じゃれつく":"フェアリー","すてみタックル":"ノーマル","ダストシュート":"どく","かえんほうしゃ":"ほのお","サイコキネシス":"エスパー","ムーンフォース":"フェアリー","りゅうせいぐん":"ドラゴン","きあいだま":"かくとう","ヘドロばくだん":"どく","いわなだれ":"いわ","ふぶき":"こおり","ねっぷう":"ほのお","ハイパーボイス":"ノーマル","ほうでん":"でんき","まねっこ":"ノーマル","ゆびをふる":"ノーマル","あやしいひかり":"ゴースト","さいみんじゅつ":"エスパー","おにび":"ほのお","でんじは":"でんき","だんがいのつるぎ":"じめん","こんげんのはどう":"みず","ガリョウテンセイ":"ドラゴン","シャドーダイブ":"ゴースト","ときのほうこう":"ドラゴン","あくうせつだん":"ドラゴン","アクアブレイク":"みず","アクアジェット":"みず","ハイドロポンプ":"みず","みずしゅりけん":"みず","かみなり":"でんき","パラボラチャージ":"でんき","かみなりのキバ":"でんき","ドレインパンチ":"かくとう","はなびらのまい":"くさ","ギガドレイン":"くさ","エナジーボール":"くさ","リーフブレード":"くさ","ウッドハンマー":"くさ","だくりゅう":"みず","ヒートスタンプ":"ほのお","マジカルフレイム":"ほのお","かげぬい":"ゴースト","DDラリアット":"あく","うたかたのアリア":"みず","ドラムアタック":"くさ","かえんボール":"ほのお","ねらいうち":"みず","3ぼんのや":"かくとう","ひゃっきやこう":"ゴースト","ひけん・ちえなみ":"あく","トリックフラワー":"くさ","フレアソング":"ほのお","アクアステップ":"みず","ノーマルジュエル":"ノーマル","ほのおジュエル":"ほのお","みずジュエル":"みず","でんきジュエル":"でんき","くさジュエル":"くさ","1000万ボルト":"でんき"},TYPE_COL={"ノーマル":"#8f8e6a","ほのお":"#e0742a","みず":"#4f7fe0","でんき":"#b89300","こおり":"#3fa6a3","かくとう":"#b8332e","どく":"#9a3a98","じめん":"#a98440","ひこう":"#7d6fd6","エスパー":"#e0447a","いわ":"#8f7b1c","ゴースト":"#665087","ドラゴン":"#5a2fd8","フェアリー":"#c06c9a","くさ":"#4a9e35"};
 const TYPE_SHORT={"ノーマル":"無","かくとう":"格","どく":"毒","じめん":"地","ひこう":"飛","むし":"虫","いわ":"岩","ゴースト":"霊","はがね":"鋼","ほのお":"炎","みず":"水","でんき":"電","くさ":"草","こおり":"氷","エスパー":"超","ドラゴン":"龍","あく":"悪","フェアリー":"妖"};
 const tyTag=c=>{const t=c&&TYPE_OF[c.n];return t?"<i class='ty' style='background:"+TYPE_COL[t]+"'>"+(TYPE_SHORT[t]||t)+"</i>":""};
 const MEGA_FORMS={flamethrower:10034,shadow:10038,earthquake:10058,focusblast:10059,stoneedge:10049,psychic:10037,rockslide:10042,hydropump:10036,gigadrain:10033,leafblade:10065,aquabreak:10068,flareblitz:10050,closecombat:10054};
@@ -389,7 +406,7 @@ async function getDef(t,c,bo,only){
   for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&!x.shiny&&ix.filter(k=>{const y=C[t.h[k]];return y.id!=="sub"&&!y.shiny}).length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
   if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
- ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id)));
+ ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id))&&!(c.noSub&&C[t.h[j]].id==="sub"));
  if(!ix.length)return null;
  const valid=[];let ppCost=0;for(const j of ix){const card=C[t.h[j]],cost=card.id==="sub"||card.shiny?0:1;if(ppCost+cost>t.pp)continue;valid.push(j);ppCost+=cost}ix=valid;
  if(!ix.length)return null;
@@ -599,7 +616,7 @@ async function act0(a,o,c,bo,bs){
    G.bd.tg=G.P.indexOf(target);G.bd.ds=null;
    if(await palkiaBlock(target,c.n))continue;
    const guard=await getDef(target,c,bo);
-   if(guard&&(guard.b||guard.bs)){await ev(target.n+"は攻撃を防いだ！",500);continue}
+   if(guard&&(guard.b||guard.bs)){if(c.k==="p"&&guard.ds.some(x=>x.needle)){a.hp=Math.max(0,a.hp-5);hurtHelper(a,5);await ev(target.n+"のニードルガード！ "+a.n+"に5ダメージ！",500)}await ev(target.n+"は攻撃を防いだ！",500);continue}
    if(target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.2)){
     hurtHelper(target,target.hp);target.hp=0;await ev(target.n+"は"+c.n+"で一撃でたおれた！",700);
    }else await ev(c.n+"は "+target.n+"に はずれた！",500);
@@ -618,24 +635,24 @@ async function act0(a,o,c,bo,bs){
    const rr=guard?guard.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;
    let dm=c.d+bo+helperDamageBonus(a);if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);const screen=wallRed(target,c.k);dm=Math.max(0,dm-rr-screen-helperDamageReduction(target));
    target.hp=Math.max(0,target.hp-dm);hurtHelper(target,dm);hitAny=true;await ev(target.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":""),500);
-   if(dm>0&&target.hp>0&&c.al&&(c.luckyGuaranteed||target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
+   if(c.cureBurn&&target.al==="burn"){target.al=null;await ev(target.n+"のやけどが治った！",500)}if(dm>0&&target.hp>0&&c.al&&(c.luckyGuaranteed||target.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(target,c.al);
   }
   if(hitAny&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",700)}
   return
  }
  const hits=Math.max(1,Number(c.hits)||1);let total=0;
   // 威力1.5倍の抽選は技ごとに1回。アイテム等の加算後の威力全体に倍率をかける。
-  let movePower=c.d+bo+helperDamageBonus(a);
+  let movePower=c.d+bo+helperDamageBonus(a);if(c.statusBoost&&t.al)movePower*=2;
   if(c.boostChance&&(c.luckyGuaranteed||Math.random()<c.boostChance)){const before=movePower;movePower=Math.round(movePower*1.5);await ev(c.n+"の最終威力が1.5倍になった！ "+before+"→"+movePower,500)}
  for(let hit=1;hit<=hits&&t.hp>0;hit++){
-  const d=c.id==="quick"||c.nd?null:await getDef(t,c,bo);
-  if(d&&d.b){await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
+  const d=c.noGuard||c.id==="quick"||c.nd?null:await getDef(t,c,bo);
+  if(d&&d.b){if(c.k==="p"&&d.ds.some(x=>x.needle)){a.hp=Math.max(0,a.hp-5);hurtHelper(a,5);await ev(t.n+"のニードルガード！ "+a.n+"に5ダメージ！",500)}await ev(t.n+"は"+(hit>1?hit+"回目の":"")+"攻撃を防いだ！",500);continue}
   const rr=d?d.ds.reduce((s,x)=>s+(!x.k||x.k===c.k?x.r:0),0):0;const screen=wallRed(t,c.k);
   let dm=movePower;if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
   await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
-  if(dm>0&&t.hp>0&&c.al&&(c.luckyGuaranteed||o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
+  if(c.cureBurn&&t.al==="burn"){t.al=null;await ev(t.n+"のやけどが治った！",500)}if(dm>0&&t.hp>0&&c.al&&(c.luckyGuaranteed||o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(total>0&&c.drain){const g=Math.min(total,99-a.hp);if(g>0){a.hp+=g;await ev(a.n+"は "+total+"ダメージ分のHPを吸い取った！ HP+"+g,700)}}
@@ -776,7 +793,7 @@ function showRules(){
  $("mx").innerHTML=`<div class="rules-layout rules-accordion">
  <details class="rule-card"><summary>基本ルール</summary><p>HP50・PP10・20円で開始。最後まで生き残れば勝ち（最大9人）。</p><p>カードを使って行動。使わないときはカードを1枚捨てて交代できます。</p></details>
  <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋2</li><li>ものしりメガネ：特殊＋2</li><li>いのちのたま：技＋7、自分も5ダメージ</li><li>Zクリスタル：ゲーム中1回のみ。技のタイプに応じてZワザ名に変化し、威力＋10</li><li>メガストーン：対応するポケモンの技と一緒に出すと、アイコンがメガシンカ後になり威力＋10</li><li>ラッキーパンチ：追加効果のある技と一緒に出すと、追加効果が必ず発動</li><li>タイプジュエル：同タイプ技＋5</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
- <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのりは全体攻撃です。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
+ <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのり・だくりゅう・うたかたのアリアは全体攻撃です。ニードルガードは物理技を防ぐと相手に5ダメージを返します。かげぬいはガード不可、フレアソングはみがわりの人形では防げません。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
  <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：毎ターン20%で回復</li><li>こんらん：自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
  <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル10ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
