@@ -372,7 +372,7 @@ function render(){
  {const m0=S.sel.map(j=>C[mp.h[j]]).filter(Boolean).find(c=>c.t!=="b");if(m0)S.sel=S.sel.filter(j=>{const c=C[mp.h[j]];return !c||c.t!=="b"||bm(c,ef(m0))})}
  const sc=S.sel.map(j=>C[mp.h[j]]).filter(Boolean),M=ef(sc.find(c=>c.t!=="b")),bs=sc.filter(c=>c.t==="b");
  const turn=A&&A.k==="turn",def=A&&A.k==="def",needTg=M&&((M.t==="a"&&!M.all&&!rt(M))||(M.t==="s")||M.id==="sell");
- const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||c.shiny||S.sel.includes(j)||mp.pp>S.sel.filter(k=>{const x=C[mp.h[k]];return x&&x.id!=="sub"&&!x.shiny}).length);if(!turn||(c.t==="d"&&!c.wall))return false;
+ const ok=(c,j)=>{if(!A)return false;if(def)return c.t==="d"&&!c.wall&&(c.id==="sub"||c.shiny||S.sel.includes(j)||mp.pp>S.sel.filter(k=>{const x=C[mp.h[k]];return x&&x.id!=="sub"&&!x.shiny}).length);if(!turn||(c.t==="d"&&!c.wall))return false;if(S.sel.some(k=>C[mp.h[k]]?.id==="bag")&&c.id!=="bag")return false;
   if((c.t==="s"&&c.id!=="bag"||c.t==="a")&&mp.pp<1&&!c.shiny)return false;if(c.mimic&&!G.last)return false;if(c.id==="shop"&&mp.mo<5)return false;if(c.id==="sell"&&mp.h.length<2)return false;
   if(c.t==="b")return !c.aim&&!c.sash&&!!M&&!M.gift&&(!M.mimic||c.jt==="ノーマル")&&!M.metronome&&!M.ko&&(M.t==="a"||M.t==="s")&&bm(c,M);return true};
  $("fs").className="fs"+(G.P.length>3?" many":"");
