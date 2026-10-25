@@ -286,7 +286,7 @@ const PICK_CATEGORIES=[
  ...Array(12).fill("a"),...Array(3).fill("s"),...Array(5).fill("h"),
  ...Array(9).fill("d"),...Array(4).fill("m"),...Array(5).fill("b"),...Array(1).fill("u")
 ];
-const pick=(players=G?.P||[],who)=>{let cat;do{cat=PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]}while(cat==="u"&&Math.random()>=.7);let group=byType(cat).filter(x=>!x.secret&&(G?.experiment||!x.helperMove)&&(x.id!=="aim"||!players.some(p=>p.h.includes(x.i)))&&(x.id!=="sash"||!who||!(who.sashUsed||who.h.includes(x.i))));if(cat==="b")group=group.filter(x=>!x.jt)const normal=group.filter(x=>!x.ko);const isBot=!!(who&&who.bot);const pool=normal.length&&Math.random()<(isBot?.98:.9)?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<(isBot?.7:.3);n++)c=rd(pool);return c.i};
+const pick=(players=G?.P||[],who)=>{let cat;do{cat=PICK_CATEGORIES[Math.random()*PICK_CATEGORIES.length|0]}while(cat==="u"&&Math.random()>=.7);let group=byType(cat).filter(x=>!x.secret&&(G?.experiment||!x.helperMove)&&(x.id!=="aim"||!players.some(p=>p.h.includes(x.i)))&&(x.id!=="sash"||!who||!(who.sashUsed||who.h.includes(x.i))));if(cat==="b")group=group.filter(x=>!x.jt);const normal=group.filter(x=>!x.ko);const isBot=!!(who&&who.bot);const pool=normal.length&&Math.random()<(isBot?.98:.9)?normal:group;let c=rd(pool);for(let n=0;n<8&&c.all&&Math.random()<(isBot?.7:.3);n++)c=rd(pool);return c.i};
 // カード価格：効果の強さ・汎用性・成功率を基準に設定（円）
 const CARD_PRICES={
  tackle:3,quick:4,flame:7,spark:7,ice:7,shadow:5,earthquake:8,surf:7,
