@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-17";
+const BUILD="20261026-18";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1523,10 +1523,28 @@ function cvChain(a,kind,depth,when){const bs=G.P.filter(x=>x.bot&&!x.d&&x!==a);i
  const ty=cvPk(({deal:["ag","dis","tease"],ally:["ag","dis","tease"],strategy:["ag","dis","ask"],bluff:["tease","dis","boast"],lowhp:["sym"],laugh:["lol"]})[kind]||["ag","tease","ask","dis","boast"]);
  const ad=Math.random()<.65?a.n+(V.h||"")+"、":"",s=ty==="ask"?ad+cvPk(V.o.th)+cvPk(CVBQ)+cvPk(V.q):ad+cvCompose(b.n,CVB[ty][0],CVB[ty][1]),d=when+1500+Math.random()*1200;
  cvPost(b,s,d);}
-function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
- let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{const wt=bots.map(p=>(((AI_PERSONALITY[p.n]||{}).topics||[]).includes(kind)?3:1)*(p.d?.3:1));let r=Math.random()*wt.reduce((a,b)=>a+b,0),i=0;while(i<bots.length-1&&(r-=wt[i])>0)i++;who=[bots[i]];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
- who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100+Math.min(tx.length,40)*20,st!=null?"__stamp__":tx));
- if(st==null&&bots.length>1&&Math.random()<.12){const a=who[0];setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(a,kind,1,0)},3200+Math.random()*1200)}}
+// 会話専用COM：対戦AIとは独立して、発言の宛先・話題・返答人数を管理する
+const ConversationCOM={
+ classify(text,stamp){return aiKind(text,stamp)},
+ selectSpeakers(text,kind,bots){
+  const tx=String(text||""),named=bots.filter(p=>tx.includes(p.n));
+  if(named.length)return named.slice(0,2);
+  if(/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx))return bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));
+  // 呼びかけがない場合は話題への関心と生存状態から、返答する1人だけを選ぶ
+  const weights=bots.map(p=>(((AI_PERSONALITY[p.n]||{}).topics||[]).includes(kind)?4:1)*(p.d?.3:1));
+  const total=weights.reduce((a,b)=>a+b,0);let r=Math.random()*total,i=0;
+  while(i<bots.length-1&&(r-=weights[i])>0)i++;
+  return [bots[i]];
+ },
+ respond(text,stamp){
+  if(!G||MODE!=="cpu")return;
+  const bots=G.P.filter(p=>p.bot);
+  if(!bots.length)return;
+  const kind=this.classify(text,stamp),tx=String(text||""),speakers=this.selectSpeakers(tx,kind,bots);
+  speakers.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100+Math.min(tx.length,40)*20,stamp!=null?"__stamp__":tx));
+ }
+};
+function aiReply(text,st){ConversationCOM.respond(text,st)}
 // 戦況への実況（防御・はずれ・状態異常・手札強奪・回復・大ダメージ・様子見・ターン開始）
 const CVE={
 blk:{v:["pos",["うまく防げた","読みどおりに守れた","いいタイミングだった"]],a:["neg",["防がれた","読まれていたらしい","簡単にはいかない"]],s:["sur",["いい守りだった","今のは際どかった","見応えがあった"]]},
