@@ -877,7 +877,7 @@ function showRules(){
 $("hb").onclick=showRules;
 $("openRules").onclick=showRules;
 $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
-</script></body></html>
+</script><style>#chat.cpu-chat .ch-in{display:none!important}</style></body></html>
 
 <style>
 /* 攻撃カード：画像の下に分類・タイプ・威力を必ず読みやすく表示 */
@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-19";
+const BUILD="20261026-20";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1150,7 +1150,7 @@ function renderExtras(){
  if(G.sh){const sig=G.sh.join(",");if(S.shs!==sig){S.shs=sig;const on=new Set(G.sh);for(const id of Object.keys(CARD_MON)){CARD_MON[id][2]=on.has(id);applyShinyCard(id)}}}
  if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  if(MODE==="net"&&G.bv!==BUILD&&!S.vbw){S.vbw=1;const vb=$("netbar");vb.textContent="⚠ 相手と版が違います。タイトル画面の「最新版に更新」を押してください";vb.hidden=false;setTimeout(()=>{if(vb.textContent.startsWith("⚠ 相手"))vb.hidden=true},9000)}
- const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
+ const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;$("chat").classList.toggle("cpu-chat",MODE==="cpu");if(!net&&chatOpen())$("chat").hidden=true;
  if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;AIC.nextAmbient=Date.now()+18000+Math.random()*8000;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}aiAmbient();if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
  if(G.ph!=="over"){S.os=0;S.aiw=0}else if(MODE==="cpu"&&!S.aiw){S.aiw=1;const wp=G.w>=0&&G.P[G.w];if(wp&&wp.bot)aiReact("win",wp,1)}
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
@@ -1261,7 +1261,7 @@ bluff:["その発言、挑発かな？ いいね、燃えてきた！","はっ�
 };
 for(const n in AI_CHAT_EXTRA){for(const k in AI_CHAT_EXTRA[n]){AI_CHAT[n][k]=(AI_CHAT[n][k]||[]).concat(AI_CHAT_EXTRA[n][k])}}
 const AI_DEFAULT={hello:["よろしく！"],praise:["ありがとう！"],taunt:["負けないぞ！"],thanks:["どういたしまして"],sorry:["気にしないで"],q:["どうだろうね"],other:["なるほど"],hit:["よし！"],hurt:["やるね！"],ko:["負けたか…"],kill:["悪いね"],win:["勝った！"]};
-const STAMP_KIND=["hello","praise","praise","thanks","sorry","taunt","taunt","praise","other","other"];
+const STAMP_KIND=["hello","praise","praise","thanks","sorry","cheer","taunt","gg","wait","laugh"];
 const AI_ORDER=["bye","cheer","laugh","sad","rude","ally","intro","lucky","food","start","lowhp","plow","doom","shiny","hello","praise","taunt","other","q"];
 const AI_X={
 "グリーン":[["もう行くのか。次は逃がさないぜ","ふん、勝ち逃げは許さないからな"],["応援なんかいらない。実力で勝つ","ふっ、見てろ。結果で示してやる"],["何がおかしい。……まあ、悪くはない","ふん、笑ってられるのも今のうちだ"],["弱音を吐くな。立て、勝負はこれからだ","負けたなら強くなればいい。それだけだ"],["そんな口をきいて、ただで済むと思うなよ","口の利き方に気をつけるんだな"],["俺は誰ともつるまない。最後は敵同士だ","手を組む？ 俺に頼る気か。笑わせるな"],["俺はグリーン。いずれ頂点に立つ男だ","名乗るほどでもないが…グリーンだ"],["運も実力のうちだ。色違いだって引き寄せてみせる"],["食い物の話か。勝負が終わったらな"],["さあ始めるぞ。俺が勝つがな"],["くっ…ここからが本番だ"],["そこまでか？ 倒れるなら全力で倒れろ"],["終末の時だと？ 面白い、まとめて相手してやる"],["色違いか。運のいい奴だ…気に入らないな"],["来たか。逃げなかったことだけは褒めてやる"],["ほめても何も出ないぞ。……まあ、受け取っておく"],["挑発のつもりか？ 受けて立ってやる"],["…まあ、好きにしろ"],["そんなことより、次の一手を考えたらどうだ"]],
@@ -1461,7 +1461,7 @@ lowhp:["neg",["かなり苦しくなってきた","一撃もらったらおし�
 plow:["sur",["かなり追い込まれている","ここで倒し切れるか気になる","気を抜かないほうがいい"]],
 start:["pos",["さあ、始まる","全力でいく","いい勝負にしたい","誰が最後に立っているか楽しみだ"]],
 doom:["sur",["空気が変わった","ここからが本番","何が起きても不思議じゃない"]],
-shiny:["sur",["今のはすごい","運がよすぎる","まぶしい"]]});
+shiny:["sur",["今のはすごい","運がよすぎる","まぶしい"]],gg:["pos",["いい勝負だった","対戦ありがとう","最後まで楽しめたな","また勝負しよう"]],wait:["th",["分かった、少し待つよ","急がなくていいぞ","準備ができたら教えてくれ"]],laugh:["lol",["ははっ、楽しそうだな","そんなに面白かったか？","いい笑い声だな"]]});
 // 雑談の話題 [名前, 検出, 中身, 聞き返し]
 const CVT=[
 ["loss",/負け|失敗|悔し|ミス|うまくいか|敗/,["負けても次がある","悔しさは強くなる材料になる","原因が分かれば同じ失敗は減る","落ち込むのは本気だった証拠でもある"],["次にやりたいことは何","一番悔しかったのは何"]],
