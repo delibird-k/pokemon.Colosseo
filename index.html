@@ -528,7 +528,7 @@ async function summonHelper(p){
  if(G.experiment&&p.id===MY){h=await chooseHelperInGame();if(!h)return}else if(G.experiment){h=rollHelper()}
  // 新しい仲間を呼んでも、すでにいる仲間は残す。効果は仲間ごとに記録する。
  if(!G.usedHelpers)G.usedHelpers=[];G.usedHelpers.push(h.name);if(!p.helpers)p.helpers=[];
- const shiny=G.experiment?!!EXP_SHINY.helpers[h.name]:Math.random()<HELPER_SHINY_RATE;const summoned={...h,hp:40,owner:p.id,dead:false,shiny};p.helpers.push(summoned);p.helper=summoned;
+ const shiny=G.experiment?!!EXP_SHINY.helpers[h.name]:Math.random()<HELPER_SHINY_RATE;const summoned={...h,hp:40,owner:p.id,dead:false,shiny};p.helpers.push(summoned);p.helper=summoned;if(shiny&&MODE==="cpu"&&p.id===MY){const bs=G.P.filter(x=>x.bot&&!x.d);if(bs.length)aiReact("shiny",aiPick(bs),true)}
  if(h.kind==="burst"&&shiny&&G.P.some(x=>x.d)){await ev("✨色違いアルセウスが降臨！ 倒れた者たちに奇跡を起こす！",600);for(const t of G.P.filter(x=>x.d)){t.d=0;t.hp=50;t.al=null;t.stun=0;await ev(t.n+"がHP50で復活した！",600)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="burst"){for(const t of G.P.filter(x=>x!==p&&!x.d)){t.hp=Math.max(0,t.hp-99);hurtHelper(t,99);await ev("アルセウスが降臨！ "+t.n+"に99ダメージ！",500)}p.helper.dead=true;p.helper.hp=0;await ev("アルセウスは力を使い果たして消えた！")}
  else if(h.kind==="heal")await ev((shiny?"✨色違いの":"")+h.name+"が出た！");
@@ -559,7 +559,7 @@ async function helperAction(owner,forcedHelper=null){
   const screen=wallRed(t,kind);
   const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
   t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
-  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);return actual;
+  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);if(actual>0&&t.bot)aiReact("helper",t);if(actual>=20&&t.bot)aiReact("bigHit",t);return actual;
  }
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
   const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0,n:h.move};
@@ -712,7 +712,7 @@ async function act0(a,o,c,bo,bs){
   let dm=movePower;if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
-  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);
+  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);if(dm>0&&dm<=5&&t.bot)aiReact("weakHit",t);
   if(c.cureBurn&&t.al==="burn"){t.al=null;await ev(t.n+"のやけどが治った！",500)}if(dm>0&&t.hp>0&&c.al&&(c.luckyGuaranteed||o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
@@ -751,16 +751,16 @@ async function endEvent(p){
  const roll=Math.random();
  if(roll<.45){
   const name=rd(END_POKEMON),rawDamage=({"イベルタル":10,"ウルトラネクロズマ":20,"ムゲンダイマックスムゲンダイナ":30})[name],damage=Math.max(0,rawDamage-helperDamageReduction(p));p.hp-=damage;G.eventMon={name,target:p.n,damage};
-  await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");G.eventMon=null;pub();
+  await ev("終末の時！ "+name+"が現れた！ "+name+"の攻撃！ "+p.n+"は防御できずHPを"+damage+"失った！");if(p.bot&&damage>0)aiReact("eventHit",p,true);G.eventMon=null;pub();
  }else if(roll<.75){
   const effect=Math.random()*3|0;
   G.eventMon={name:"アルセウス",target:p.n,kind:"heal",detail:effect===0?"HPを回復":effect===1?"PPを回復":"お金を回復"};
   if(effect===0){const n=Math.min(10,99-p.hp);p.hp+=n;G.eventMon.detail="HP +"+n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のHPが"+n+"回復した！")}
   else if(effect===1){const n=Math.min(10,99-p.pp);p.pp+=n;G.eventMon.detail="PP +"+n;await ev("終末の時！ アルセウスが現れた！ "+p.n+"のPPが"+n+"回復した！")}
   else{p.mo+=10;G.eventMon.detail="お金 +10円";await ev("終末の時！ アルセウスが現れた！ "+p.n+"のお金が10円増えた！")}
-  G.eventMon=null;pub();
+  if(p.bot)aiReact("eventHeal",p,true);G.eventMon=null;pub();
  }else{
-  const n=Math.min(2,p.h.length);G.eventMon={name:"ニューラ",target:p.n,kind:"steal",detail:"カードを"+n+"枚盗む"};p.h.splice(0,n);await ev("終末の時！ ニューラが現れた！ "+p.n+"のカードを"+n+"枚盗んだ！");G.eventMon=null;pub();
+  const n=Math.min(2,p.h.length);G.eventMon={name:"ニューラ",target:p.n,kind:"steal",detail:"カードを"+n+"枚盗む"};p.h.splice(0,n);await ev("終末の時！ ニューラが現れた！ "+p.n+"のカードを"+n+"枚盗んだ！");if(p.bot)aiReact("eventSteal",p,true);G.eventMon=null;pub();
  }
  chk();
 }
@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-22";
+const BUILD="20261026-23";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"],["⚔️","いい勝負！"],["🫡","任せて！"],["👌","了解！"],["💪","がんばれ！"],["😌","ドンマイ！"],["👀","どうする？"],["🧠","作戦は？"],["🤔","考え中…"],["😵","ピンチ！"],["🆘","助けて！"],["✨","いいね！"],["💦","惜しい！"],["🏁","勝負だ！"],["☕","休憩しよう"],["👏","おつかれ！"],["🔁","もう一戦！"],["❓","大丈夫？"],["🍀","運がいいね！"],["😏","かかってこい！"],["🕊️","落ち着こう"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1092,7 +1092,7 @@ function rematchNet(){
  if(ann)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 /* --- 戦績集計（HPの増減から自動で算出）--- */
 function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
-function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl;if(-dl>=12){if(p.bot)aiReact("hurt",p);const ap=a&&a!==p.id&&G.P.find(x=>x.id===a);if(ap&&ap.bot)aiReact("hit",ap)}}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp>0&&p.hp<=15&&!s.lh){s.lh=1;if(p.bot)aiReact("lowhp",p);else{const bs=G.P.filter(x=>x.bot&&!x.d);if(bs.length)aiReact("plow",bs[Math.floor(Math.random()*bs.length)])}}if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++;if(p.bot)aiReact("ko",p,1);const kp=a&&a!==p.id&&G.P.find(x=>x.id===a);if(kp&&kp.bot)aiReact("kill",kp)}}}
+function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl;if(-dl>=12){if(p.bot)aiReact("hurt",p);const ap=a&&a!==p.id&&G.P.find(x=>x.id===a);if(ap&&ap.bot)aiReact("hit",ap)}if(-dl>=20&&p.bot)aiReact("bigHit",p);}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp>0&&p.hp<=15&&!s.lh){s.lh=1;if(p.bot)aiReact("lowhp",p);else{const bs=G.P.filter(x=>x.bot&&!x.d);if(bs.length)aiReact("plow",bs[Math.floor(Math.random()*bs.length)])}}if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++;if(p.bot)aiReact("ko",p,1);const kp=a&&a!==p.id&&G.P.find(x=>x.id===a);if(kp&&kp.bot)aiReact("kill",kp)}}}
 function resultHtml(me){
  if(G.lost)return "ホストとの通信が切れたため、対戦を終了しました。";
  let h=G.w>=0?esc(G.P[G.w].n)+" の勝利！":"引き分け";
@@ -1386,7 +1386,7 @@ function aiContinueThought(p,line,topic){
 function aiReplyOld(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{who=[aiPick(bots)];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
  who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100,st!=null?"__stamp__":tx))}
-function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
+function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4,bigHit:.8,weakHit:.65,eventHit:1,eventHeal:.75,eventSteal:1,helper:.75}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
 function aiAmbientOld(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
  const now=Date.now();
@@ -1461,7 +1461,13 @@ lowhp:["neg",["かなり苦しくなってきた","一撃もらったらおし�
 plow:["sur",["かなり追い込まれている","ここで倒し切れるか気になる","気を抜かないほうがいい"]],
 start:["pos",["さあ、始まる","全力でいく","いい勝負にしたい","誰が最後に立っているか楽しみだ"]],
 doom:["sur",["空気が変わった","ここからが本番","何が起きても不思議じゃない"]],
-shiny:["sur",["今のはすごい","運がよすぎる","まぶしい"]],gg:["pos",["いい勝負だった","対戦ありがとう","最後まで楽しめたな","また勝負しよう"]],wait:["th",["分かった、少し待つよ","急がなくていいぞ","準備ができたら教えてくれ"]],laugh:["lol",["ははっ、楽しそうだな","そんなに面白かったか？","いい笑い声だな"]]});
+shiny:["sur",["今のはすごい","運がよすぎる","まぶしい"]],
+ bigHit:["neg",["ぐっ……今の一撃は重い！","これはかなり効いた……立て直さないと","想像以上の威力だな。油断した！"]],
+ weakHit:["th",["……今の技、ずいぶん軽かったな","それだけか？ まだ余裕はあるぞ","小さなダメージだ。次の一手に備えよう"]],
+ eventHit:["sur",["イベントの攻撃まで飛んでくるのか！","これは予想外だ……終末の時は油断できないな","くっ、イベント相手でも容赦なしか……！"]],
+ eventHeal:["pos",["イベントに助けられるとは、運が向いてきたな","ありがたい回復だ。ここで立て直そう","このイベントは味方してくれたみたいだな"]],
+ eventSteal:["neg",["イベントにまで手札を奪われるのか！","くっ、ニューラにやられた……手札を立て直さないと","まさかイベントで盗まれるとはな……！"]],
+ helper:["sur",["マスターボールのポケモンまで動くのか！","あのポケモンの一撃、侮れないな","予想外の援護だ……戦況が変わりそうだ"]],gg:["pos",["いい勝負だった","対戦ありがとう","最後まで楽しめたな","また勝負しよう"]],wait:["th",["分かった、少し待つよ","急がなくていいぞ","準備ができたら教えてくれ"]],laugh:["lol",["ははっ、楽しそうだな","そんなに面白かったか？","いい笑い声だな"]]});
 // 雑談の話題 [名前, 検出, 中身, 聞き返し]
 const CVT=[
 ["loss",/負け|失敗|悔し|ミス|うまくいか|敗/,["負けても次がある","悔しさは強くなる材料になる","原因が分かれば同じ失敗は減る","落ち込むのは本気だった証拠でもある"],["次にやりたいことは何","一番悔しかったのは何"]],
