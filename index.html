@@ -1317,7 +1317,7 @@ function aiLineOld(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
  if(V&&kind==="target"){const t=G.P.filter(x=>!x.d&&x!==p).sort((a,b)=>a.hp-b.hp)[0];if(t)return V.tg(t.n);kind="other"}
  if(V&&kind==="rules")return aiPick(V.o)+aiPick(AI_TIPS)+aiPick(V.c);
  const bank=B[kind]||B.other||AI_DEFAULT.other,h=AIC.hist[p.n]||(AIC.hist[p.n]=[]),fresh=bank.filter(x=>!h.includes(x)),t=aiPick(fresh.length?fresh:bank);h.push(t);if(h.length>5)h.shift();return t}
-function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,input==="__stamp__"?aiLine(p,kind):(input!=null?aiConversationLine(p,input,kind):aiLine(p,kind)),0,-1)},delay)}
+function aiSayOld(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";addChat(p.n,input==="__stamp__"?aiLine(p,kind):(input!=null?aiConversationLine(p,input,kind):aiLine(p,kind)),0,-1)},delay)}
 function aiKind(text,st){if(st!=null&&st>=0)return STAMP_KIND[st]||"other";const t=String(text||"");
  const R=[["strategy",/作戦|戦略|読み合い|読み|次の手|先読み|どう攻め|守り方|防御策/],["deal",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組|休戦/],["event",/イベント|終末|隕石|襲撃|乱入|ハプニング|何が起き/],["card",/カード|手札|技|アイテム|ショップ|マスターボール|Zワザ|Z技|メガシンカ|防御/],["bluff",/はったり|ブラフ|駆け引き|本気か|嘘|うそ|信じるな/],["sorry",/ごめん|すまん|すみません|申し訳/],["thanks",/ありがと|感謝|サンキュ/],["bye",/ばいばい|バイバイ|またね|また明日|おつかれ|お疲れ|落ちる|ノシ/],["hello",/こんにち|こんばん|おはよ|やあ|やっほ|はじめまして|よろしく|hello|\bhi\b/i],["rude",/うざ|うるさ|きらい|嫌い|ばか|バカ|アホ|くそ|クソ|最悪|死ね/],["taunt",/弱|よわ|ざこ|雑魚|へた|下手|負け|まけ|勝つ|倒す|覚悟|余裕/],["ally",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組/],["target",/だれを|誰を|狙|ねらう|ターゲット|だれが|誰が/],["state",/HP|ＨＰ|PP|ＰＰ|お金|所持金|いくら|調子|元気|手札|何枚|残り/],["rules",/ルール|やり方|どうやって|どうすれば|コツ|アドバイス|ヒント|使い方|教えて/],["intro",/だれ|誰|名前|自己紹介|何者/],["cheer",/がんばれ|頑張れ|ファイト|応援|いけー|いっけ/],["sad",/かなしい|悲しい|つらい|辛い|疲れ|へこ|むり|無理|泣|しんどい/],["laugh",/笑|[wｗ]{2,}|草|ワロ|おもしろ|面白|ウケ/],["lucky",/運|色違い|ガチャ|レア/],["food",/すき|好き|たべ|食べ|ごはん|ご飯|おなか|お腹|おやつ|ラーメン|カレー/],["praise",/すご|つよ|強い|ナイス|うま|上手|いいね|さすが|えらい|最高|かっこ/],["q",/[？?]|ですか|かな|なに|何|どう|どれ|いつ|なんで/]];
  for(const [k,re] of R)if(re.test(t))return k;return"other"}
@@ -1501,19 +1501,23 @@ function cvTalk(p,text,kind){
  else if(/(なんで|なぜ|どうして|理由)/.test(tx)){cores=["理由はそんなに難しくない","うまく言葉にしにくい","そのほうが自然に思えた","聞かれるとちょっと考える"];qs=["そっちの考えはどう"];echo=1}
  else if(CVC[kind]&&!(T0&&/^(food|lucky|laugh|cheer)$/.test(kind)&&!(kind==="food"&&T0[0]==="food"))){[mood,cores]=CVC[kind];if(((AI_CHAT[n]||{})[kind])&&!w0&&Math.random()<.4)return aiLineOld(p,kind);echo=/^(food|lucky|sad|cheer|laugh)$/.test(kind)?1:0}
  else{const T=T0;if(T){topic=T[0];cores=T[2];qs=T[3];if(Math.random()<.15)return aiConversationLineOld(p,text,kind)}else{cores=CVO;qs=CVOQ;mood=cvPk(["th","pos","th"])}echo=1}
+ if(echo&&Math.random()<.4)cores=CVH;
  if(m.aff>=4&&Math.random()<.25){mood="pos";cores=CVF;qs=null}
- let s=cvCompose(n,mood,cores);
  const w=echo?w0:"";
+ if(echo&&!qs&&Math.random()<.18){if(w0)m.kw=w0;m.last=tx.slice(0,80);m.lastKind=kind;m.topic=topic;return cvPk(CVBC[n]||["へえ"])+(w?" "+w+"か":"")}
+ let s=cvCompose(n,mood,cores);
  if(w&&Math.random()<.55)s=cvPk(["{w}か。","{w}ね。","{w}の話か。"]).replace("{w}",w)+s;
- if(qs&&Math.random()<.35){s+=" "+cvPk(qs)+cvPk(V.q);m.ask=1}
+ if(qs&&Math.random()<.25){s+=" "+cvPk(qs)+cvPk(V.q);m.ask=1}
  if(who&&Math.random()<.2)s=who+(V.h||"")+"、"+s;
+ if(m.kw&&topic!==m.topic&&topic!=="other"&&Math.random()<.12)s=cvCompose(n,"th",["さっきの"+m.kw+"の話がまだ頭に残っている"])+"\n"+s;
+ if(w0)m.kw=w0;
  m.last=tx.slice(0,80);m.lastKind=kind;m.topic=topic;return s}
 function aiConversationLine(p,text,kind){try{return cvTalk(p,text,kind)}catch(e){return aiConversationLineOld(p,text,kind)}}
 function aiLine(p,kind){try{const r=CVR[kind];if(r&&Math.random()<.5)return cvCompose(p.n,r[0],r[1])}catch(e){}return aiLineOld(p,kind)}
 // CPU同士のやりとり（名前を呼んで賛成・反論・からかい・質問）
 const CVB={ag:["ag",["その意見には賛成","いいところに気づいている","同じことを考えていた","それは一理ある"]],dis:["dis",["それはどうだろう","少し違う気がする","そう簡単にはいかない","ちょっと楽観的に聞こえる"]],tease:["lol",["強気に聞こえる","言うことは大きい","自信がありそうに見える","口が達者に聞こえる"]],boast:["pos",["こっちも負けていない","流れはこっちに向いている","まだまだ余裕がある"]],sym:["sym",["大丈夫か気になる","無理はしないほうがいい","まだ立て直せる"]],lol:["lol",["つられて笑った","いい空気になった"]]};
 const CVBQ=["そっちの作戦は何","次の狙いはどこ","本気度はどのくらい","手札の自信はどう"];
-function cvPost(p,text,delay){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu"||g.ph==="over")return;addChat(p.n,text,0,-1)},delay)}
+function cvPost(p,text,delay){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu"||g.ph==="over")return;cvEmit(p,cvHum(p.n,text),g,0)},delay)}
 function cvChain(a,kind,depth,when){const bs=G.P.filter(x=>x.bot&&!x.d&&x!==a);if(!bs.length||depth>2)return;const b=cvPk(bs),V=cvV(b.n);
  const ty=cvPk(({deal:["ag","dis","tease"],ally:["ag","dis","tease"],strategy:["ag","dis","ask"],bluff:["tease","dis","boast"],lowhp:["sym"],laugh:["lol"]})[kind]||["ag","tease","ask","dis","boast"]);
  const ad=Math.random()<.65?a.n+(V.h||"")+"、":"",s=ty==="ask"?ad+cvPk(V.o.th)+cvPk(CVBQ)+cvPk(V.q):ad+cvCompose(b.n,CVB[ty][0],CVB[ty][1]),d=when+1500+Math.random()*1200;
@@ -1553,4 +1557,18 @@ function aiAmbient(){
   const delay=450+Math.random()*900;AIC.lastSpeaker=p.n;AIC.nextAmbient=now+delay+7000+Math.random()*6000;
   if(Math.random()<.18&&G.P.some(x=>!x.bot)){const V=cvV(p.n),me=G.P.find(x=>x.id===MY);cvMem(p.n).ask=1;cvPost(p,(me?me.n+(V.h||"")+"、":"")+cvPk(V.o.th)+cvPk(CVU)+cvPk(V.q),delay);return}
   aiSay(p,kind,delay);if(bots.length>1&&Math.random()<.6)cvChain(p,kind,0,delay)}catch(e){aiAmbientOld()}}
+
+/* ===== 人間らしさ層：相づち・言いよどみ・2通に分ける・入力時間・笑い・余韻 ===== */
+const CVBC={"グリーン":["ふん","ほう","……そうか"],"シルバー":["……","……そうか","……ふん"],"ハルカ":["へえ〜！","そうなんだ！","なるほどー","うんうん"],"ジュン":["おお","マジか","へえ、やるじゃん","ふーん"],"チェレン":["なるほど","ふむ","へえ","そうなんだ"],"セレナ":["まあ","そうなのね","あら","ふふ"],"ハウ":["へぇ〜","そっかぁ〜","ふむふむ〜","ほぉ〜"],"ホップ":["おお！","なるほどな！","へえ！","そっか！"],"ネモ":["へえ！","おお〜","なるほど！","ほうほう"]};
+const CVFL={"グリーン":"……","シルバー":"……","ハルカ":"えっと、","ジュン":"あー、","チェレン":"えーと、","セレナ":"えっと…","ハウ":"ん〜と、","ホップ":"えーっと、","ネモ":"んーと、"};
+const CVLG={"ジュン":"ｗ","ハルカ":"笑","ネモ":"笑","ホップ":"ｗ"};
+const CVH=["ちょっと分かる","それ、地味に気になる","聞いていたら試したくなった","想像したら笑えた","実はちょっと羨ましい","そういうの、わりと好きかもしれない","急に話が広がった","今、ちょっと考え込んだ","意外とそういう人は多い","自分も似たことがあった","それはなかなか面白い展開"];
+function cvHum(n,s){s=String(s);if(s.indexOf("\n")>=0)return s;const r=Math.random();
+ if(s.length>14&&r<.2){const k=s.search(/[。！？!?](?=.)|\s(?=.{3})/);if(k>6&&k<s.length-4)return s.slice(0,k+1).trim()+"\n"+s.slice(k+1).trim()}
+ if(r>.2&&r<.33)s=(CVFL[n]||"")+s;
+ else if(r>.33&&r<.43&&CVLG[n]&&/[！ね]$/.test(s))s+=CVLG[n];
+ else if(r>.43&&r<.53&&/。$/.test(s)&&/^(シルバー|セレナ|チェレン|グリーン)$/.test(n))s=s.slice(0,-1)+"……";
+ return s}
+function cvEmit(p,t,g,ov){String(t).split("\n").forEach((u,i)=>setTimeout(()=>{if(G===g&&MODE==="cpu"&&(ov||g.ph!=="over"))addChat(p.n,u,0,-1)},i*(900+u.length*45)+Math.min(2200,u.length*45)))}
+function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu")return;if(p.d&&(kind==="state"||kind==="target"))kind="other";let t=input==="__stamp__"?aiLine(p,kind):(input!=null?aiConversationLine(p,input,kind):aiLine(p,kind));if(!/^(state|target|rules)$/.test(kind))t=cvHum(p.n,t);cvEmit(p,t,g,1)},delay)}
 </script>
