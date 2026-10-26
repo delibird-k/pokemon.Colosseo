@@ -1072,7 +1072,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261026-14";
+const BUILD="20261026-15";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
@@ -1151,7 +1151,7 @@ function renderExtras(){
  if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  if(MODE==="net"&&G.bv!==BUILD&&!S.vbw){S.vbw=1;const vb=$("netbar");vb.textContent="⚠ 相手と版が違います。タイトル画面の「最新版に更新」を押してください";vb.hidden=false;setTimeout(()=>{if(vb.textContent.startsWith("⚠ 相手"))vb.hidden=true},9000)}
  const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;if(!net&&chatOpen())$("chat").hidden=true;
- if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;AIC.nextAmbient=Date.now()+9000+Math.random()*5000;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}aiAmbient();if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
+ if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;AIC.nextAmbient=Date.now()+18000+Math.random()*8000;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}aiAmbient();if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
  if(G.ph!=="over"){S.os=0;S.aiw=0}else if(MODE==="cpu"&&!S.aiw){S.aiw=1;const wp=G.w>=0&&G.P[G.w];if(wp&&wp.bot)aiReact("win",wp,1)}
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
  if(!G.shn)S.shn=0;else if(S.shn==null)S.shn=G.shn.n;else if(G.shn.n!==S.shn){if(G.shn.n>S.shn&&G.shn.by!==MY)sfx("shiny");if(G.shn.n>S.shn&&G.shn.by===MY&&MODE==="cpu"){const bs=G.P.filter(x=>x.bot);if(bs.length)aiReact("shiny",bs[Math.floor(Math.random()*bs.length)])}S.shn=G.shn.n}
@@ -1389,7 +1389,7 @@ function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now
 function aiAmbientOld(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
  const now=Date.now();
- if(!AIC.nextAmbient){AIC.nextAmbient=now+6500+Math.random()*4000;return}
+ if(!AIC.nextAmbient){AIC.nextAmbient=now+16000+Math.random()*8000;return}
  if(now<AIC.nextAmbient||now<AIC.last)return;
  const bots=G.P.filter(p=>p.bot&&!p.d);
  if(!bots.length){AIC.nextAmbient=now+9000;return}
@@ -1518,14 +1518,14 @@ function aiLine(p,kind){try{const r=CVR[kind];if(r&&Math.random()<.5)return cvCo
 const CVB={ag:["ag",["その意見には賛成","いいところに気づいている","同じことを考えていた","それは一理ある"]],dis:["dis",["それはどうだろう","少し違う気がする","そう簡単にはいかない","ちょっと楽観的に聞こえる"]],tease:["lol",["強気に聞こえる","言うことは大きい","自信がありそうに見える","口が達者に聞こえる"]],boast:["pos",["こっちも負けていない","流れはこっちに向いている","まだまだ余裕がある"]],sym:["sym",["大丈夫か気になる","無理はしないほうがいい","まだ立て直せる"]],lol:["lol",["つられて笑った","いい空気になった"]]};
 const CVBQ=["そっちの作戦は何","次の狙いはどこ","本気度はどのくらい","手札の自信はどう"];
 function cvPost(p,text,delay){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu"||g.ph==="over")return;cvEmit(p,cvHum(p.n,text),g,0)},delay)}
-function cvChain(a,kind,depth,when){const bs=G.P.filter(x=>x.bot&&!x.d&&x!==a);if(!bs.length||depth>2)return;const b=cvPk(bs),V=cvV(b.n);
+function cvChain(a,kind,depth,when){const bs=G.P.filter(x=>x.bot&&!x.d&&x!==a);if(!bs.length||depth>0)return;const b=cvPk(bs),V=cvV(b.n);
  const ty=cvPk(({deal:["ag","dis","tease"],ally:["ag","dis","tease"],strategy:["ag","dis","ask"],bluff:["tease","dis","boast"],lowhp:["sym"],laugh:["lol"]})[kind]||["ag","tease","ask","dis","boast"]);
  const ad=Math.random()<.65?a.n+(V.h||"")+"、":"",s=ty==="ask"?ad+cvPk(V.o.th)+cvPk(CVBQ)+cvPk(V.q):ad+cvCompose(b.n,CVB[ty][0],CVB[ty][1]),d=when+1500+Math.random()*1200;
- cvPost(b,s,d);if(Math.random()<.35)setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(b,kind,depth+1,0)},d+300)}
+ cvPost(b,s,d);}
 function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{const wt=bots.map(p=>(((AI_PERSONALITY[p.n]||{}).topics||[]).includes(kind)?3:1)*(p.d?.3:1));let r=Math.random()*wt.reduce((a,b)=>a+b,0),i=0;while(i<bots.length-1&&(r-=wt[i])>0)i++;who=[bots[i]];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
  who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100+Math.min(tx.length,40)*20,st!=null?"__stamp__":tx));
- if(st==null&&bots.length>1&&Math.random()<.3){const a=who[0];setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(a,kind,1,0)},3200+Math.random()*1200)}}
+ if(st==null&&bots.length>1&&Math.random()<.12){const a=who[0];setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(a,kind,1,0)},3200+Math.random()*1200)}}
 // 戦況への実況（防御・はずれ・状態異常・手札強奪・回復・大ダメージ・様子見・ターン開始）
 const CVE={
 blk:{v:["pos",["うまく防げた","読みどおりに守れた","いいタイミングだった"]],a:["neg",["防がれた","読まれていたらしい","簡単にはいかない"]],s:["sur",["いい守りだった","今のは際どかった","見応えがあった"]]},
@@ -1550,13 +1550,13 @@ function cvEvent(t){
 function aiAmbient(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
  try{if(AIC.gid!==G){AIC.gid=G;AIC.es=G.e?G.e.s:0}else if(G.e&&G.e.s!==AIC.es){AIC.es=G.e.s;cvEvent(String(G.e.t||""))}}catch(e){}
- try{const now=Date.now();if(!AIC.nextAmbient){AIC.nextAmbient=now+6500+Math.random()*4000;return}if(now<AIC.nextAmbient||now<AIC.last)return;
+ try{const now=Date.now();if(!AIC.nextAmbient){AIC.nextAmbient=now+16000+Math.random()*8000;return}if(now<AIC.nextAmbient||now<AIC.last)return;
   const bots=G.P.filter(p=>p.bot&&!p.d);if(!bots.length){AIC.nextAmbient=now+9000;return}
   let pool=bots.filter(p=>p.n!==AIC.lastSpeaker);if(!pool.length)pool=bots;const p=cvPk(pool),persona=AI_PERSONALITY[p.n]||{topics:["strategy","card","other"]};
   let kind;if(p.hp<=15&&Math.random()<.45)kind="lowhp";else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.2)kind="target";else kind=cvPk(persona.topics);
-  const delay=450+Math.random()*900;AIC.lastSpeaker=p.n;AIC.nextAmbient=now+delay+7000+Math.random()*6000;
+  const delay=450+Math.random()*900;AIC.lastSpeaker=p.n;AIC.nextAmbient=now+delay+16000+Math.random()*10000;
   if(Math.random()<.18&&G.P.some(x=>!x.bot)){const V=cvV(p.n),me=G.P.find(x=>x.id===MY);cvMem(p.n).ask=1;cvPost(p,(me?me.n+(V.h||"")+"、":"")+cvPk(V.o.th)+cvPk(CVU)+cvPk(V.q),delay);return}
-  aiSay(p,kind,delay);if(bots.length>1&&Math.random()<.6)cvChain(p,kind,0,delay)}catch(e){aiAmbientOld()}}
+  aiSay(p,kind,delay);if(bots.length>1&&Math.random()<.18)cvChain(p,kind,0,delay)}catch(e){aiAmbientOld()}}
 
 /* ===== 人間らしさ層：相づち・言いよどみ・2通に分ける・入力時間・笑い・余韻 ===== */
 const CVBC={"グリーン":["ふん","ほう","……そうか"],"シルバー":["……","……そうか","……ふん"],"ハルカ":["へえ〜！","そうなんだ！","なるほどー","うんうん"],"ジュン":["おお","マジか","へえ、やるじゃん","ふーん"],"チェレン":["なるほど","ふむ","へえ","そうなんだ"],"セレナ":["まあ","そうなのね","あら","ふふ"],"ハウ":["へぇ〜","そっかぁ〜","ふむふむ〜","ほぉ〜"],"ホップ":["おお！","なるほどな！","へえ！","そっか！"],"ネモ":["へえ！","おお〜","なるほど！","ほうほう"]};
