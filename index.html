@@ -164,6 +164,8 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 #chat{top:0;bottom:0;right:max(0px,calc((100vw - 960px)/2));width:min(340px,36vw);height:auto;border-radius:0;border-width:0 0 0 2px;box-shadow:-3px 0 12px #0002}
 .ch-h{border-radius:0}
 @media(max-width:520px){#chat{width:max(172px,46vw);height:auto;border-radius:0}#stamps{flex-wrap:wrap;overflow-x:visible}#ctoast{max-width:70%}}
+/* 試合終了後も結果画面の上からチャットを開閉・操作できるようにする */
+#chat{z-index:12}#chatBtn{position:relative;z-index:12}
 </style><link id="siteIcon" rel="icon" type="image/png" href="./substitute.png?v=1"></head><body><main>
 <header><h1>Pokémon Colosseo</h1><span id="turnCount" style="font-size:.85rem;font-weight:700;white-space:nowrap">ターン 1</span><span id="tmr" hidden></span><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end"><button class="btn" id="chatBtn" hidden title="チャット">💬<b id="chatBadge" hidden></b></button><button class="btn" id="sndBtn" title="効果音">🔊</button><button class="btn" id="menuBtn" title="メニュー">☰</button><span id="hmenu"><button class="btn" id="shinyBtn" hidden>色違い</button><button class="btn" id="lgb">ログ</button><button class="btn" id="gameZukan">カード一覧</button><button class="btn" id="tb" title="表示テーマ">🌓</button><button class="btn" id="hb">ルール</button></span></div></header>
 <div id="play"><div class="fs" id="fs"></div>
