@@ -559,7 +559,7 @@ async function helperAction(owner,forcedHelper=null){
   const screen=wallRed(t,kind);
   const actual=Math.max(0,dmg+helperDamageBonus(owner)-reduction-screen-helperDamageReduction(t));
   t.hp=Math.max(0,t.hp-actual);hurtHelper(t,actual);
-  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);if(actual>0&&t.bot)aiReact("helper",t);if(actual>=20&&t.bot)aiReact("bigHit",t);return actual;
+  await ev(t.n+"に"+actual+"ダメージ！"+(reduction||screen?"（軽減）":""),500);if(actual>=20&&t.bot)aiReact("bigHit",t);else if(actual>0&&t.bot)aiReact("helper",t);return actual;
  }
  if(h.kind==="allPhysical"||h.kind==="allSpecial"){
   const kind=h.kind==="allPhysical"?"p":"s",dmg=rd(h.values);G.last={d:dmg,k:kind,all:1,ko:0,n:h.move};
@@ -712,7 +712,7 @@ async function act0(a,o,c,bo,bs){
   let dm=movePower;if(a.al==="burn"&&c.k==="p")dm=Math.floor(dm/2);
   dm=Math.max(0,dm-rr-screen-helperDamageReduction(t));total+=dm;
   t.hp=Math.max(0,t.hp-dm);hurtHelper(t,dm);
-  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);if(dm>0&&dm<=5&&t.bot)aiReact("weakHit",t);
+  await ev(t.n+"に "+dm+" ダメージ！"+(helperDamageBonus(a)>0?"（"+helperBonusLabel(a)+"）":"")+(rr||screen?"（軽減）":"")+(hits>1?"（"+hit+"回目/"+hits+"回）":""),650);if(c.d>0&&c.d<=5&&dm>0&&t.bot)aiReact("weakHit",t);
   if(c.cureBurn&&t.al==="burn"){t.al=null;await ev(t.n+"のやけどが治った！",500)}if(dm>0&&t.hp>0&&c.al&&(c.luckyGuaranteed||o.h.includes(C.find(x=>x.aim)?.i)||Math.random()<(c.ch??.3)))await apply(t,c.al);
  }
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
@@ -1092,7 +1092,7 @@ function rematchNet(){
  if(ann)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 /* --- 戦績集計（HPの増減から自動で算出）--- */
 function stOf(id){const m=G.stats||(G.stats={});return m[id]||(m[id]={dealt:0,taken:0,healed:0,kills:0,acts:0,l:null,k:0})}
-function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl;if(-dl>=12){if(p.bot)aiReact("hurt",p);const ap=a&&a!==p.id&&G.P.find(x=>x.id===a);if(ap&&ap.bot)aiReact("hit",ap)}if(-dl>=20&&p.bot)aiReact("bigHit",p);}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp>0&&p.hp<=15&&!s.lh){s.lh=1;if(p.bot)aiReact("lowhp",p);else{const bs=G.P.filter(x=>x.bot&&!x.d);if(bs.length)aiReact("plow",bs[Math.floor(Math.random()*bs.length)])}}if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++;if(p.bot)aiReact("ko",p,1);const kp=a&&a!==p.id&&G.P.find(x=>x.id===a);if(kp&&kp.bot)aiReact("kill",kp)}}}
+function statSync(){if(!G||G.experiment||!G.P)return;if(!G.dead)G.dead=[];const a=STAT.actor;for(const p of G.P){const s=stOf(p.id),hp=Math.max(0,p.hp);if(s.l==null){s.l=hp;continue}const dl=hp-s.l;if(dl<0){s.taken-=dl;if(a&&a!==p.id)stOf(a).dealt-=dl;if(-dl>=12){if(p.bot)aiReact(-dl>=20?"bigHit":"hurt",p);const ap=a&&a!==p.id&&G.P.find(x=>x.id===a);if(ap&&ap.bot)aiReact("hit",ap)}}else if(dl>0)s.healed+=dl;s.l=hp;if(p.hp>0&&p.hp<=15&&!s.lh){s.lh=1;if(p.bot)aiReact("lowhp",p);else{const bs=G.P.filter(x=>x.bot&&!x.d);if(bs.length)aiReact("plow",bs[Math.floor(Math.random()*bs.length)])}}if(p.hp<=0&&!s.k){s.k=1;G.dead.push(p.id);if(a&&a!==p.id)stOf(a).kills++;if(p.bot)aiReact("ko",p,1);const kp=a&&a!==p.id&&G.P.find(x=>x.id===a);if(kp&&kp.bot)aiReact("kill",kp)}}}
 function resultHtml(me){
  if(G.lost)return "ホストとの通信が切れたため、対戦を終了しました。";
  let h=G.w>=0?esc(G.P[G.w].n)+" の勝利！":"引き分け";
