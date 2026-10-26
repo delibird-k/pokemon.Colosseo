@@ -186,7 +186,7 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 <div class="ov" id="sh" hidden><div class="md"><h2 id="sht"></h2><p id="shm"></p><div class="sg" id="shg"></div><button class="btn" id="shn">やめる</button></div></div>
 <div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button><button class="btn" id="again">もう一度遊ぶ</button></div></div>
 <div id="volp" hidden><div class="vr"><button class="btn" id="muteBtn" style="flex:1"></button></div><div class="vr"><span>音量</span><input type="range" id="volG" min="0" max="300" step="5"><b id="volN"></b></div></div><div id="netbar" hidden></div><div id="ctoast" hidden></div>
-<div id="chat" hidden><div class="ch-h"><b>チャット</b><button class="btn" id="chatX">✕</button></div><div id="chatList"></div><div id="stamps"></div><div class="ch-in"><input id="chatIn" maxlength="40" placeholder="メッセージ（40文字まで）" autocomplete="off"><button class="btn pri" id="chatSend">送信</button></div></div>
+<div id="chat" hidden><div class="ch-h"><b>チャット</b><button class="btn" id="chatX">✕</button></div><div id="chatList"></div><div id="stamps"></div><div class="ch-in"><input id="chatIn" maxlength="80" placeholder="メッセージ（40文字まで）" autocomplete="off"><button class="btn pri" id="chatSend">送信</button></div></div>
 </main>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -1135,7 +1135,7 @@ setInterval(tickTimer,250);
 /* --- チャット／スタンプ --- */
 function addChat(n,t,sys,st=-1){if(!G)return;G.cs=(G.cs||0)+1;G.chat=[...(G.chat||[]),{i:G.cs,n,t,y:sys?1:0,s:st}].slice(-40);pub()}
 function hostChat(ps){if(!G)return;for(const q of ps){if(q.sameTab)continue;const c=q.presence&&q.presence.chat;if(!c||typeof c!=="object"||LASTC[q.peer]===c.s)continue;LASTC[q.peer]=c.s;const pl=G.P.find(x=>x.id===q.peer);if(!pl)continue;const now=Date.now();if(now-(LASTT[q.peer]||0)<700)continue;LASTT[q.peer]=now;const si=Number.isInteger(c.st)&&STAMPS[c.st]?c.st:-1,t=si>=0?"":String(c.t||"").replace(/[\u0000-\u001f]/g,"").slice(0,40).trim();if(si<0&&!t)continue;addChat(pl.on||pl.n,t,0,si)}}
-function sendChat(text,st){if(!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
+function sendChat(text,st){if(!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,MODE==="cpu"?80:40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
  if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st);if(MODE==="cpu")aiReply(st==null?text:STAMPS[st]?.[1]||"",st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
 $("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[1]+'</button>').join("");
 $("stamps").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(null,+b.dataset.i)};
@@ -1312,7 +1312,7 @@ const AI_DIALOGUE={
 };
 const AIC={last:0,per:{},hist:{},lastSpeaker:null,talk:{}};
 const aiPick=a=>a[Math.floor(Math.random()*a.length)];
-function aiLine(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
+function aiLineOld(p,kind){const B=AI_CHAT[p.n]||AI_DEFAULT,V=AI_VOICE[p.n];
  if(V&&kind==="state")return V.st(Math.max(0,p.hp),p.pp,p.mo);
  if(V&&kind==="target"){const t=G.P.filter(x=>!x.d&&x!==p).sort((a,b)=>a.hp-b.hp)[0];if(t)return V.tg(t.n);kind="other"}
  if(V&&kind==="rules")return aiPick(V.o)+aiPick(AI_TIPS)+aiPick(V.c);
@@ -1321,7 +1321,7 @@ function aiSay(p,kind,delay,input){const g=G;AIC.last=Date.now()+delay;AIC.per[p
 function aiKind(text,st){if(st!=null&&st>=0)return STAMP_KIND[st]||"other";const t=String(text||"");
  const R=[["strategy",/作戦|戦略|読み合い|読み|次の手|先読み|どう攻め|守り方|防御策/],["deal",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組|休戦/],["event",/イベント|終末|隕石|襲撃|乱入|ハプニング|何が起き/],["card",/カード|手札|技|アイテム|ショップ|マスターボール|Zワザ|Z技|メガシンカ|防御/],["bluff",/はったり|ブラフ|駆け引き|本気か|嘘|うそ|信じるな/],["sorry",/ごめん|すまん|すみません|申し訳/],["thanks",/ありがと|感謝|サンキュ/],["bye",/ばいばい|バイバイ|またね|また明日|おつかれ|お疲れ|落ちる|ノシ/],["hello",/こんにち|こんばん|おはよ|やあ|やっほ|はじめまして|よろしく|hello|\bhi\b/i],["rude",/うざ|うるさ|きらい|嫌い|ばか|バカ|アホ|くそ|クソ|最悪|死ね/],["taunt",/弱|よわ|ざこ|雑魚|へた|下手|負け|まけ|勝つ|倒す|覚悟|余裕/],["ally",/同盟|協力|組もう|組まない|いっしょに|一緒に|味方|手を組/],["target",/だれを|誰を|狙|ねらう|ターゲット|だれが|誰が/],["state",/HP|ＨＰ|PP|ＰＰ|お金|所持金|いくら|調子|元気|手札|何枚|残り/],["rules",/ルール|やり方|どうやって|どうすれば|コツ|アドバイス|ヒント|使い方|教えて/],["intro",/だれ|誰|名前|自己紹介|何者/],["cheer",/がんばれ|頑張れ|ファイト|応援|いけー|いっけ/],["sad",/かなしい|悲しい|つらい|辛い|疲れ|へこ|むり|無理|泣|しんどい/],["laugh",/笑|[wｗ]{2,}|草|ワロ|おもしろ|面白|ウケ/],["lucky",/運|色違い|ガチャ|レア/],["food",/すき|好き|たべ|食べ|ごはん|ご飯|おなか|お腹|おやつ|ラーメン|カレー/],["praise",/すご|つよ|強い|ナイス|うま|上手|いいね|さすが|えらい|最高|かっこ/],["q",/[？?]|ですか|かな|なに|何|どう|どれ|いつ|なんで/]];
  for(const [k,re] of R)if(re.test(t))return k;return"other"}
-function aiConversationLine(p,text,kind){
+function aiConversationLineOld(p,text,kind){
  const n=p.n,tx=String(text||"").trim(),mem=AIC.talk[n]||(AIC.talk[n]={count:0,last:"",lastKind:"",same:0,topic:""});
  const prev=mem.last;mem.count++;
  const profiles={
@@ -1382,11 +1382,11 @@ function aiContinueThought(p,line,topic){
  const tail=aiPick(follow[topic]||follow.other);
  return line.includes(tail)||line.includes("?")||line.includes("？")?line:line+" "+tail;
 }
-function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
+function aiReplyOld(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
  let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{who=[aiPick(bots)];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
  who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100,st!=null?"__stamp__":tx))}
 function aiReact(kind,p,force){if(MODE!=="cpu"||!G||!p)return;const now=Date.now(),pr={hit:.3,hurt:.3,kill:.5,lowhp:.7,plow:.7,shiny:.4}[kind]||1;if(!force){if(now<AIC.last+3500||now<(AIC.per[p.n]||0)+9000||Math.random()>pr)return}aiSay(p,kind,500+Math.random()*700)}
-function aiAmbient(){
+function aiAmbientOld(){
  if(MODE!=="cpu"||!G||G.ph!=="play")return;
  const now=Date.now();
  if(!AIC.nextAmbient){AIC.nextAmbient=now+6500+Math.random()*4000;return}
@@ -1412,4 +1412,145 @@ function aiAmbient(){
   setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play"&&!q.d)aiSay(q,rk,250+Math.random()*500)},1900+Math.random()*900);
  }
 }
+/* ===== CPU会話エンジン v2：口調×感情×話題×相手の言葉 を組み合わせて生成 ===== */
+AIC.h2={};AIC.es=0;AIC.gid=null;
+// e=断定の語尾 q=疑問の語尾 h=他人への敬称 o=感情別の出だし
+const CV={
+"グリーン":{e:["ぞ","。","ぜ"],q:["だ？","か？"],h:"",o:{pos:["ほう、","ふっ、"],neg:["ちっ、","くっ、"],sur:["ほう？ ","……ん？ "],th:["そうだな、","まあ、"],lol:["ふん、","ハッ、"],sym:["……まあ、","そうか。"],ag:["ああ、","当然だ。"],dis:["違うな。","甘い。"]}},
+"シルバー":{e:["…","。"],q:["だ？","か？"],h:"",o:{pos:["……ふん、","……悪くない、"],neg:["……チッ、","……っ、"],sur:["……！ ","……ほう、"],th:["……そうだな、","……まあ、"],lol:["……ふっ、","……フン、"],sym:["……いや、","……そうか、"],ag:["……ああ、","……そうだな、"],dis:["……違う、","……甘い、"]}},
+"ハルカ":{e:["ね！","よ！","なあ"],q:["なの？","かな？"],h:"",o:{pos:["わあ、","やったあ！ "],neg:["うーん、","あぅ、"],sur:["えっ！ ","わっ、"],th:["えっとね、","うーんと、"],lol:["あはは！ ","ふふっ、"],sym:["だいじょうぶ？ ","そっか…"],ag:["うんうん！ ","そうだよね！ "],dis:["えー、","うーん、ちょっと違うかも。"]}},
+"ジュン":{e:["ぜ！","ぞ！","よ！"],q:["だ？","なんだ？"],h:"",o:{pos:["おっ、","よっしゃ！ "],neg:["くそっ、","ちぇっ、"],sur:["うおっ！？ ","な、なんだ！？ "],th:["よし、","んー、"],lol:["ハハッ！ ","ぶはっ！ "],sym:["おい、","大丈夫か？ "],ag:["おう！ ","だよな！ "],dis:["いやいや、","違うだろ！ "]}},
+"チェレン":{e:["ね","よ","と思う"],q:["かな？","かい？"],h:"",o:{pos:["うん、","いいね。"],neg:["残念だけど、","困ったな、"],sur:["おや、","意外だな。"],th:["ふむ、","そうだね、"],lol:["ふふ、","はは、"],sym:["無理はしないで。","そうか、"],ag:["その通りだ。","同意だよ。"],dis:["少し違うかな。","それはどうだろう。"]}},
+"セレナ":{e:["わね","わ"],q:["かしら？","でしょうか？"],h:"さん",o:{pos:["まあ、","ふふ、"],neg:["あら、","困りましたわ、"],sur:["あら！ ","まあ！ "],th:["そうですわね、","ええと、"],lol:["ふふふ、","あらあら、"],sym:["大丈夫ですか？ ","そうでしたの…"],ag:["ええ、","本当にそうですわね。"],dis:["それは少し違いますわ。","あら、そうでしょうか。"]}},
+"ハウ":{e:["ね〜","よ〜","なぁ"],q:["なの〜？","かな〜？"],h:"",o:{pos:["わぁ〜、","いいね〜、"],neg:["あちゃ〜、","う〜ん、"],sur:["おっ？ ","わぁ！ "],th:["ん〜、","そうだなぁ、"],lol:["あはは〜、","ふふ〜、"],sym:["だいじょ〜ぶ？ ","そっかぁ〜、"],ag:["だよね〜、","うんうん〜、"],dis:["え〜、","ん〜、ちょっと違うかも〜、"]}},
+"ホップ":{e:["ぞ！","ぜ！","よ！"],q:["だ？","なんだ？"],h:"",o:{pos:["おう！ ","いいぞ！ "],neg:["くぅ〜、","うーん、"],sur:["おっ！？ ","えっ！ "],th:["よし、","うーん、"],lol:["あはは！ ","へへっ、"],sym:["大丈夫か？ ","そっか…"],ag:["だよな！ ","その通りだ！ "],dis:["いや、","それは違うぞ！ "]}},
+"ネモ":{e:["ね！","よ！","んだ！"],q:["なの？","かな？"],h:"",o:{pos:["わあ！ ","いいね！ "],neg:["うーん、","あー、"],sur:["えっ！ ","おお！ "],th:["んーと、","そうだなあ、"],lol:["あはは！ ","ふふっ、"],sym:["大丈夫？ ","そっか、"],ag:["だよね！ ","うんうん！ "],dis:["えー、","うーん、それはちょっと違うかも！ "]}}
+};
+const cvPk=a=>a[Math.floor(Math.random()*a.length)],cvV=n=>CV[n]||CV["ハルカ"];
+function cvUniq(n,mk){const h=AIC.h2[n]||(AIC.h2[n]=[]);let s;for(let i=0;i<6;i++){s=mk();if(!h.includes(s))break}h.push(s);if(h.length>16)h.shift();return s}
+const cvCompose=(n,mood,cores)=>{const V=cvV(n);return cvUniq(n,()=>cvPk(V.o[mood]||V.o.th)+cvPk(cores)+cvPk(V.e))};
+// 種類別の中身（語尾が付く前の言い切り形）
+const CVC={
+hello:["pos",["会えてうれしい","今日はいい勝負になりそう","調子はよさそう","顔を見たら元気が出た"]],
+bye:["sym",["また勝負したい","次に会えるのを楽しみにしている","ゆっくり休んだほうがいい"]],
+thanks:["pos",["気にしなくていい","こちらも助かった","お互いに助かった"]],
+sorry:["sym",["気にしていない","誰にでもある","もう忘れた"]],
+praise:["pos",["うれしい","悪い気はしない","もっと上を目指したくなる","そう言われると頑張れる"]],
+taunt:["dis",["その自信は買う","口だけでは勝てない","勝負で証明してもらう","言うだけならいくらでもできる"]],
+rude:["neg",["今の言い方は聞き流せない","少し言葉を選んでほしい","そんなことを言われると悲しい"]],
+laugh:["lol",["つられて笑った","おかしくて力が抜けた","こういう空気は悪くない"]],
+cheer:["pos",["元気が出た","期待には応えたい","やる気が上がった"]],
+sad:["sym",["それはつらい","無理はしないほうがいい","話してくれてよかった","ゆっくり休めば少しは楽になる"]],
+food:["pos",["食べ物の話は聞いているだけでお腹がすく","おいしいものは元気の源になる","食事は大事にしたい"]],
+lucky:["pos",["運がいいとうれしい","運も実力のうちと言われる","色違いはやっぱり見てみたい"]],
+ally:["ag",["手を組むのも悪くない","協力するなら裏切らないでほしい","利害が合えば協力できる"]],
+deal:["ag",["協力するのも一つの手","約束を守れるなら考えてもいい","最後は敵同士でも今は組める"]],
+strategy:["th",["作戦は状況で変わる","相手の動きを見てから決めたい","読み合いは深いほど面白い"]],
+card:["th",["手札の切り方で勝負が変わる","温存するか使うかが悩みどころ","カードの組み合わせを考えるのが楽しい"]],
+bluff:["dis",["はったりかどうかは行動を見れば分かる","簡単には信じない","駆け引きは嫌いじゃない"]],
+event:["sur",["何が起きるか分からないのが面白い","予想外の展開は見応えがある","イベントで流れが変わった"]]};
+// 戦況リアクション用
+const CVR=Object.assign({},CVC,{
+hit:["pos",["いい手応えだった","狙いどおりに決まった","流れがこっちに来ている"]],
+hurt:["neg",["今のは効いた","油断していた","まだ立てる","やり返したい"]],
+ko:["neg",["ここまでか","悔しいけど楽しかった","もっとやれると思っていた","次こそ生き残りたい"]],
+kill:["sym",["決めさせてもらった","これも勝負","悪く思わないでほしい"]],
+win:["pos",["最後まで楽しめた","いい勝負だった","運も味方してくれた","みんなのおかげで勝てた"]],
+lowhp:["neg",["かなり苦しくなってきた","一撃もらったらおしまいだ","ここで踏ん張らないといけない"]],
+plow:["sur",["かなり追い込まれている","ここで倒し切れるか気になる","気を抜かないほうがいい"]],
+start:["pos",["さあ、始まる","全力でいく","いい勝負にしたい","誰が最後に立っているか楽しみだ"]],
+doom:["sur",["空気が変わった","ここからが本番","何が起きても不思議じゃない"]],
+shiny:["sur",["今のはすごい","運がよすぎる","まぶしい"]]});
+// 雑談の話題 [名前, 検出, 中身, 聞き返し]
+const CVT=[
+["loss",/負け|失敗|悔し|ミス|うまくいか|敗/,["負けても次がある","悔しさは強くなる材料になる","原因が分かれば同じ失敗は減る","落ち込むのは本気だった証拠でもある"],["次にやりたいことは何","一番悔しかったのは何"]],
+["food",/食べ|ごはん|ご飯|おいし|うまい|ラーメン|カレー|腹|お腹|食事|お菓子|ケーキ|寿司|肉/,["おいしいものは元気の源になる","食べ物の好みは人それぞれ","お腹がすくと集中できない","食べながら話すと会話が弾む"],["一番好きな食べ物は何","最近食べておいしかったものは何"]],
+["music",/音楽|歌|曲|ライブ|楽器|ダンス|ギター|ピアノ/,["音楽は気分を切り替えてくれる","お気に入りの曲があると頑張れる","リズムに乗ると体も軽くなる"],["最近よく聴く曲は何","好きなジャンルは何"]],
+["school",/学校|勉強|宿題|テスト|授業|先生|仕事|会社|バイト|試験/,["少しずつ進めるのが近道になる","やるべきことは先に片づけると気が楽になる","分からないところを整理すると進みやすい","休憩を挟んだほうが長く続く"],["今一番大変なことは何","勉強や仕事のコツは何"]],
+["tired",/眠|疲れ|つかれ|休みたい|だるい|寝たい|ねむ/,["疲れたときは休んだほうがいい","寝不足だと判断が鈍る","無理を続けると長くもたない"],["最近の睡眠はどう","今日の疲れ具合はどう"]],
+["weather",/天気|晴れ|雨|雪|暑い|寒い|風|台風|梅雨/,["天気で気分は変わる","晴れた日は外に出たくなる","雨の日はゆっくり過ごすのも悪くない"],["そっちの天気はどう","好きな季節は何"]],
+["pokemon",/ポケモン|ピカチュウ|リザードン|イーブイ|ミュウ|パートナー/,["ポケモンはそれぞれ個性がある","好きなポケモンがいると戦いも楽しくなる","進化した姿を想像するのも面白い"],["一番好きなポケモンは何","最初のパートナーは何"]],
+["game",/ゲーム|遊び|暇|趣味|アプリ|スマホ|動画|アニメ|漫画|マンガ/,["夢中になれるものがあるのはいい","上達する瞬間は気持ちいい","息抜きも大事にしたい"],["最近ハマっていることは何","一番好きなジャンルは何"]],
+["friends",/友達|友だち|仲間|友情|親友|みんなで|家族|彼女|彼氏/,["仲間がいると心強い","意見が違っても話せる相手は貴重","一緒にいて楽なのが一番いい"],["仲のいい友達はどんな人","大切にしていることは何"]],
+["ambition",/目標|夢|なりたい|頑張|がんば|努力|成長|将来|未来/,["目標があると毎日が変わる","少しずつでも前に進めばいい","夢に向かう姿は応援したくなる"],["今の一番の目標は何","その夢のきっかけは何"]],
+["battle",/バトル|勝負|戦い|技|作戦|戦略|攻め|守り|強さ|強い|勝つ|対戦|読み/,["読み合いが面白い","先に動くか待つかで流れが変わる","手札の使い方が勝負を分ける","負けそうなときほど落ち着きたい"],["君の得意な戦い方は何","どんな作戦が好き"]],
+["travel",/旅行|旅|冒険|行ってみ|行きたい|観光|海|山|町|街|温泉|キャンプ/,["知らない場所は発見が多い","旅先で食べるものは特別においしい","寄り道が思わぬ思い出になる"],["次に行きたい場所はどこ","今までで一番良かった場所はどこ"]],
+["plan",/明日|今度|休み|休日|週末|今夜|夜|朝/,["予定があると毎日が楽しくなる","朝と夜では考えることが変わる","休みの日は思い切りのんびりしたい"],["今日の予定は何","休みの日の過ごし方は何"]]];
+const CVO=["それは考えたことがなかった","言われてみればそう思う","もう少し聞いてみたい","なかなかおもしろい","その考え方は嫌いじゃない","ちょっと気になる","意外な視点だった","聞いていて飽きない"];
+const CVOQ=["そう思った理由は何","その話の続きはどう","きっかけは何"];
+const CVF=["きみと話していると楽しい","いい相手に出会えた","また話したい","きみとは気が合いそうだ"];
+const CVU=["そっちの調子はどう","ここまでの手応えはどう","このゲームで好きなカードは何","最近ハマっていることは何","今日の気分はどう","ここからの作戦は何"];
+// 言葉の拾い上げ（相手の言葉を引用して返すため）
+function cvKw(t){const m=[...String(t).matchAll(/([ァ-ヶー]{2,}|[一-龠々]{2,}|[A-Za-z0-9]{2,})(?=[はがをにでともやのへかねよだ、。！？!?…~〜\s]|です|$)/g)].map(x=>x[1]);const bad=/^(今日|最近|自分|相手|本当|普通|一緒|ありがとう|ごめん|よろしく|何か|なんか|ちょっと|やっぱり)$/;const ok=m.filter(w=>w.length<=8&&!bad.test(w)&&!G.P.some(x=>x.n===w));return ok.length?ok[ok.length-1]:""}
+const cvMem=n=>AIC.talk[n]||(AIC.talk[n]={count:0,last:"",lastKind:"",same:0,topic:"",aff:0,ask:0});
+// ユーザー発言への返答（好感度・直前の質問・話題・引用を考慮）
+function cvTalk(p,text,kind){
+ const n=p.n,V=cvV(n),tx=String(text||"").trim(),m=cvMem(n),me=G.P.find(x=>x.id===MY),who=me?me.n:"",D=AI_DIALOGUE[n]||AI_DIALOGUE["ハルカ"];
+ if(kind==="state"||kind==="target"||kind==="rules")return aiLine(p,kind);
+ if(/^(praise|thanks|hello|cheer)$/.test(kind))m.aff=Math.min(5,(m.aff||0)+1);else if(kind==="rude")m.aff=Math.max(-4,(m.aff||0)-2);else if(kind==="taunt")m.aff=Math.max(-4,(m.aff||0)-.5);
+ const wasAsk=m.ask,T0=CVT.find(t=>t[1].test(tx)),w0=cvKw(tx);m.ask=0;m.count++;
+ let mood="th",cores=null,qs=null,echo=0,topic="other";
+ if(kind==="rude"&&m.aff<=-3){mood="neg";cores=["もう話すことはない","これ以上は勝負で語りたい","しばらく口をきく気になれない"]}
+ else if(kind==="intro"){m.ask=1;return D.self}
+ else if(/(好き|すき|好物|趣味|得意|苦手)/.test(tx)&&/[?？]|なに|何|ある/.test(tx)&&!T0){m.ask=1;return D.like}
+ else if(/(手加減|見逃|許して|助けて|やめて|しないで|譲って)/.test(tx)){mood="neg";cores=["それは聞けない","勝負は勝負","お願いされても手は抜けない","考えておく……かもしれない"]}
+ else if(wasAsk&&tx.length<=12&&!/[?？]/.test(tx)&&(kind==="other"||kind==="q")){mood="ag";cores=["それは知らなかった","なるほど、参考になった","いい答えだった","君らしい答えだと思う","それは意外だった","聞けてよかった"]}
+ else if(/^(うん|そう|はい|ええ|たしかに|確かに|なるほど|だよね|了解|りょ)/.test(tx)){mood="ag";cores=["わかった","同じ考えでうれしい","それなら話が早い","やっぱりそう思うか"]}
+ else if(/^(いや|ううん|違う|ちがう|やだ|だめ|無理)/.test(tx)){mood="dis";cores=["それは知らなかった","別の考えがあるらしい","理由を聞いてみたい","簡単には納得できない"]}
+ else if(/(どう思う|どう考え|どうしたら|どうすれば|どっち)/.test(tx)){cores=["状況によって変わる","簡単には言えない","自分ならまず様子を見る","やってみないと分からないところもある"];qs=["そっちの考えはどう","君ならどう"];echo=1}
+ else if(/(なんで|なぜ|どうして|理由)/.test(tx)){cores=["理由はそんなに難しくない","うまく言葉にしにくい","そのほうが自然に思えた","聞かれるとちょっと考える"];qs=["そっちの考えはどう"];echo=1}
+ else if(CVC[kind]&&!(T0&&/^(food|lucky|laugh|cheer)$/.test(kind)&&!(kind==="food"&&T0[0]==="food"))){[mood,cores]=CVC[kind];if(((AI_CHAT[n]||{})[kind])&&!w0&&Math.random()<.4)return aiLineOld(p,kind);echo=/^(food|lucky|sad|cheer|laugh)$/.test(kind)?1:0}
+ else{const T=T0;if(T){topic=T[0];cores=T[2];qs=T[3];if(Math.random()<.15)return aiConversationLineOld(p,text,kind)}else{cores=CVO;qs=CVOQ;mood=cvPk(["th","pos","th"])}echo=1}
+ if(m.aff>=4&&Math.random()<.25){mood="pos";cores=CVF;qs=null}
+ let s=cvCompose(n,mood,cores);
+ const w=echo?w0:"";
+ if(w&&Math.random()<.55)s=cvPk(["{w}か。","{w}ね。","{w}の話か。"]).replace("{w}",w)+s;
+ if(qs&&Math.random()<.35){s+=" "+cvPk(qs)+cvPk(V.q);m.ask=1}
+ if(who&&Math.random()<.2)s=who+(V.h||"")+"、"+s;
+ m.last=tx.slice(0,80);m.lastKind=kind;m.topic=topic;return s}
+function aiConversationLine(p,text,kind){try{return cvTalk(p,text,kind)}catch(e){return aiConversationLineOld(p,text,kind)}}
+function aiLine(p,kind){try{const r=CVR[kind];if(r&&Math.random()<.5)return cvCompose(p.n,r[0],r[1])}catch(e){}return aiLineOld(p,kind)}
+// CPU同士のやりとり（名前を呼んで賛成・反論・からかい・質問）
+const CVB={ag:["ag",["その意見には賛成","いいところに気づいている","同じことを考えていた","それは一理ある"]],dis:["dis",["それはどうだろう","少し違う気がする","そう簡単にはいかない","ちょっと楽観的に聞こえる"]],tease:["lol",["強気に聞こえる","言うことは大きい","自信がありそうに見える","口が達者に聞こえる"]],boast:["pos",["こっちも負けていない","流れはこっちに向いている","まだまだ余裕がある"]],sym:["sym",["大丈夫か気になる","無理はしないほうがいい","まだ立て直せる"]],lol:["lol",["つられて笑った","いい空気になった"]]};
+const CVBQ=["そっちの作戦は何","次の狙いはどこ","本気度はどのくらい","手札の自信はどう"];
+function cvPost(p,text,delay){const g=G;AIC.last=Date.now()+delay;AIC.per[p.n]=Date.now()+delay;setTimeout(()=>{if(G!==g||MODE!=="cpu"||g.ph==="over")return;addChat(p.n,text,0,-1)},delay)}
+function cvChain(a,kind,depth,when){const bs=G.P.filter(x=>x.bot&&!x.d&&x!==a);if(!bs.length||depth>2)return;const b=cvPk(bs),V=cvV(b.n);
+ const ty=cvPk(({deal:["ag","dis","tease"],ally:["ag","dis","tease"],strategy:["ag","dis","ask"],bluff:["tease","dis","boast"],lowhp:["sym"],laugh:["lol"]})[kind]||["ag","tease","ask","dis","boast"]);
+ const ad=Math.random()<.65?a.n+(V.h||"")+"、":"",s=ty==="ask"?ad+cvPk(V.o.th)+cvPk(CVBQ)+cvPk(V.q):ad+cvCompose(b.n,CVB[ty][0],CVB[ty][1]),d=when+1500+Math.random()*1200;
+ cvPost(b,s,d);if(Math.random()<.35)setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(b,kind,depth+1,0)},d+300)}
+function aiReply(text,st){if(!G||MODE!=="cpu")return;const bots=G.P.filter(p=>p.bot);if(!bots.length)return;const kind=aiKind(text,st),tx=String(text||""),named=bots.filter(p=>tx.includes(p.n)),all=/みんな|全員|皆|おまえら|お前ら|諸君/.test(tx);
+ let who;if(all)who=bots.slice().sort(()=>Math.random()-.5).slice(0,Math.min(3,bots.length));else if(named.length)who=named;else{const wt=bots.map(p=>(((AI_PERSONALITY[p.n]||{}).topics||[]).includes(kind)?3:1)*(p.d?.3:1));let r=Math.random()*wt.reduce((a,b)=>a+b,0),i=0;while(i<bots.length-1&&(r-=wt[i])>0)i++;who=[bots[i]];if(bots.length>1&&Math.random()<.35)who.push(aiPick(bots.filter(p=>p!==who[0])))}
+ who.forEach((p,i)=>aiSay(p,kind,700+Math.random()*900+i*1100+Math.min(tx.length,40)*20,st!=null?"__stamp__":tx));
+ if(st==null&&bots.length>1&&Math.random()<.3){const a=who[0];setTimeout(()=>{if(G&&MODE==="cpu"&&G.ph==="play")cvChain(a,kind,1,0)},3200+Math.random()*1200)}}
+// 戦況への実況（防御・はずれ・状態異常・手札強奪・回復・大ダメージ・様子見・ターン開始）
+const CVE={
+blk:{v:["pos",["うまく防げた","読みどおりに守れた","いいタイミングだった"]],a:["neg",["防がれた","読まれていたらしい","簡単にはいかない"]],s:["sur",["いい守りだった","今のは際どかった","見応えがあった"]]},
+mis:{v:["pos",["助かった","運がよかった","危なかった"]],a:["neg",["外してしまった","運が悪かった","次は当てたい"]],s:["th",["今のは惜しかった","運の要素も大きい"]]},
+stt:{v:["neg",["体が言うことをきかない","動けないのは痛い","運が悪かった"]],a:["pos",["いい流れになった","動きを止められた"]],s:["sym",["厄介な状態になった","あれはつらそうだ"]]},
+stl:{v:["neg",["手札を減らされた","大事なカードだったのに","やられた"]],a:["pos",["いい仕事ができた","いいカードをもらった"]],s:["sur",["手札を狙うのはかなり効く","あれは痛い"]]},
+hl:{v:["pos",["だいぶ楽になった","これで立て直せる"]],s:["th",["回復されると長引く","仕留めそこねた"]]},
+big:{v:["neg",["今のは効いた","かなり痛かった","油断できない"]],a:["pos",["いい一撃だった","手応えがあった"]],s:["sur",["今のは痛そうだった","すごい威力だった"]]},
+psv:{s:["th",["様子見か","慎重に来た","何か狙っていそう"]]},
+trn:{v:["th",["さて、どう動くか考えている","次の一手を考えている","慎重にいく"]]}};
+function cvEvent(t){
+ const ps=G.P.filter(x=>t.includes(x.n)).sort((a,b)=>t.indexOf(a.n)-t.indexOf(b.n));let c=null;
+ if(/はずれた/.test(t))c="mis";else if(/盗んだ|奪った|吹き飛ばした/.test(t))c="stl";else if(/を防いだ|攻撃を防/.test(t))c="blk";else if(/こおって動けない|まひして動けない|眠っている|時間を止められた/.test(t))c="stt";else if(/様子を?み/.test(t))c="psv";else if(/回復した|吸い取った/.test(t))c="hl";else{const k=t.match(/(\d+) ?ダメージ|HPを(\d+)失/);if(k&&+(k[1]||k[2])>=20)c="big";else if(/のターン$/.test(t))c="trn"}
+ if(!c)return;const now=Date.now();if(now<AIC.last+2800)return;
+ if(Math.random()>{blk:.5,mis:.45,stl:.55,stt:.4,hl:.3,big:.4,psv:.25,trn:.1}[c])return;
+ const act=typeof STAT!=="undefined"&&STAT&&STAT.actor?G.P.find(x=>x.id===STAT.actor):null,vic=(c==="mis"?ps.find(x=>x!==act):0)||ps[0]||null;
+ const role=x=>x===vic?"v":x===act?"a":"s",pool=G.P.filter(x=>x.bot&&!x.d&&now>=(AIC.per[x.n]||0)+6000&&CVE[c][role(x)]);if(!pool.length)return;
+ const ws=pool.map(x=>({v:3,a:2,s:1})[role(x)]);let r=Math.random()*ws.reduce((a,b)=>a+b,0),i=0;while(i<pool.length-1&&(r-=ws[i])>0)i++;
+ const b=pool[i],sp=CVE[c][role(b)];let s=cvCompose(b.n,sp[0],sp[1]);const hu=[vic,act].find(x=>x&&!x.bot);
+ if(role(b)==="s"&&hu&&Math.random()<.4)s=hu.n+(cvV(b.n).h||"")+"、"+s;cvPost(b,s,600+Math.random()*800)}
+// 自発発話：戦況の実況・CPU同士の会話・プレイヤーへの問いかけ
+function aiAmbient(){
+ if(MODE!=="cpu"||!G||G.ph!=="play")return;
+ try{if(AIC.gid!==G){AIC.gid=G;AIC.es=G.e?G.e.s:0}else if(G.e&&G.e.s!==AIC.es){AIC.es=G.e.s;cvEvent(String(G.e.t||""))}}catch(e){}
+ try{const now=Date.now();if(!AIC.nextAmbient){AIC.nextAmbient=now+6500+Math.random()*4000;return}if(now<AIC.nextAmbient||now<AIC.last)return;
+  const bots=G.P.filter(p=>p.bot&&!p.d);if(!bots.length){AIC.nextAmbient=now+9000;return}
+  let pool=bots.filter(p=>p.n!==AIC.lastSpeaker);if(!pool.length)pool=bots;const p=cvPk(pool),persona=AI_PERSONALITY[p.n]||{topics:["strategy","card","other"]};
+  let kind;if(p.hp<=15&&Math.random()<.45)kind="lowhp";else if(G.P.filter(x=>!x.d&&x!==p).some(x=>x.hp<=15)&&Math.random()<.2)kind="target";else kind=cvPk(persona.topics);
+  const delay=450+Math.random()*900;AIC.lastSpeaker=p.n;AIC.nextAmbient=now+delay+7000+Math.random()*6000;
+  if(Math.random()<.18&&G.P.some(x=>!x.bot)){const V=cvV(p.n),me=G.P.find(x=>x.id===MY);cvMem(p.n).ask=1;cvPost(p,(me?me.n+(V.h||"")+"、":"")+cvPk(V.o.th)+cvPk(CVU)+cvPk(V.q),delay);return}
+  aiSay(p,kind,delay);if(bots.length>1&&Math.random()<.6)cvChain(p,kind,0,delay)}catch(e){aiAmbientOld()}}
 </script>
