@@ -193,7 +193,7 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 </main>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-const $=id=>document.getElementById(id),sl=ms=>new Promise(r=>setTimeout(r,MODE==="train"?0:ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+const $=id=>document.getElementById(id),sl=ms=>MODE==="train"?Promise.resolve():new Promise(r=>setTimeout(r,ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 let FINGER_MODE=false;try{FINGER_MODE=localStorage.getItem("colosseoFingerMode")==="on"}catch(_){};
 const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり",poison:"どく"},KL={p:"物理",s:"特殊"};
 // t: a=攻撃 b=強化 d=防御 h=回復 s=変化 m=商売  k: p物理 s特殊 any両方  d:威力/回復量  b:完全防御 bs:変化技無効 r:軽減量
@@ -442,8 +442,8 @@ function render(){
  if(G.e&&G.e.s!==S.es){S.es=G.e.s;sfxFor(G.e.t);if(typeof logPush==="function")logPush(G.e.t);const o=$("toast");o.textContent=G.e.t;o.classList.add("on");clearTimeout(S.tt);S.tt=setTimeout(()=>o.classList.remove("on"),1600)}
  if(G.ph==="over"){$("mt").textContent=G.lost?"接続が切れました":G.w===me?"YOU WIN!":me<0?"ゲーム終了":"YOU LOSE";if(!S.os){S.os=1;if(!G.lost)sfx(G.w===me?"win":"lose")}$("mx").innerHTML=resultHtml(me);$("mb").textContent="タイトルへ";$("md").classList.toggle("res",MODE==="cpu"||(MODE==="net"&&host&&!G.lost));$("md").hidden=false}
 }
-function pub(){if(G&&host)statSync();if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
-async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);pub();await sl(Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);pub();await sl(1400);if(g!==G||g.surrendered)throw 0}}
+function pub(){if(MODE==="train")return;if(G&&host)statSync();if(G&&G.experiment){for(const p of G.P){p.hp=999999;p.pp=999999;p.d=0;p.h=C.map(c=>c.i)}}render();if(R&&host)R.presence({g:G}).catch(()=>{})}
+async function ev(t,ms=1600){const g=G;if(g.surrendered)throw 0;const saved=sashSave();g.e={s:++SEQ,t};g.L=[...g.L,t].slice(-2);if(MODE!=="train")pub();await sl(MODE==="train"?0:Math.max(ms,1600));if(g!==G||g.surrendered)throw 0;for(const p of saved){const m=p.saveMsg||p.n+"はきあいのタスキでこらえた！";g.e={s:++SEQ,t:m};g.L=[...g.L,m].slice(-2);if(MODE!=="train")pub();await sl(MODE==="train"?0:1400);if(g!==G||g.surrendered)throw 0}}
 function reply(n,v){if(W&&W.n===n){const r=W.r;W=null;G.ask=null;r(v)}}
 function send(a,v){if(host)reply(a.n,v);else{S.sent=a.n;R.presence({cmd:{a:a.n,v}}).catch(()=>{});render()}}
 function ask(i,k,d){return new Promise(r=>{const n=++SEQ,lim=(MODE==="net"&&G.limit>0&&!G.P[i].bot)?G.limit:0;G.ask={to:i,k,d,n,lim};W={n,r};if(lim)setTimeout(()=>reply(n,DEF[k]),lim*1000+1500);else if(G.P[i].id!==MY)setTimeout(()=>reply(n,DEF[k]),60000);pub()})}
