@@ -30,8 +30,8 @@ const cases = [
 ];
 const results = [];
 for (const test of cases) {
-  const result = await page.evaluate(async ({ players, games }) => {
-    await runVersus(games, players, test.superMode);
+  const result = await page.evaluate(async ({ players, games, superMode }) => {
+    await runVersus(games, players, superMode);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
     const draws = Number((text.match(/勝者なし：\s*(\d+)/) || [])[1] || 0);
