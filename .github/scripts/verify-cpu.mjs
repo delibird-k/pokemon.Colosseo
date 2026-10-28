@@ -39,6 +39,10 @@ for (const test of cases) {
   }, test);
   results.push({ ...test, ...result });
   console.log(JSON.stringify(results.at(-1)));
+  if (test.superMode) {
+    const minimum = ({ 2: 90, 3: 75, 5: 55, 9: 40 })[test.players];
+    if (result.winRatePct < minimum) throw new Error(`${test.players}-player super CPU win rate ${result.winRatePct}% is below ${minimum}% target`);
+  }
   if (result.wins === null || result.games !== test.games) throw new Error("Could not parse completed battle results: " + result.text);
   if (errors.length) throw new Error("Browser runtime error: " + errors.join("\n"));
 }
