@@ -465,10 +465,10 @@ async function getDef(t,c,bo,only){
  if(t.al==="sleep"||t.al==="freeze"||t.stun>0)return null; // ねむり・こおり・時間停止中は防御カードを出せない
  if(G&&G.experiment&&t.bot)return null; // 0%!%モードではCPUは防御カードを使わない
  let ix;
- if(t.bot){const P0=c.t==="a"?c.d+bo:1;ix=[];let s=0;
+ if(t.bot){const P0=c.t==="a"?Math.max(0,c.d+bo):1;ix=[];let s=0;const lethal=P0>=t.hp,worth=P0>=8||lethal||t.hp<=15||c.ko;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
   for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&!x.shiny&&ix.filter(k=>{const y=C[t.h[k]];return y.id!=="sub"&&!y.shiny}).length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
-  if(!(ix.length&&(c.t==="s"||P0>=7)&&Math.random()<.7))ix=[]}
+  const prevented=ix.length?Math.min(P0,s):0;const save=lethal&&prevented>=P0;const spend=ix.reduce((n,j)=>n+((C[t.h[j]].id==="sub"||C[t.h[j]].shiny)?0:1),0);if(!ix.length||!worth||(!save&&P0-prevented<4)||(!save&&spend>0&&t.pp<=2)||Math.random()>(save?.96:.78))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
  ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id))&&!(c.noSub&&C[t.h[j]].id==="sub"));
  if(!ix.length)return null;
@@ -495,7 +495,7 @@ async function market(a,o,c){
   a[from]=vals[from]-amount;a[to]=vals[to]+amount;return ev(a.n+"は"+names[from]+" "+amount+"を"+names[to]+" "+amount+"に両替した！");
  }
  if(c.id==="shop"){const op=[];while(op.length<4){const x=pick();if(C[x].t!=="m")op.push(x)}
-  let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{i=op.findIndex(x=>C[x].t==="a"&&a.mo>=pr(C[x]));if(i<0)i=op.findIndex(x=>(C[x].t==="h"||C[x].t==="d")&&a.mo>=pr(C[x]))}
+  let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{const value=x=>{const z=C[x];if(!z||a.mo<pr(z))return -999;if(z.t==="a")return Math.max(0,z.d||0)+(z.ko?25:0)+(z.all?5:0)+(z.al?4:0);if(z.t==="h")return z.cure&&a.al?22:z.pp?Math.max(0,7-a.pp)*2:Math.max(0,35-a.hp)*.7;if(z.t==="d")return a.hp<20?8+(z.r||0):2+(z.r||0)*.3;if(z.t==="b")return 3+(z.d||0)*.4;return 0};const ranked=op.map((x,j)=>({j,v:value(x)})).sort((a,b)=>b.v-a.v);i=ranked.length&&ranked[0].v>0?ranked[0].j:-1}
   i=Number(i);if(!(i>=0&&i<4)||a.mo<pr(C[op[i]]))return ev(a.n+"は何も買わなかった");
   const x=C[op[i]];if(a.h.length>=99)return ev(a.n+"の手札は99枚でいっぱいだ！");a.mo-=pr(x);addCard(a,x.i);return ev(a.n+"は"+x.n+"を買った！（-¥"+pr(x)+"）")}
  let i;if(!a.bot)i=await ask(ai,"sell",{});else i=["b","s","d","h","a"].map(t=>a.h.findIndex(k=>C[k].t===t&&!C[k].keep)).find(j=>j>=0);
@@ -732,7 +732,7 @@ async function runTraining(total,count){if(TRAIN_RUNNING)return;TRAIN_RUNNING=tr
  }catch(e){$("trainResults").textContent="学習中にエラーが発生しました。完了した試合の学習データは保存済みです。"+String(e)}finally{TRAIN_RUNNING=false;MODE="";G=null;W=null;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainConfig").hidden=false;$("trainProgress").textContent=(TRAIN_STOP?"停止しました。":"学習完了！")+" 今回 "+done+"試合";$("trainResults").textContent=trainingSummary();$("trainIntro").textContent="学習データはこのブラウザに保存され、通常のCPU戦の攻撃カード選択に反映されます。";$("ti").hidden=true;$("trainHud").hidden=false}}
 function bot(p,i){
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0||c.shiny)&&!(c.mimic&&!G.last)),ix=c=>p.h.indexOf(c.i);
- const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),T=alive[Math.floor(Math.random()*alive.length)],tg=G.P.indexOf(T);
+ const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),targetScore=q=>(q.hp<=12?45:q.hp<=20?30:q.hp<=35?18:0)+(q.al?5:0)+(q.helper&&!q.helper.dead?8:0)+(q.mo>=10?3:0)+(q.pp>=8?2:0)+(q.h.length>=12?3:0),ranked=alive.slice().sort((a,b)=>targetScore(b)-targetScore(a)),T=ranked.length?(Math.random()<.72?ranked[0]:ranked[Math.floor(Math.random()*ranked.length)]):null,tg=G.P.indexOf(T);
  const sts=has("s").filter(x=>(p.pp>0||x.shiny)&&!T.al),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&(p.pp>0||x.shiny)&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
  if(masters.length&&Math.random()<.5)c=masters[0];
  else if(screens.length&&Math.random()<.35)c=rd(screens);
