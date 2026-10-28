@@ -8,16 +8,30 @@ page.on("pageerror", e => errors.push(String(e)));
 await page.goto("http://127.0.0.1:4173/index.html", { waitUntil: "domcontentloaded" });
 await page.waitForFunction(() => typeof runVersus === "function" && typeof bpSuperFor === "function", null, { timeout: 30000 });
 
+// Exercise the real title-screen flow before running battles.
+await page.evaluate(() => document.getElementById("bc").click());
+const countButtons = await page.locator("#cpuCounts button").count();
+if (countButtons !== 8) throw new Error("Expected 8 player-count buttons, got " + countButtons);
+await page.locator("#cpuCounts button").first().click();
+const selectorText = await page.locator("#cpuStrengthHud").innerText();
+if (!selectorText.includes("学習前のCPU") || !selectorText.includes("学習後の最強CPU")) {
+  throw new Error("Strength selector is missing an option: " + selectorText);
+}
+await page.locator("#cpuStrengthCancel").click();
+const selectorClosed = await page.locator("#cpuStrengthHud").evaluate(el => el.hidden);
+if (!selectorClosed) throw new Error("Strength selector did not close correctly.");
+
 const cases = [
-  { players: 2, games: 5000 },
-  { players: 3, games: 1000 },
-  { players: 5, games: 1000 },
-  { players: 9, games: 1000 },
+  { players: 2, games: 5000, superMode: false }, // learned profile baseline
+  { players: 2, games: 5000, superMode: true },
+  { players: 3, games: 1000, superMode: true },
+  { players: 5, games: 1000, superMode: true },
+  { players: 9, games: 1000, superMode: true },
 ];
 const results = [];
 for (const test of cases) {
   const result = await page.evaluate(async ({ players, games }) => {
-    await runVersus(games, players, true);
+    await runVersus(games, players, test.superMode);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
     const draws = Number((text.match(/勝者なし：\s*(\d+)/) || [])[1] || 0);
