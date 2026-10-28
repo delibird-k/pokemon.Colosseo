@@ -187,7 +187,7 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 </div></div>
 <div class="ov" id="sh" hidden><div class="md"><h2 id="sht"></h2><p id="shm"></p><div class="sg" id="shg"></div><button class="btn" id="shn">やめる</button></div></div>
 <div class="ov" id="md" hidden><div class="md"><h2 id="mt"></h2><p id="mx"></p><button class="btn pri" id="mb">閉じる</button><button class="btn" id="again">もう一度遊ぶ</button></div></div>
-<div class="ov" id="trainHud" hidden><div class="md"><h2>CPU自動学習</h2><p id="trainIntro">CPU同士を自動対戦させ、勝敗に応じてカード選択の重みを更新します。学習データはこのブラウザに保存され、通常のCPU戦にも反映されます。</p><div id="trainConfig"><label for="trainGames" style="display:block;margin:8px 0 4px">学習する試合数</label><select class="in" id="trainGames"><option value="10">10試合（動作確認向け）</option><option value="50">50試合</option><option value="100" selected>100試合</option><option value="300">300試合</option><option value="1000">1000試合</option><option value="3000">3000試合</option><option value="5000">5000試合</option><option value="10000">10000試合</option><option value="30000">30000試合</option><option value="50000">50000試合</option><option value="100000">100000試合</option></select><label for="trainPlayers" style="display:block;margin:8px 0 4px">1試合のCPU人数</label><select class="in" id="trainPlayers"><option value="2">2人</option><option value="3">3人</option><option value="4" selected>4人</option><option value="6">6人</option><option value="9">9人</option></select><button class="btn pri w" id="trainStart">学習開始</button><button class="btn w" id="trainVs">強さ検証（学習済み vs 未学習）</button></div><p id="trainProgress" aria-live="polite">学習済み試合：0</p><p id="trainResults"></p><div class="sg"><button class="btn" id="trainStop" hidden>現在の試合後に停止</button><button class="btn" id="trainClose">閉じる</button></div></div></div>
+<div class="ov" id="trainHud" hidden><div class="md"><h2>CPU自動学習</h2><p id="trainIntro">学習済みCPUと未学習CPUを自動対戦させ、勝率が上がるように狙い方・アイテムの使い方を調整します。内蔵の学習データから始まり、ここでの追加学習はこのブラウザに保存され、通常のCPU戦にも反映されます。1世代は約3,000〜6,000試合なので、3,000試合以上を推奨します。</p><div id="trainConfig"><label for="trainGames" style="display:block;margin:8px 0 4px">学習する試合数</label><select class="in" id="trainGames"><option value="1000">1000試合（強さ検証向け）</option><option value="3000" selected>3000試合</option><option value="10000">10000試合</option><option value="30000">30000試合</option><option value="100000">100000試合</option></select><label for="trainPlayers" style="display:block;margin:8px 0 4px">1試合のCPU人数</label><select class="in" id="trainPlayers"><option value="2">2人</option><option value="3">3人</option><option value="4" selected>4人</option><option value="6">6人</option><option value="9">9人</option></select><button class="btn pri w" id="trainStart">学習開始</button><button class="btn w" id="trainVs">強さ検証（学習済み vs 未学習）</button><button class="btn w" id="trainReset">追加学習をリセット</button></div><p id="trainProgress" aria-live="polite">学習済み試合：0</p><p id="trainResults"></p><div class="sg"><button class="btn" id="trainStop" hidden>現在の試合後に停止</button><button class="btn" id="trainClose">閉じる</button></div></div></div>
 <div id="volp" hidden><div class="vr"><button class="btn" id="muteBtn" style="flex:1"></button></div><div class="vr"><span>音量</span><input type="range" id="volG" min="0" max="300" step="5"><b id="volN"></b></div></div><div id="netbar" hidden></div><div id="ctoast" hidden></div>
 <div id="chat" hidden><div class="ch-h"><b>チャット</b><button class="btn" id="chatX">✕</button></div><div id="chatList"></div><div id="stamps"></div><div class="ch-in"><input id="chatIn" maxlength="80" placeholder="メッセージ（40文字まで）" autocomplete="off"><button class="btn pri" id="chatSend">送信</button></div></div>
 </main>
@@ -465,10 +465,10 @@ async function getDef(t,c,bo,only){
  if(t.al==="sleep"||t.al==="freeze"||t.stun>0)return null; // ねむり・こおり・時間停止中は防御カードを出せない
  if(G&&G.experiment&&t.bot)return null; // 0%!%モードではCPUは防御カードを使わない
  let ix;
- if(t.bot){const P0=c.t==="a"?Math.max(0,c.d+bo):1;ix=[];let s=0;const lethal=P0>=t.hp,worth=P0>=8||lethal||t.hp<=15||c.ko;
+ if(t.bot){const BD=t.noLearn?BP_DEFAULT:bpFor(G.P.length);const P0=c.t==="a"?Math.max(0,c.d+bo):1;ix=[];let s=0;const lethal=P0>=t.hp,worth=P0>=BD.dWorth||lethal||t.hp<=BD.dHp||c.ko;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
   for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&!x.shiny&&ix.filter(k=>{const y=C[t.h[k]];return y.id!=="sub"&&!y.shiny}).length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
-  const prevented=ix.length?Math.min(P0,s):0;const save=lethal&&prevented>=P0;const spend=ix.reduce((n,j)=>n+((C[t.h[j]].id==="sub"||C[t.h[j]].shiny)?0:1),0);if(!ix.length||!worth||(!save&&P0-prevented<4)||(!save&&spend>0&&t.pp<=2)||Math.random()>(save?.96:.78))ix=[]}
+  const prevented=ix.length?Math.min(P0,s):0;const save=lethal&&prevented>=P0;const spend=ix.reduce((n,j)=>n+((C[t.h[j]].id==="sub"||C[t.h[j]].shiny)?0:1),0);if(!ix.length||!worth||(!save&&P0-prevented<BD.dMin)||(!save&&spend>0&&t.pp<=BD.dPP)||Math.random()>(save?BD.dSave:BD.dProb))ix=[]}
  else ix=await ask(G.P.indexOf(t),"def",{});
  ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id))&&!(c.noSub&&C[t.h[j]].id==="sub"));
  if(!ix.length)return null;
@@ -495,7 +495,7 @@ async function market(a,o,c){
   a[from]=vals[from]-amount;a[to]=vals[to]+amount;return ev(a.n+"は"+names[from]+" "+amount+"を"+names[to]+" "+amount+"に両替した！");
  }
  if(c.id==="shop"){const op=[];while(op.length<4){const x=pick();if(C[x].t!=="m")op.push(x)}
-  let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{const value=x=>{const z=C[x];if(!z||a.mo<pr(z))return -999;if(z.t==="a")return Math.max(0,z.d||0)+(z.ko?25:0)+(z.all?5:0)+(z.al?4:0);if(z.t==="h")return z.cure&&a.al?22:z.pp?Math.max(0,7-a.pp)*2:Math.max(0,35-a.hp)*.7;if(z.t==="d")return a.hp<20?8+(z.r||0):2+(z.r||0)*.3;if(z.t==="b")return 3+(z.d||0)*.4;return 0};const ranked=op.map((x,j)=>({j,v:value(x)})).sort((a,b)=>b.v-a.v);i=ranked.length&&ranked[0].v>0?ranked[0].j:-1}
+  let i;if(!a.bot)i=await ask(ai,"shop",{o:op});else{const BS=a.noLearn?BP_DEFAULT:bpFor(G.P.length);const value=x=>{const z=C[x];if(!z||a.mo<pr(z))return -999;if(z.t==="a")return BS.sA*(Math.max(0,z.d||0)+(z.ko?25:0)+(z.all?5:0)+(z.al?4:0));if(z.t==="h")return BS.sH*(z.cure&&a.al?22:z.pp?Math.max(0,7-a.pp)*2:Math.max(0,35-a.hp)*.7);if(z.t==="d")return BS.sD*(a.hp<20?8+(z.r||0):2+(z.r||0)*.3);if(z.t==="b")return BS.sB*(3+(z.d||0)*.4);return 0};const ranked=op.map((x,j)=>({j,v:value(x)})).sort((a,b)=>b.v-a.v);i=ranked.length&&ranked[0].v>0?ranked[0].j:-1}
   i=Number(i);if(!(i>=0&&i<4)||a.mo<pr(C[op[i]]))return ev(a.n+"は何も買わなかった");
   const x=C[op[i]];if(a.h.length>=99)return ev(a.n+"の手札は99枚でいっぱいだ！");a.mo-=pr(x);addCard(a,x.i);return ev(a.n+"は"+x.n+"を買った！（-¥"+pr(x)+"）")}
  let i;if(!a.bot)i=await ask(ai,"sell",{});else i=["b","s","d","h","a"].map(t=>a.h.findIndex(k=>C[k].t===t&&!C[k].keep)).find(j=>j>=0);
@@ -654,7 +654,7 @@ function mewOn(){return !!(G&&G.P.some(x=>!x.d&&helperIsActive(x,"ミュウ")))}
 function rt(c){return !!(c&&(c.randomTarget||(c.t==="a"&&!c.all&&mewOn())))}
 function hurtHelper(owner,damage){const h=owner.helper;if(!h||h.dead||h.hp<=0||damage<=0)return;h.hp=Math.max(0,h.hp-damage);if(h.hp===0){h.dead=true;G.L=[...G.L,h.name+"は瀕死になった！"].slice(-2)}}
 
-async function act(a,o,c,bo,bs){await act0(a,o,c,bo,bs);await burn(a)}
+async function act(a,o,c,bo,bs){if(o&&c&&o!==a&&(c.t==="a"||c.t==="s")){(G.hitBy=G.hitBy||{})[o.id]=a.id}await act0(a,o,c,bo,bs);await burn(a)}
 async function act0(a,o,c,bo,bs){
  if(c&&c.helperMove&&!G.experiment){await ev("マスターボールのポケモンの技は通常モードでは使えない！",700);return}
  if(c&&c.helperMove){const h=MASTER_HELPERS.find(x=>x.sprite===c.helperSprite);if(h){await helperAction(a,{...h,hp:40,owner:a.id,dead:false,shiny:!!(G.experiment&&EXP_SHINY.helpers[h.name])});return}}
@@ -721,55 +721,90 @@ async function act0(a,o,c,bo,bs){
  if(total>0&&bs.some(x=>x.life)){a.hp=Math.max(0,a.hp-5);await ev(a.n+"はいのちのたまの反動で5ダメージ！",800)}
  if(total>0&&c.drain){const g=Math.min(total,99-a.hp);if(g>0){a.hp+=g;await ev(a.n+"は "+total+"ダメージ分のHPを吸い取った！ HP+"+g,700)}}
  if(total>0&&c.recoil){a.hp=Math.max(0,a.hp-c.recoil);await ev(a.n+"は反動で"+c.recoil+"ダメージを受けた！",600)}}
-const TRAIN_KEY="colosseoLearningV2";let TRAIN_DATA={games:0,wins:0,losses:0,weights:{},cardWins:{},cardUses:{},cardGames:{},cardExp:{},cardWinG:{}};try{const saved=JSON.parse(localStorage.getItem(TRAIN_KEY)||"null");if(saved&&saved.cardGames)TRAIN_DATA={...TRAIN_DATA,...saved}}catch(_){}
+const TRAIN_KEY="colosseoLearningV4";let TRAIN_DATA={games:0,bp:{},cem:{}};try{const saved=JSON.parse(localStorage.getItem(TRAIN_KEY)||"null");if(saved&&typeof saved==="object")TRAIN_DATA={...TRAIN_DATA,...saved,bp:saved.bp||{},cem:saved.cem||{}}}catch(_){}
 let TRAIN_STOP=false,TRAIN_RUNNING=false;
+const BP_DEFAULT={aD:1,aBonus:1,aStatus:1,aKo:1,aFin:1,aAoe:1,aRec:1,noise:2,tLow:1,tOther:1,tRand:.08,tHp:0,tPP:0,tHand:0,tMo:0,tHelper:0,tAl:0,tRev:0,pBonus:1,dWorth:8,dHp:15,dMin:4,dPP:2,dProb:.78,dSave:.96,sA:1,sH:1,sD:1,sB:1,pMaster:1,pCure:1,healHp:34,pHeal:1,ppLow:2,pPP:1,scrHp:30,pScr:1,pMoney:1,pSts:1};
+const BP_RANGE={aD:[.3,3],aBonus:[0,3],aStatus:[0,4],aKo:[0,3],aFin:[0,3],aAoe:[0,3],aRec:[0,3],noise:[0,6],tLow:[0,3],tOther:[0,4],tRand:[0,1],tHp:[-3,3],tPP:[-3,3],tHand:[-3,3],tMo:[-3,3],tHelper:[-3,3],tAl:[-3,3],tRev:[-3,3],pBonus:[0,1],dWorth:[0,20],dHp:[0,40],dMin:[0,12],dPP:[0,6],dProb:[0,1],dSave:[0,1],sA:[0,4],sH:[0,4],sD:[0,4],sB:[0,4],pMaster:[0,1.6],pCure:[0,1.03],healHp:[10,60],pHeal:[0,1.5],ppLow:[0,8],pPP:[0,1.5],scrHp:[0,60],pScr:[0,2],pMoney:[0,5],pSts:[0,4]};
+let BP_CUR={...BP_DEFAULT};
+function setBP(o){BP_CUR={...BP_DEFAULT};if(o)for(const k in BP_DEFAULT)if(typeof o[k]==="number"&&isFinite(o[k]))BP_CUR[k]=Math.max(BP_RANGE[k][0],Math.min(BP_RANGE[k][1],o[k]))}
+const bpPr=x=>Math.max(0,Math.min(.99,x));
+
 function saveTrainData(){try{localStorage.setItem(TRAIN_KEY,JSON.stringify(TRAIN_DATA))}catch(_){}}
 let CUR_NOLEARN=false,VERSUS=false;
-function learnWeight(id){if(CUR_NOLEARN)return 1;const g=TRAIN_DATA.cardGames[id]||0;if(!g)return 1;const P=3,ratio=((TRAIN_DATA.cardWinG[id]||0)+P)/((TRAIN_DATA.cardExp[id]||0)+P);return Math.max(.35,Math.min(3,Math.pow(ratio,1.5)))}
-function learnScale(s,id){const w=learnWeight(id);return s>=0?s*w:s/w}
-function learnNoise(){if(CUR_NOLEARN)return 2;if(MODE==="train"&&!VERSUS)return 4;return 2-1.4*Math.min(1,TRAIN_DATA.games/200)}
-function lp(p,c){return Math.max(0,Math.min(.97,p*learnWeight(c.id)))}
-function learnFinish(g){if(!g||!g.P)return;const w=g.P[g.w];TRAIN_DATA.games++;const n=g.P.length||1;for(const p of g.P){const win=!!w&&p.id===w.id;if(win)TRAIN_DATA.wins++;else TRAIN_DATA.losses++;if(!w)continue;const actions=(g.learnActions&&g.learnActions[p.id])||[];for(const id of actions){TRAIN_DATA.cardUses[id]=(TRAIN_DATA.cardUses[id]||0)+1;if(win)TRAIN_DATA.cardWins[id]=(TRAIN_DATA.cardWins[id]||0)+1}for(const id of new Set(actions)){TRAIN_DATA.cardGames[id]=(TRAIN_DATA.cardGames[id]||0)+1;TRAIN_DATA.cardExp[id]=(TRAIN_DATA.cardExp[id]||0)+1/n;if(win)TRAIN_DATA.cardWinG[id]=(TRAIN_DATA.cardWinG[id]||0)+1}}for(const id of Object.keys(TRAIN_DATA.cardGames))TRAIN_DATA.weights[id]=learnWeight(id);saveTrainData()}
-function trainingSummary(){const top=Object.entries(TRAIN_DATA.cardWins).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,n])=>{const card=C.find(x=>x.id===id);return (card?card.n:id)+"（勝利時使用 "+n+"回）"});const best=Object.keys(TRAIN_DATA.cardGames).filter(id=>TRAIN_DATA.cardGames[id]>=5).sort((a,b)=>learnWeight(b)-learnWeight(a)).slice(0,5).map(id=>{const card=C.find(x=>x.id===id);return (card?card.n:id)+"（評価 ×"+learnWeight(id).toFixed(2)+"）"});return "累計 "+TRAIN_DATA.games+"試合／勝利 "+TRAIN_DATA.wins+"人分。学習済みカード："+Object.keys(TRAIN_DATA.cardGames).length+"種類。CPUの強さ：Lv."+Math.min(10,Math.floor(TRAIN_DATA.games/30))+"/10"+(best.length?"\n高評価カード（CPUが優先して使う）：\n"+best.join("、"):"")+(top.length?"\n勝利時によく使われたカード：\n"+top.join("、"):"")}
+const BP_PRE={"2":{"aD":1.164,"aBonus":0.844,"aStatus":1.467,"aKo":1.21,"aFin":1.278,"aAoe":0.59,"aRec":1.113,"noise":3.395,"tLow":1.858,"tOther":0.395,"tRand":0.169,"tHp":-0.517,"tPP":0.762,"tHand":0.714,"tMo":-0.461,"tHelper":0.408,"tAl":-0.506,"tRev":-1.074,"pBonus":0.834,"dWorth":0.764,"dHp":36.067,"dMin":0,"dPP":0.653,"dProb":0.895,"dSave":0.827,"sA":1.209,"sH":1.19,"sD":0.532,"sB":0.933,"pMaster":0.996,"pCure":0.942,"healHp":17.493,"pHeal":1.414,"ppLow":0.736,"pPP":1.046,"scrHp":38.836,"pScr":1.676,"pMoney":0.406,"pSts":1.151},"3":{"aD":0.663,"aBonus":0.708,"aStatus":0.623,"aKo":1.49,"aFin":2.047,"aAoe":1.039,"aRec":1.1,"noise":5.184,"tLow":0.053,"tOther":0.295,"tRand":0.046,"tHp":2.058,"tPP":-0.884,"tHand":1.021,"tMo":-1.146,"tHelper":0.111,"tAl":-0.744,"tRev":-0.22,"pBonus":0.963,"dWorth":0.351,"dHp":36.779,"dMin":0,"dPP":0.4,"dProb":0.933,"dSave":0.96,"sA":0.629,"sH":1.524,"sD":0.888,"sB":0.358,"pMaster":1.049,"pCure":0.856,"healHp":30.257,"pHeal":1.338,"ppLow":4.401,"pPP":0.882,"scrHp":43.188,"pScr":0.933,"pMoney":1.393,"pSts":0.263},"4":{"aD":1.219,"aBonus":1.512,"aStatus":1.186,"aKo":1.656,"aFin":2.229,"aAoe":1.063,"aRec":1.167,"noise":4.318,"tLow":0.044,"tOther":0.213,"tRand":0.018,"tHp":2.676,"tPP":-0.585,"tHand":1.044,"tMo":-0.547,"tHelper":0.515,"tAl":-1.448,"tRev":-0.607,"pBonus":0.926,"dWorth":0.733,"dHp":36.114,"dMin":0,"dPP":1.213,"dProb":0.988,"dSave":0.794,"sA":0.94,"sH":1.191,"sD":0.931,"sB":1.157,"pMaster":1.336,"pCure":0.769,"healHp":36.362,"pHeal":1.048,"ppLow":5.449,"pPP":0.74,"scrHp":45.788,"pScr":0.836,"pMoney":1.125,"pSts":0.237},"6":{"aD":0.332,"aBonus":0.128,"aStatus":1.057,"aKo":1.005,"aFin":1.948,"aAoe":0.504,"aRec":1.221,"noise":3.931,"tLow":0.153,"tOther":0.684,"tRand":0.144,"tHp":2.774,"tPP":-0.992,"tHand":2.336,"tMo":-1.135,"tHelper":0.274,"tAl":-0.69,"tRev":-0.681,"pBonus":0.918,"dWorth":1.889,"dHp":37.18,"dMin":0,"dPP":1.024,"dProb":0.984,"dSave":0.968,"sA":0.541,"sH":0.625,"sD":1.559,"sB":0.829,"pMaster":1.119,"pCure":0.943,"healHp":40.202,"pHeal":1.314,"ppLow":5.12,"pPP":0.853,"scrHp":37.304,"pScr":1.019,"pMoney":1.492,"pSts":0.177},"9":{"aD":0.62,"aBonus":1.23,"aStatus":0.858,"aKo":1.558,"aFin":2.069,"aAoe":1.109,"aRec":1.329,"noise":3.191,"tLow":0.069,"tOther":0.354,"tRand":0.147,"tHp":2.441,"tPP":1.194,"tHand":0.665,"tMo":0.565,"tHelper":0.619,"tAl":-0.504,"tRev":-0.7,"pBonus":0.802,"dWorth":0.863,"dHp":38.887,"dMin":0,"dPP":0.469,"dProb":0.958,"dSave":0.901,"sA":1.039,"sH":0.632,"sD":0.653,"sB":0.979,"pMaster":0.898,"pCure":0.918,"healHp":35.096,"pHeal":1.467,"ppLow":4.472,"pPP":0.957,"scrHp":32.579,"pScr":1.009,"pMoney":1.399,"pSts":0.375}};
+const BP_KEYS=Object.keys(BP_DEFAULT);
+let BP_OVERRIDE=null;
+const bpClamp=(k,x)=>Math.max(BP_RANGE[k][0],Math.min(BP_RANGE[k][1],x));
+function bpMerge(o){const r={...BP_DEFAULT};if(o)for(const k of BP_KEYS)if(typeof o[k]==="number"&&isFinite(o[k]))r[k]=bpClamp(k,o[k]);return r}
+function bpBase(n){const lr=TRAIN_DATA.bp||{},tbl={...BP_PRE,...lr};let key=tbl[n]?n:null;if(key==null){const ks=Object.keys(tbl).map(Number).filter(k=>n<=2?k===2:k>=3).sort((a,b)=>Math.abs(a-n)-Math.abs(b-n)||a-b);key=ks.length?ks[0]:null}if(key==null)return{...BP_DEFAULT};return bpMerge({...(BP_PRE[key]||{}),...(lr[key]||{})})}
+function bpFor(n){return BP_OVERRIDE||bpBase(n)}
+const bpGauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const TRAIN_NAMES=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];
+async function trainGame(count,bp){const pool=TRAIN_NAMES.slice().sort(()=>Math.random()-.5);const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"tr"+i,1);p.noLearn=true;return p});const k=Math.random()*count|0;P[k].noLearn=false;BP_OVERRIDE=bp;G=newGame(P,50);G.learnActions={};LOGALL.length=0;await loop();const w=G.P[G.w];return w&&!w.noLearn?1:0}
+function cemInit(count){const st=TRAIN_DATA.cem&&TRAIN_DATA.cem[count];if(st&&st.mean&&st.sd){const sd={};for(const k of BP_KEYS)sd[k]=Math.max((BP_RANGE[k][1]-BP_RANGE[k][0])*.015,+st.sd[k]||0);return{mean:bpMerge(st.mean),sd,gen:st.gen||0,hist:Array.isArray(st.hist)?st.hist:[]}}
+ const sd={};for(const k of BP_KEYS)sd[k]=(BP_RANGE[k][1]-BP_RANGE[k][0])*.07;return{mean:bpBase(count),sd,gen:0,hist:[]}}
+function trainingSummary(count){const lines=[];const own=Object.keys(TRAIN_DATA.cem||{}).map(Number).sort((a,b)=>a-b);
+ lines.push("累計 "+TRAIN_DATA.games+" 試合の自動対戦で学習。基本のCPU（未学習）と比べて強くなるように、狙い方やアイテムの使い方を調整します。");
+ lines.push("内蔵の学習済みデータ："+Object.keys(BP_PRE).join("・")+"人戦用。");
+ for(const n of own){const st=TRAIN_DATA.cem[n];const h=(st.hist||[]).slice(-5);const r=h.length?h.reduce((s,x)=>s+x.rate,0)/h.length:null;lines.push(n+"人戦：追加学習 "+(st.gen||0)+"世代"+(r==null?"":"／直近の推定勝率 "+(r*100).toFixed(1)+"%（互角 "+(100/n).toFixed(1)+"%）"))}
+ if(count){const b=bpBase(count),t=[];if(b.tHp>.5)t.push("HPが高い相手を優先して狙う");else if(b.tHp<-.5)t.push("HPが低い相手を優先して狙う");if(b.tLow<.4)t.push("瀕死の相手への集中攻撃はしない");if(b.tHand>.5)t.push("手札が多い相手を警戒");if(b.tMo<-.5)t.push("お金持ちを避け、貧乏な相手を狙う");else if(b.tMo>.5)t.push("お金持ちの相手を狙う");if(b.pMoney>1.15)t.push("ショップ・売るを積極的に使う");if(b.aFin>1.5)t.push("とどめを刺せる技を重視");if(b.dProb>.9&&b.dWorth<5)t.push("攻撃を受けたら積極的に防御カードを使う");lines.push(count+"人戦の傾向："+(t.length?t.join("、"):"基本方針どおり"))}
+ return lines.join("\n")}
 async function runVersus(total,count){
  if(TRAIN_RUNNING)return;
- if(!TRAIN_DATA.games){$("trainResults").textContent="まだ学習データがありません。先に「学習開始」で学習してください。";return}
- TRAIN_RUNNING=true;TRAIN_STOP=false;VERSUS=true;$("trainConfig").hidden=true;$("trainStop").hidden=false;$("trainClose").hidden=true;
- const names=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];let done=0,win=0,draw=0;
- const report=(fin)=>{const n=done,base=1/count,rate=n?win/n:0,z=n?(rate-base)/Math.sqrt(base*(1-base)/n):0;let v="";if(fin){v=n<30?"試合数が少ないため判定できません（30試合以上推奨）。":z>=2?"学習済みCPUは有意に強いです。":z<=-2?"学習済みCPUのほうが弱い結果です（学習が逆効果の可能性）。":"差は誤差の範囲です。もっと学習するか、試合数を増やしてください。"}
+ TRAIN_RUNNING=true;TRAIN_STOP=false;VERSUS=true;BP_OVERRIDE=null;$("trainConfig").hidden=true;$("trainStop").hidden=false;$("trainClose").hidden=true;
+ let done=0,win=0,draw=0;
+ const report=(fin)=>{const n=done,base=1/count,rate=n?win/n:0,z=n?(rate-base)/Math.sqrt(base*(1-base)/n):0;let v="";if(fin){v=n<300?"試合数が少ないため判定が不安定です（1000試合以上推奨）。":z>=2?"学習済みCPUは有意に強いです。":z<=-2?"学習済みCPUのほうが弱い結果です。":"差は誤差の範囲です。もっと学習するか、試合数を増やしてください。"}
   $("trainResults").textContent="★学習済み 1人 vs 未学習 "+(count-1)+"人\n★の勝利："+win+" / "+n+"試合（勝率 "+(rate*100).toFixed(1)+"%／互角なら "+(base*100).toFixed(1)+"%）\n勝者なし："+draw+"試合"+(fin?"\n"+v:"")};
  try{MODE="train";host=true;R=null;W=null;MY="";
   for(;done<total&&!TRAIN_STOP;done++){
-   const pool=names.slice().sort(()=>Math.random()-.5);
-   const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i%pool.length],"vs"+i,1);p.noLearn=true;return p});
+   const pool=TRAIN_NAMES.slice().sort(()=>Math.random()-.5);
+   const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"vs"+i,1);p.noLearn=true;return p});
    const k=Math.random()*count|0;P[k].noLearn=false;P[k].n="★"+P[k].n;
-   G=newGame(P,50);G.learnActions={};for(const p of G.P)G.learnActions[p.id]=[];LOGALL.length=0;pub();await loop();
+   G=newGame(P,50);G.learnActions={};LOGALL.length=0;await loop();
    const w=G.P[G.w];if(!w)draw++;else if(!w.noLearn)win++;
    if(done%25===0||done===total-1){$("trainProgress").textContent="強さ検証中："+(done+1)+" / "+total+" 試合";report(false);await new Promise(r=>setTimeout(r,0))}
   }
  }catch(e){$("trainResults").textContent="検証中にエラーが発生しました。"+String(e)}
- finally{TRAIN_RUNNING=false;VERSUS=false;CUR_NOLEARN=false;MODE="";G=null;W=null;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainConfig").hidden=false;$("trainProgress").textContent=(TRAIN_STOP?"停止しました。":"検証完了！")+" "+done+"試合";report(true);$("ti").hidden=true;$("trainHud").hidden=false}}
-async function runTraining(total,count){if(TRAIN_RUNNING)return;TRAIN_RUNNING=true;TRAIN_STOP=false;$("trainConfig").hidden=true;$("trainStop").hidden=false;$("trainClose").hidden=true;$("trainResults").textContent="学習前："+trainingSummary();let done=0;const names=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];
- try{MODE="train";host=true;R=null;W=null;MY="";for(;done<total&&!TRAIN_STOP;done++){const pool=names.slice().sort(()=>Math.random()-.5);const P=Array.from({length:count},(_,i)=>mk(pool[i%pool.length], "train"+i,1));G=newGame(P,50);G.learnActions={};for(const p of G.P)G.learnActions[p.id]=[];LOGALL.length=0;pub();await loop();learnFinish(G);if(done%25===0||done===total-1){$("trainProgress").textContent="進行状況："+(done+1)+" / "+total+" 試合";$("trainResults").textContent=trainingSummary();await new Promise(r=>setTimeout(r,0))}}
- }catch(e){$("trainResults").textContent="学習中にエラーが発生しました。完了した試合の学習データは保存済みです。"+String(e)}finally{TRAIN_RUNNING=false;CUR_NOLEARN=false;MODE="";G=null;W=null;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainConfig").hidden=false;$("trainProgress").textContent=(TRAIN_STOP?"停止しました。":"学習完了！")+" 今回 "+done+"試合";$("trainResults").textContent=trainingSummary();$("trainIntro").textContent="学習データはこのブラウザに保存され、通常のCPU戦の攻撃カード選択に反映されます。";$("ti").hidden=true;$("trainHud").hidden=false}}
-function bot(p,i){CUR_NOLEARN=!!p.noLearn;
+ finally{TRAIN_RUNNING=false;VERSUS=false;BP_OVERRIDE=null;CUR_NOLEARN=false;MODE="";G=null;W=null;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainConfig").hidden=false;$("trainProgress").textContent=(TRAIN_STOP?"停止しました。":"検証完了！")+" "+done+"試合";report(true);$("ti").hidden=true;$("trainHud").hidden=false}}
+async function runTraining(total,count){
+ if(TRAIN_RUNNING)return;TRAIN_RUNNING=true;TRAIN_STOP=false;$("trainConfig").hidden=true;$("trainStop").hidden=false;$("trainClose").hidden=true;
+ const st=cemInit(count),POP=20,ELITE=5;let done=0,saved=0;
+ try{MODE="train";host=true;R=null;W=null;MY="";
+  while(done<total&&!TRAIN_STOP){
+   const m=Math.min(300,150+st.gen*5);const cands=[];
+   for(let j=0;j<POP;j++){const c={};for(const k of BP_KEYS)c[k]=j===0?st.mean[k]:bpClamp(k,st.mean[k]+st.sd[k]*bpGauss());cands.push(c)}
+   const res=[];let before=done;
+   for(let j=0;j<POP&&!TRAIN_STOP;j++){let w=0,n=0;for(;n<m&&!TRAIN_STOP;n++){w+=await trainGame(count,cands[j]);done++;
+     if(done%20===0){$("trainProgress").textContent="学習中（"+count+"人戦）：世代 "+(st.gen+1)+"／"+done+" / "+total+" 試合";await new Promise(r=>setTimeout(r,0))}}
+    if(n<m)break;res.push({c:cands[j],w,mean:j===0})}
+   if(res.length<POP)break;
+   res.sort((a,b)=>b.w-a.w);const el=res.slice(0,ELITE),meanRes=res.find(r=>r.mean);
+   for(const k of BP_KEYS){const mu=el.reduce((s,e)=>s+e.c[k],0)/el.length,va=el.reduce((s,e)=>s+(e.c[k]-mu)**2,0)/el.length;st.mean[k]=bpClamp(k,.5*st.mean[k]+.5*mu);st.sd[k]=Math.max((BP_RANGE[k][1]-BP_RANGE[k][0])*.015,.6*st.sd[k]+.4*Math.sqrt(va))}
+   st.hist.push({gen:st.gen,rate:meanRes.w/m,m});if(st.hist.length>30)st.hist.shift();st.gen++;
+   const round=o=>{const r={};for(const k of BP_KEYS)r[k]=Math.round(o[k]*1000)/1000;return r};
+   TRAIN_DATA.bp[count]=round(st.mean);TRAIN_DATA.cem[count]={mean:round(st.mean),sd:round(st.sd),gen:st.gen,hist:st.hist};TRAIN_DATA.games+=done-before;saved=done;saveTrainData();
+   $("trainResults").textContent=trainingSummary(count);
+  }
+ }catch(e){$("trainResults").textContent="学習中にエラーが発生しました。完了した世代の学習データは保存済みです。"+String(e)}
+ finally{TRAIN_RUNNING=false;BP_OVERRIDE=null;CUR_NOLEARN=false;MODE="";G=null;W=null;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainConfig").hidden=false;$("trainProgress").textContent=(TRAIN_STOP?"停止しました。":"学習完了！")+" 今回 "+done+"試合（保存済み "+saved+"試合分）";$("trainResults").textContent=trainingSummary(count);$("trainIntro").textContent="学習データはこのブラウザに保存され、通常のCPU戦に反映されます。1世代は約3,000〜6,000試合で、途中で止めた世代は保存されません。";$("ti").hidden=true;$("trainHud").hidden=false}}
+function bot(p,i){CUR_NOLEARN=!!p.noLearn;const BP=p.noLearn?BP_DEFAULT:bpFor(G.P.length);
  const H=p.h.map(k=>C[k]),has=t=>H.filter(c=>c.t===t&&(c.t!=="a"||p.pp>0||c.shiny)&&!(c.mimic&&!G.last)),ix=c=>p.h.indexOf(c.i);
- const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),targetScore=q=>(q.hp<=12?45:q.hp<=20?30:q.hp<=35?18:0)+(q.al?5:0)+(q.helper&&!q.helper.dead?8:0)+(q.mo>=10?3:0)+(q.pp>=8?2:0)+(q.h.length>=12?3:0),ranked=alive.slice().sort((a,b)=>targetScore(b)-targetScore(a)),T=ranked.length?(Math.random()<.92?ranked[0]:ranked[Math.floor(Math.random()*ranked.length)]):null,tg=G.P.indexOf(T);
+ const alive=G.P.filter((q,j)=>j!==i&&!q.d),op=alive.slice().sort((a,b)=>a.hp-b.hp),targetScore=q=>BP.tLow*(q.hp<=12?45:q.hp<=20?30:q.hp<=35?18:0)+BP.tOther*((q.al?5:0)+(q.helper&&!q.helper.dead?8:0)+(q.mo>=10?3:0)+(q.pp>=8?2:0)+(q.h.length>=12?3:0))+BP.tHp*q.hp/10+BP.tPP*q.pp/5+BP.tHand*q.h.length/3+BP.tMo*q.mo/10+BP.tHelper*(q.helper&&!q.helper.dead?8:0)+BP.tAl*(q.al?5:0)+BP.tRev*10*((G.hitBy&&G.hitBy[p.id]===q.id)?1:0),ranked=alive.slice().sort((a,b)=>targetScore(b)-targetScore(a)),T=ranked.length?(Math.random()<1-BP.tRand?ranked[0]:ranked[Math.floor(Math.random()*ranked.length)]):null,tg=G.P.indexOf(T);
  const sts=has("s").filter(x=>(p.pp>0||x.shiny)&&!(T&&T.al)),hh=has("h").filter(x=>x.d&&p.hp<99),pc=has("h").filter(x=>x.pp&&p.pp<=6),cu=has("h").filter(x=>x.cure),masters=H.filter(x=>x.id==="masterball"),ms=has("m").filter(x=>x.id==="shop"?p.mo>=5:x.id==="exchange"?(p.mo>0&&(p.hp<30||p.pp<5)||p.hp>30&&p.pp<6||p.pp>6&&(p.hp<25||p.mo<10)):T&&T.mo>=5&&H.length>1),screens=H.filter(x=>x.wall&&(p.pp>0||x.shiny)&&(x.id==="wall"?p.reflect===0:p.lightScreen===0));let c;
  const danger=T&&targetScore(T)>=30;
- if(masters.length&&Math.random()<lp(danger?.82:.58,masters[0]))c=masters[0];
- else if(p.al&&cu.length&&Math.random()<lp(.96,cu[0]))c=cu[0];
- else if(p.hp<=34&&hh.length&&Math.random()<lp(p.hp<=18?.99:p.hp<=26?.92:.68,hh[0]))c=hh.slice().sort((a,b)=>(b.d||0)-(a.d||0))[0];
- else if(p.pp<=2&&pc.length&&Math.random()<lp(.85,pc[0]))c=pc.slice().sort((a,b)=>(b.pp||0)-(a.pp||0))[0];
- else if(screens.length&&p.hp<=30&&Math.random()<lp(.5,screens[0]))c=rd(screens);
- else if(ms.length&&Math.random()<lp(.24,ms[0]))c=rd(ms);
- else if(sts.length&&T&&Math.random()<lp(T.hp<=15?.2:.12,sts[0]))c=rd(sts);
- else if(has("a").length){const sc=x0=>{const x=ef(x0);const bonus=has("b").reduce((n,b)=>n+(b.jt?bm(b,x):(b.k===x.k||b.k==="any"&&p.hp>20)?10:0),0);const status=x.al?({paralysis:5,freeze:7,burn:4,poison:3,sleep:8,confusion:5}[x.al]||0)*(x.ch||.25):0;const ko=x.ko?(x.all?13:18)+(T&&T.hp<=20?7:0):0;const targetHp=T?T.hp:99;const finish=!x.ko&&T&&(x.d||0)>=targetHp?22:!x.ko&&T&&(x.d||0)>=targetHp-4?9:0;const aoe=x.all?Math.max(0,alive.length-1)*Math.max(0,x.d-2):0;const recoil=x.recoil&&p.hp<=x.recoil+7?x.recoil*2:0;const statusValue=x.al&&T&&T.al?0:status;const raw=(x.d||0)+bonus+statusValue+ko+finish+aoe-recoil-(p.al==="burn"&&x.k==="p"?Math.ceil((x.d||0)*.5):0);return learnScale(raw,x0.id)+Math.random()*learnNoise()};c=has("a").slice().sort((a,b)=>sc(b)-sc(a))[0]}
+ if(masters.length&&Math.random()<bpPr((danger?.82:.58)*BP.pMaster))c=masters[0];
+ else if(p.al&&cu.length&&Math.random()<bpPr(.96*BP.pCure))c=cu[0];
+ else if(p.hp<=BP.healHp&&hh.length&&Math.random()<bpPr((p.hp<=18?.99:p.hp<=26?.92:.68)*BP.pHeal))c=hh.slice().sort((a,b)=>(b.d||0)-(a.d||0))[0];
+ else if(p.pp<=BP.ppLow&&pc.length&&Math.random()<bpPr(.85*BP.pPP))c=pc.slice().sort((a,b)=>(b.pp||0)-(a.pp||0))[0];
+ else if(screens.length&&p.hp<=BP.scrHp&&Math.random()<bpPr(.5*BP.pScr))c=rd(screens);
+ else if(ms.length&&Math.random()<bpPr(.24*BP.pMoney))c=rd(ms);
+ else if(sts.length&&T&&Math.random()<bpPr((T.hp<=15?.2:.12)*BP.pSts))c=rd(sts);
+ else if(has("a").length){const sc=x0=>{const x=ef(x0);const bonus=has("b").reduce((n,b)=>n+(b.jt?bm(b,x):(b.k===x.k||b.k==="any"&&p.hp>20)?10:0),0);const status=x.al?({paralysis:5,freeze:7,burn:4,poison:3,sleep:8,confusion:5}[x.al]||0)*(x.ch||.25):0;const ko=x.ko?(x.all?13:18)+(T&&T.hp<=20?7:0):0;const targetHp=T?T.hp:99;const finish=!x.ko&&T&&(x.d||0)>=targetHp?22:!x.ko&&T&&(x.d||0)>=targetHp-4?9:0;const aoe=x.all?Math.max(0,alive.length-1)*Math.max(0,x.d-2):0;const recoil=x.recoil&&p.hp<=x.recoil+7?x.recoil*2:0;const statusValue=x.al&&T&&T.al?0:status;const raw=(x.d||0)*BP.aD+bonus*BP.aBonus+statusValue*BP.aStatus+ko*BP.aKo+finish*BP.aFin+aoe*BP.aAoe-recoil*BP.aRec-(p.al==="burn"&&x.k==="p"?Math.ceil((x.d||0)*.5):0);return raw+Math.random()*BP.noise};c=has("a").slice().sort((a,b)=>sc(b)-sc(a))[0]}
  else c=hh[0]||pc[0]||sts[0];
  if(!c)return{ps:1,ids:[Math.random()*p.h.length|0],tg};
  if(MODE==="train"&&G.learnActions&&G.learnActions[p.id])G.learnActions[p.id].push(c.id);
  const ids=[ix(c)];
- if((c.t==="a"||c.t==="s")&&!c.gift&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b)ids.push(ix(b))}
+ if((c.t==="a"||c.t==="s")&&!c.gift&&!c.mimic&&!c.metronome){const b=has("b").filter(x=>!c.ko&&!x.aim&&bm(x,c)&&(!x.life||p.hp>20)&&(c.t==="a"||x.aim)).sort((a,b)=>(b.aim?30:b.d)-(a.aim?30:a.d))[0];if(b&&Math.random()<BP.pBonus)ids.push(ix(b))}
  return{ids,tg}}
 async function turn(p,i,extra){
  STAT.actor=p.id;if(!extra)stOf(p.id).acts++;G.bd=null;G.ask=null;if(!extra){if(p.reflect>0)p.reflect--;if(p.lightScreen>0)p.lightScreen--}await ev(p.n+(extra?"の割り込み行動":"のターン"),600);if(!extra&&p.helper&&p.helper.kind==="heal"&&!p.helper.dead&&p.helper.hp>0){const stat=Math.random()<.5?"hp":"pp";const before=p[stat];p[stat]=Math.min(99,before+5);const healed=p[stat]-before;await ev("ハピナスの効果！ "+p.n+"の"+(stat==="hp"?"HP":"PP")+"が"+healed+"回復！",600)}
@@ -883,7 +918,7 @@ function makeRoomService(){
 
 let CODE="";window.addEventListener("pagehide",()=>{try{if(R&&typeof R.close==="function")R.close()}catch(_){}});
 function setFingerMode(on){FINGER_MODE=!!on;try{localStorage.setItem("colosseoFingerMode",FINGER_MODE?"on":"off")}catch(_){}$("fingerOn").classList.toggle("pri",FINGER_MODE);$("fingerOff").classList.toggle("pri",!FINGER_MODE)}$("fingerOn").onclick=()=>setFingerMode(true);$("fingerOff").onclick=()=>setFingerMode(false);setFingerMode(FINGER_MODE);
-$("trainOpen").onclick=()=>{$("ti").hidden=true;$("trainHud").hidden=false;$("trainConfig").hidden=false;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainProgress").textContent="学習済み試合："+TRAIN_DATA.games;$("trainResults").textContent=trainingSummary()};$("trainVs").onclick=()=>runVersus(Math.max(1,Math.min(100000,Number($("trainGames").value)||100)),Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)));$("trainStart").onclick=()=>runTraining(Math.max(1,Math.min(100000,Number($("trainGames").value)||100)),Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)));$("trainStop").onclick=()=>{TRAIN_STOP=true;$("trainProgress").textContent="現在の試合が終わるまで停止を待っています…"};$("trainClose").onclick=()=>{if(TRAIN_RUNNING){TRAIN_STOP=true;return}$("trainHud").hidden=true;$("ti").hidden=false;G=null;MODE=""};
+$("trainOpen").onclick=()=>{$("ti").hidden=true;$("trainHud").hidden=false;$("trainConfig").hidden=false;$("trainStop").hidden=true;$("trainClose").hidden=false;$("trainProgress").textContent="学習済み試合："+TRAIN_DATA.games;$("trainResults").textContent=trainingSummary(Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)))};$("trainReset").onclick=()=>{if(TRAIN_RUNNING)return;if(!confirm("追加学習の結果を消して、内蔵の学習済みデータに戻します。よろしいですか？"))return;TRAIN_DATA={games:0,bp:{},cem:{}};saveTrainData();$("trainProgress").textContent="学習済み試合：0";$("trainResults").textContent=trainingSummary(Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)))};$("trainVs").onclick=()=>runVersus(Math.max(1,Math.min(100000,Number($("trainGames").value)||1000)),Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)));$("trainStart").onclick=()=>runTraining(Math.max(1,Math.min(100000,Number($("trainGames").value)||100)),Math.max(2,Math.min(9,Number($("trainPlayers").value)||4)));$("trainStop").onclick=()=>{TRAIN_STOP=true;$("trainProgress").textContent="現在の試合が終わるまで停止を待っています…"};$("trainClose").onclick=()=>{if(TRAIN_RUNNING){TRAIN_STOP=true;return}$("trainHud").hidden=true;$("ti").hidden=false;G=null;MODE=""};
 $("bc").onclick=()=>{$("t1").hidden=true;$("tc").hidden=false;$("bk").hidden=false;const g=$("cpuCounts");g.innerHTML="";for(let n=2;n<=9;n++){const b=document.createElement("button");b.className="btn"+(n===CPU_COUNT?" pri":"");b.textContent=n+"人";b.onclick=()=>startCpu(n);g.appendChild(b)}};
 $("bn").onclick=()=>{R0=makeRoomService();$("t1").hidden=true;$("t2").hidden=false;$("bk").hidden=false;$("te").textContent="6桁の同じ部屋番号を2台で入力してください。接続にはインターネットが必要です。";$("bj").disabled=false};
 $("bj").onclick=async()=>{const c=$("cd").value.trim();if(!/^\d{6}$/.test(c)){$("te").textContent="6桁の数字を入力してください";return}
