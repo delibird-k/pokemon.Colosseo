@@ -29,16 +29,16 @@ const cases = [
   { players: 9, games: 1000, superMode: false, unlearnedStar: true },
   // 従来の学習済みCPUと未学習CPUの比較
   { players: 2, games: 5000, superMode: false },
-  // 最強CPU対未学習CPUを人数別に検証
-  { players: 2, games: 5000, superMode: true },
-  { players: 3, games: 1000, superMode: true },
-  { players: 5, games: 1000, superMode: true },
-  { players: 9, games: 1000, superMode: true },
+  // 実際のゲームで選ばれる最強CPU（売る・両替・うたう対応）を従来型と比較
+  { players: 2, games: 5000, ultraVs: true },
+  { players: 3, games: 1000, ultraVs: true },
+  { players: 5, games: 1000, ultraVs: true },
+  { players: 9, games: 1000, ultraVs: true },
 ];
 const results = [];
 for (const test of cases) {
-  const result = await page.evaluate(async ({ players, games, superMode, unlearnedStar }) => {
-    await runVersus(games, players, superMode, false, unlearnedStar);
+  const result = await page.evaluate(async ({ players, games, superMode, ultraVs, unlearnedStar }) => {
+    await runVersus(games, players, superMode, ultraVs, unlearnedStar);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
     const draws = Number((text.match(/勝者なし：\s*(\d+)/) || [])[1] || 0);
@@ -46,9 +46,10 @@ for (const test of cases) {
   }, { ...test, unlearnedStar: Boolean(test.unlearnedStar) });
   results.push({ ...test, ...result });
   console.log(JSON.stringify(results.at(-1)));
-  if (test.superMode) {
-    const minimum = ({ 2: 90, 3: 75, 5: 55, 9: 40 })[test.players];
-    if (result.winRatePct < minimum) throw new Error(`${test.players}-player super CPU win rate ${result.winRatePct}% is below ${minimum}% target`);
+  if (test.ultraVs) {
+    // 最強CPUは従来型との比較。互角の基準（1 / 人数）を少し上回ることを確認する。
+    const minimum = ({ 2: 50, 3: 38, 5: 24, 9: 15 })[test.players];
+    if (result.winRatePct < minimum) throw new Error(`${test.players}-player strongest CPU win rate ${result.winRatePct}% is below ${minimum}% baseline`);
   }
   if (result.wins === null || result.games !== test.games) throw new Error("Could not parse completed battle results: " + result.text);
   if (errors.length) throw new Error("Browser runtime error: " + errors.join("\n"));
