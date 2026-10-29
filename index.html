@@ -742,7 +742,7 @@ function bpFor(n){return BP_OVERRIDE||bpBase(n)}
 // 通常の学習済み設定よりも判断を徹底する、対戦用の最強CPU設定。
 const BP_SUPER={aD:3,aBonus:3,aStatus:4,aKo:3,aFin:3,aAoe:3,aRec:0,noise:0,tLow:3,tOther:4,tRand:0,tHp:-3,tPP:1,tHand:1,tMo:1,tHelper:2,tAl:2,tRev:2,dWorth:20,dHp:40,dMin:0,dPP:6,dProb:1,dSave:1,pBonus:1,pMaster:1.6,pCure:1.03,healHp:60,pHeal:1.5,ppLow:8,pPP:1.5,scrHp:60,pScr:2,pMoney:5,pSts:4};
 function bpSuperFor(n){const b=bpFor(n),r={...b};for(const [k,v] of Object.entries(BP_SUPER)){r[k]=["aD","aBonus","aStatus","aKo","aFin","aAoe","tLow","pBonus","pMaster","pHeal","pPP","pScr","pMoney"].includes(k)?Math.max(+b[k]||0,v):v}return bpMerge(r)}
-function boostSuperCpu(p){p.hp=99;p.pp=99;p.mo=99;draw(p,G.P,12)}
+function boostSuperCpu(p){/* 最強CPUも通常の初期HP・PP・所持金・手札で開始 */}
 const bpGauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
 const TRAIN_NAMES=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];
 async function trainGame(count,bp){const pool=TRAIN_NAMES.slice().sort(()=>Math.random()-.5);const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"tr"+i,1);p.noLearn=true;return p});const k=Math.random()*count|0;P[k].noLearn=false;BP_OVERRIDE=bp;G=newGame(P,50);G.learnActions={};LOGALL.length=0;await loop();const w=G.P[G.w];return w&&!w.noLearn?1:0}
@@ -765,7 +765,7 @@ async function runVersus(total,count,superMode=false){
    const pool=TRAIN_NAMES.slice().sort(()=>Math.random()-.5);
    const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"vs"+i,1);p.noLearn=true;return p});
    const k=Math.random()*count|0;P[k].noLearn=false;P[k].superAI=superMode;P[k].n="★"+P[k].n;
-   G=newGame(P,50);if(superMode)G.P.filter(p=>p.superAI).forEach(boostSuperCpu);G.learnActions={};LOGALL.length=0;await loop();
+   G=newGame(P,50);G.learnActions={};LOGALL.length=0;await loop();
    const w=G.P[G.w];if(!w)draw++;else if(!w.noLearn)win++;
    if(done%25===0||done===total-1){$("trainProgress").textContent="強さ検証中："+(done+1)+" / "+total+" 試合";report(false);await new Promise(r=>setTimeout(r,0))}
   }
@@ -851,7 +851,7 @@ async function loop(){let i=0;for(;;){if(MODE==="train"&&(G.actions||0)>=300){co
 const NAME_KEY="pokemonColosseoPlayerName";const nameInput=$("nm");try{nameInput.value=localStorage.getItem(NAME_KEY)||nameInput.value}catch(_){}nameInput.addEventListener("input",()=>{try{localStorage.setItem(NAME_KEY,nameInput.value.slice(0,8))}catch(_){}});const nm=()=>nameInput.value.trim().slice(0,8)||"プレイヤー";
 function chooseCpuStrength(count){CPU_PENDING_COUNT=Math.max(2,Math.min(9,Number(count)||2));$("tc").hidden=true;$("bk").hidden=true;$("cpuStrengthIntro").textContent=CPU_PENDING_COUNT+"人戦です。CPUの強さを選んでください。";$("cpuStrengthHud").hidden=false}
 let CPU_PENDING_COUNT=2;
-function startCpu(count=CPU_COUNT,learned=true){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let j=cpuNames.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[cpuNames[j],cpuNames[k]]=[cpuNames[k],cpuNames[j]]}for(let i=2;i<=CPU_COUNT;i++){const bot=mk(cpuNames[i-2],"bot"+i,1);bot.noLearn=!learned;bot.superAI=!!learned;P.push(bot)}$("cpuStrengthHud").hidden=true;G=newGame(P, $("endAt").value);if(learned)G.P.filter(p=>p.superAI).forEach(boostSuperCpu);LOGALL.length=0;const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;$("ti").hidden=true;$("md").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
+function startCpu(count=CPU_COUNT,learned=true){CPU_COUNT=Math.max(2,Math.min(9,Number(count)||2));W=null;MODE="cpu";MY="me";host=true;R=null;S.sent=0;S.n=0;S.sel=[];const P=[mk(nm(),"me",0)];const cpuNames=["グリーン","シルバー","ハルカ","ジュン","チェレン","セレナ","ハウ","ホップ","ネモ"];for(let j=cpuNames.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[cpuNames[j],cpuNames[k]]=[cpuNames[k],cpuNames[j]]}for(let i=2;i<=CPU_COUNT;i++){const bot=mk(cpuNames[i-2],"bot"+i,1);bot.noLearn=!learned;bot.superAI=!!learned;P.push(bot)}$("cpuStrengthHud").hidden=true;G=newGame(P, $("endAt").value);LOGALL.length=0;const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;$("ti").hidden=true;$("md").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 const lobby=()=>[...R.peers()].filter(p=>p.presence.nm).sort((a,b)=>(a.presence.t-b.presence.t)||(a.peer<b.peer?-1:1));
 function startNet(){const L=lobby().slice(0,9);if(L.length<2)return;G=newGame(L.map(p=>mk(String(p.presence.nm).slice(0,8),p.peer,0)), $("endAt").value);G.limit=Math.max(0,+$("tl").value||0);const announceEnd=G.endAt===1;if(announceEnd)G.endStarted=true;host=true;LOGALL.length=0;$("ti").hidden=true;pub();if(announceEnd)ev("終末の時が始まった！ 以後、誰かの行動後に25%の確率でイベントが発生する！").then(loop);else loop()}
 function onP(){
@@ -1152,7 +1152,7 @@ if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addE
 </script>
 <script>
 /* ===== 追加機能：効果音・チャット・持ち時間・戦績・再接続表示 ===== */
-const BUILD="20261029-1";
+const BUILD="20261029-2";
 const STAMPS=[["👋","よろしく！"],["👍","ナイス！"],["😮","やるな！"],["🙏","ありがとう"],["😅","ごめん！"],["🔥","まけないぞ"],["😡","おのれ…"],["🤝","GG"],["⏳","まって！"],["😂","ワロタ"],["⚔️","いい勝負！"],["🫡","任せて！"],["👌","了解！"],["💪","がんばれ！"],["😌","ドンマイ！"],["👀","どうする？"],["🧠","作戦は？"],["🤔","考え中…"],["😵","ピンチ！"],["🆘","助けて！"],["✨","いいね！"],["💦","惜しい！"],["🏁","勝負だ！"],["☕","休憩しよう"],["👏","おつかれ！"],["🔁","もう一戦！"],["❓","大丈夫？"],["🍀","運がいいね！"],["😏","かかってこい！"],["🕊️","落ち着こう"]];
 const STAT={actor:null},LASTC={},LASTT={},TL={n:0,end:0,beep:-1};
 /* --- カード図鑑：色違い表示ON/OFF（図鑑の見た目だけ切り替え。ゲームの抽選には影響しない）--- */
