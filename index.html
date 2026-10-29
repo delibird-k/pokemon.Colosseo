@@ -455,12 +455,12 @@ function normalizeSecret(){const s=C.find(c=>c.secret);if(!s||!G||G.experiment)r
 function chk(){if(G.surrendered)return true;normalizeSecret();G.P.forEach(satoshiFix);sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
 async function can(a){
  if(a.stun>0){a.stun--;await ev(a.n+"は時間を止められて動けない！"+(a.stun>0?"（あと"+a.stun+"ターン）":""));return false}
- if(a.al==="sleep"){if(Math.random()<.2){a.al=null;await ev(a.n+"は目を覚ました！")}else{await ev(a.n+"はぐうぐう眠っている…");return false}}
+ if(a.al==="sleep"){if(a.sl==null)a.sl=3;if(a.sl>0){a.sl--;await ev(a.n+"はぐうぐう眠っている…（あと"+a.sl+"ターン）");return false}else{a.al=null;a.sl=null;await ev(a.n+"は目を覚ました！")}}
  if(a.al==="freeze"){if(--a.fz<=0){a.al=null;await ev(a.n+"のこおりがとけた！")}else{await ev(a.n+"はこおって動けない！");return false}}
  if(a.al==="paralysis"&&Math.random()<.3){await ev(a.n+"はまひして動けない！");return false}
  return true}
 async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
-async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=3;await ev(t.n+"は"+AIL[al]+"になった！")}
+async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=3;if(al==="sleep")t.sl=3;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo,only){
  if(G&&G.unguard)return null;
  if(t.al==="sleep"||t.al==="freeze"||t.stun>0)return null; // ねむり・こおり・時間停止中は防御カードを出せない
@@ -469,7 +469,7 @@ async function getDef(t,c,bo,only){
  if(t.bot){const BD=t.ultra?ultraBP(G.P.length):t.noLearn?BP_DEFAULT:(t.superAI?bpSuperFor(G.P.length):bpFor(G.P.length));const P0=c.t==="a"?Math.max(0,c.d+bo):1;ix=[];let s=0;const lethal=P0>=t.hp,worth=P0>=BD.dWorth||lethal||t.hp<=BD.dHp||c.ko;
   const cand=t.h.map((k,j)=>[C[k],j]).filter(([x])=>x.t==="d"&&!x.wall&&(!only||only.includes(x.id))&&(c.t==="s"?x.bs||x.b:!x.k||x.k===c.k)).sort((a,b)=>(b[0].b?99:b[0].r)-(a[0].b?99:a[0].r));
   for(const [x,j] of cand){if(s>=P0)break;if(x.id!=="sub"&&!x.shiny&&ix.filter(k=>{const y=C[t.h[k]];return y.id!=="sub"&&!y.shiny}).length>=t.pp)continue;ix.push(j);s+=x.b?99:x.r}
-  const prevented=ix.length?Math.min(P0,s):0;const save=lethal&&prevented>=P0;const spend=ix.reduce((n,j)=>n+((C[t.h[j]].id==="sub"||C[t.h[j]].shiny)?0:1),0);if(!ix.length||!worth||(!save&&P0-prevented<BD.dMin)||(!save&&spend>0&&t.pp<=BD.dPP)||Math.random()>(save?BD.dSave:BD.dProb))ix=[]}
+  const prevented=ix.length?Math.min(P0,s):0;const save=lethal&&prevented>=P0;const spend=ix.reduce((n,j)=>n+((C[t.h[j]].id==="sub"||C[t.h[j]].shiny)?0:1),0);if(!ix.length||!worth||(!save&&P0-prevented<BD.dMin)||(!save&&spend>0&&t.pp<=BD.dPP)||Math.random()>(save?BD.dSave:BD.dProb))ix=[];if(c.stop){ix=[];const bk=cand.find(([x])=>x.b);if(bk&&Math.random()<.95&&(bk[0].id==="sub"||bk[0].shiny||t.pp>0))ix=[bk[1]]}}
  else ix=await ask(G.P.indexOf(t),"def",{});
  ix=[...new Set(Array.isArray(ix)?ix.map(Number):[])].filter(j=>C[t.h[j]]&&C[t.h[j]].t==="d"&&(!only||only.includes(C[t.h[j]].id))&&!(c.noSub&&C[t.h[j]].id==="sub"));
  if(!ix.length)return null;
@@ -589,10 +589,10 @@ async function helperAction(owner,forcedHelper=null){
  else if(h.kind==="dialga"){
   const ts=G.P.filter(x=>x!==owner&&!x.d&&!(x.stun>0));
   if(!ts.length)return;
-  const t=rd(ts),n=1+Math.floor(Math.random()*3),card={id:"dialga",n:"ときのほうこう",t:"s",d:0,x:"ポケモンの技"};
+  const t=rd(ts),n=1+Math.floor(Math.random()*3),card={id:"dialga",n:"ときのほうこう",t:"s",d:0,stop:1,x:"ポケモンの技"};
   G.bd={a:ownerIndex,c:0,b:[],bo:0,ds:null,tg:G.P.indexOf(t),moveName:"ディアルガ",displayCard:{...card,helperSprite:hs}};
   await ev("ディアルガのときのほうこう！ "+t.n+"の時間が止まる…",700);
-  if(await palkiaBlock(t,"ときのほうこう"))return;const guard=await getDef(t,card,0,["protect","detect"]);
+  if(await palkiaBlock(t,"ときのほうこう"))return;const guard=await getDef(t,card,0,["protect","detect","matblock","needle_guard","sub"]);
   if(guard){await ev(t.n+"は時間停止を防いだ！",600);return}
   t.stun=n;await ev(t.n+"は時間を止められた！ "+n+"ターン行動不能！");
  }
