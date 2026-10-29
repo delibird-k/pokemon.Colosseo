@@ -22,7 +22,14 @@ const selectorClosed = await page.locator("#cpuStrengthHud").evaluate(el => el.h
 if (!selectorClosed) throw new Error("Strength selector did not close correctly.");
 
 const cases = [
-  { players: 2, games: 5000, superMode: false }, // learned profile baseline
+  // 未学習CPU同士に未学習CPUを1体置き、基準勝率（互角なら1/人数）を検証
+  { players: 2, games: 1000, superMode: false, unlearnedStar: true },
+  { players: 3, games: 1000, superMode: false, unlearnedStar: true },
+  { players: 5, games: 1000, superMode: false, unlearnedStar: true },
+  { players: 9, games: 1000, superMode: false, unlearnedStar: true },
+  // 従来の学習済みCPUと未学習CPUの比較
+  { players: 2, games: 5000, superMode: false },
+  // 最強CPU対未学習CPUを人数別に検証
   { players: 2, games: 5000, superMode: true },
   { players: 3, games: 1000, superMode: true },
   { players: 5, games: 1000, superMode: true },
@@ -31,12 +38,12 @@ const cases = [
 const results = [];
 for (const test of cases) {
   const result = await page.evaluate(async ({ players, games, superMode }) => {
-    await runVersus(games, players, superMode);
+    await runVersus(games, players, superMode, false, unlearnedStar);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
     const draws = Number((text.match(/勝者なし：\s*(\d+)/) || [])[1] || 0);
     return { text, wins: m ? Number(m[1]) : null, games: m ? Number(m[2]) : null, winRatePct: m ? Number(m[3]) : null, draws };
-  }, test);
+  }, { ...test, unlearnedStar: Boolean(test.unlearnedStar) });
   results.push({ ...test, ...result });
   console.log(JSON.stringify(results.at(-1)));
   if (test.superMode) {
