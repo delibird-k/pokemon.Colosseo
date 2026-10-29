@@ -455,12 +455,15 @@ function normalizeSecret(){const s=C.find(c=>c.secret);if(!s||!G||G.experiment)r
 function chk(){if(G.surrendered)return true;normalizeSecret();G.P.forEach(satoshiFix);sashSave().forEach(p=>{G.L=[...G.L,p.saveMsg||p.n+"はきあいのタスキでこらえた！"].slice(-2)});G.P.forEach(p=>{if(G.experiment){p.hp=999999;p.pp=999999;p.d=0}else if(p.hp<=0)p.d=1});const al=G.P.filter(p=>!p.d);if(al.length>1)return false;G.ph="over";G.w=al.length?G.P.indexOf(al[0]):-1;G.ask=null;pub();return true}
 async function can(a){
  if(a.stun>0){a.stun--;await ev(a.n+"は時間を止められて動けない！"+(a.stun>0?"（あと"+a.stun+"ターン）":""));return false}
- if(a.al==="sleep"){if(a.sl==null)a.sl=3;if(a.sl>0){a.sl--;await ev(a.n+"はぐうぐう眠っている…（あと"+a.sl+"ターン）");return false}else{a.al=null;a.sl=null;await ev(a.n+"は目を覚ました！")}}
+ // ねむりは3ターン行動できず、3ターン目の終了時点で解除する
+ if(a.al==="sleep"){if(a.sl==null)a.sl=3;if(a.sl>0){a.sl--;await ev(a.n+"はぐうぐう眠っている…"+(a.sl>0?"（あと"+a.sl+"ターン）":""));if(a.sl===0){a.al=null;a.sl=null;await ev(a.n+"は目を覚ました！")}return false}else{a.al=null;a.sl=null;await ev(a.n+"は目を覚ました！")}}
+ // こんらんは3ターン継続し、4ターン目の行動前に解除
+ if(a.al==="confusion"){if(a.cf==null)a.cf=3;if(a.cf<=0){a.al=null;a.cf=null;await ev(a.n+"はこんらんから回復した！")}else a.cf--}
  if(a.al==="freeze"){if(--a.fz<=0){a.al=null;await ev(a.n+"のこおりがとけた！")}else{await ev(a.n+"はこおって動けない！");return false}}
  if(a.al==="paralysis"&&Math.random()<.3){await ev(a.n+"はまひして動けない！");return false}
  return true}
 async function burn(a){if(a.al==="burn"&&a.hp>0){a.hp=Math.max(0,a.hp-2);await ev(a.n+"はやけどで2ダメージ！")}else if(a.al==="poison"&&a.hp>0){a.hp=Math.max(0,a.hp-4);await ev(a.n+"はどくで4ダメージ！")}}
-async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=3;if(al==="sleep")t.sl=3;await ev(t.n+"は"+AIL[al]+"になった！")}
+async function apply(t,al){if(helperIsActive(t,"ジガルデ100％")){await ev(t.n+"はジガルデ100％の力で状態異常にならない！");return}if(t.al){await ev(t.n+"はすでに"+AIL[t.al]+"だ！");return}t.al=al;t.fz=3;if(al==="sleep")t.sl=3;if(al==="confusion")t.cf=3;await ev(t.n+"は"+AIL[al]+"になった！")}
 async function getDef(t,c,bo,only){
  if(G&&G.unguard)return null;
  if(t.al==="sleep"||t.al==="freeze"||t.stun>0)return null; // ねむり・こおり・時間停止中は防御カードを出せない
@@ -989,7 +992,7 @@ function showRules(){
  <details class="rule-card"><summary>基本ルール</summary><p>HP50・PP10・20円で開始。最後まで生き残れば勝ち（最大9人）。</p><p>カードを使って行動。使わないときはカードを1枚捨てて交代できます。</p></details>
  <details class="rule-card"><summary>PP・強化アイテム</summary><p>攻撃・変化技と通常の防御はPP1消費。みがわりの人形はPP0でも使用可能。</p><ul><li>ちからのハチマキ：物理＋2</li><li>ものしりメガネ：特殊＋2</li><li>いのちのたま：技＋7、自分も5ダメージ</li><li>Zクリスタル：ゲーム中1回のみ。技のタイプに応じてZワザ名に変化し、威力＋10</li><li>メガストーン：対応するポケモンの技と一緒に出すと、アイコンがメガシンカ後になり威力＋10</li><li>ラッキーパンチ：追加効果のある技と一緒に出すと、追加効果が必ず発動</li><li>バッグ：使うとタイプ強化アイテムを1個選んで入手できる。タイプ強化アイテム自体は通常のドローやショップには出現しない。対応する技に重ねると威力＋5。</li><li>マスターボール：ポケモンを呼ぶ</li></ul></details>
  <details class="rule-card"><summary>攻撃・防御</summary><p>防御カードは重ねて使え、軽減量は合計。まもる・みきり・みがわりの人形は攻撃・変化技を防ぎます。</p><p>リフレクター・ひかりのかべは対応するダメージを3ターン−5。じしん・なみのり・だくりゅう・うたかたのアリアは全体攻撃です。ニードルガードは物理技を防ぐと相手に5ダメージを返します。かげぬいはガード不可、フレアソングはみがわりの人形では防げません。</p><p>一撃必殺は基本20%。技によって命中率・追加効果が異なります。</p></details>
- <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：毎ターン20%で回復</li><li>こんらん：自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
+ <details class="rule-card"><summary>状態異常</summary><ul><li>やけど：ターン後に2ダメージ、物理技−5</li><li>まひ：30%で行動不能</li><li>こおり：2回行動不能</li><li>ねむり：3ターン行動できず、3ターン目の終了時に解除</li><li>こんらん：3ターン継続し、自分を攻撃することがある</li><li>どく：ターン経過でダメージ</li></ul><p>状態異常は重複しません。</p></details>
  <details class="rule-card"><summary>お金・ショップ</summary><p>カードを買うには表示価格を支払います。両替はHP・PP・お金を1:1で交換。</p><p>カードを売るとき、お金が足りなければPP、PPも足りなければHPで支払います。</p></details>
  <details class="rule-card"><summary>終末の時</summary><p>設定した行動数のあと開始。以降、各行動後に25%でイベント発生。</p><p>イベルタル10ダメージ、ウルトラネクロズマ20、ムゲンダイマックスムゲンダイナ30。アルセウスは回復・お金、ニューラは手札を盗みます。</p><p>イベントの攻撃は防御カードで防げません。</p></details>
  <details class="rule-card"><summary>特殊ルール・技</summary><p>「まねっこ」は直前の技を再現。「ゆびをふる」は攻撃技をランダムに使用。</p><p>ゆびをふるモードでは手札が「ゆびをふる」「ピーピーマックス」になります。</p><p>タイプ相性による威力変化はありません。きあいのタスキは倒される攻撃をHP1で耐え、消費されます。</p></details>
