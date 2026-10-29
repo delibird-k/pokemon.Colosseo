@@ -34,11 +34,16 @@ const cases = [
   { players: 3, games: 1000, ultraVs: true },
   { players: 5, games: 1000, ultraVs: true },
   { players: 9, games: 1000, ultraVs: true },
+  // 最強CPU vs 未学習CPU。人数別に勝率を測定して結果に保存する。
+  { players: 2, games: 5000, strongestVsUnlearned: true },
+  { players: 3, games: 1000, strongestVsUnlearned: true },
+  { players: 5, games: 1000, strongestVsUnlearned: true },
+  { players: 9, games: 1000, strongestVsUnlearned: true },
 ];
 const results = [];
 for (const test of cases) {
-  const result = await page.evaluate(async ({ players, games, superMode, ultraVs, unlearnedStar }) => {
-    await runVersus(games, players, superMode, ultraVs, unlearnedStar);
+  const result = await page.evaluate(async ({ players, games, superMode, ultraVs, unlearnedStar, strongestVsUnlearned }) => {
+    await runVersus(games, players, superMode, ultraVs, unlearnedStar, strongestVsUnlearned);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
     const draws = Number((text.match(/勝者なし：\s*(\d+)/) || [])[1] || 0);
