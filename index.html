@@ -757,17 +757,17 @@ function trainingSummary(count){const lines=[];const own=Object.keys(TRAIN_DATA.
  for(const n of own){const st=TRAIN_DATA.cem[n];const h=(st.hist||[]).slice(-5);const r=h.length?h.reduce((s,x)=>s+x.rate,0)/h.length:null;lines.push(n+"人戦：追加学習 "+(st.gen||0)+"世代"+(r==null?"":"／直近の推定勝率 "+(r*100).toFixed(1)+"%（互角 "+(100/n).toFixed(1)+"%）"))}
  if(count){const b=bpBase(count),t=[];if(b.tHp>.5)t.push("HPが高い相手を優先して狙う");else if(b.tHp<-.5)t.push("HPが低い相手を優先して狙う");if(b.tLow<.4)t.push("瀕死の相手への集中攻撃はしない");if(b.tHand>.5)t.push("手札が多い相手を警戒");if(b.tMo<-.5)t.push("お金持ちを避け、貧乏な相手を狙う");else if(b.tMo>.5)t.push("お金持ちの相手を狙う");if(b.pMoney>1.15)t.push("ショップ・売るを積極的に使う");if(b.aFin>1.5)t.push("とどめを刺せる技を重視");if(b.dProb>.9&&b.dWorth<5)t.push("攻撃を受けたら積極的に防御カードを使う");lines.push(count+"人戦の傾向："+(t.length?t.join("、"):"基本方針どおり"))}
  return lines.join("\n")}
-async function runVersus(total,count,superMode=false,ultraVs=false,unlearnedStar=false){
+async function runVersus(total,count,superMode=false,ultraVs=false,unlearnedStar=false,strongestVsUnlearned=false){
  if(TRAIN_RUNNING)return;
  TRAIN_RUNNING=true;TRAIN_STOP=false;VERSUS=true;BP_OVERRIDE=null;$("trainConfig").hidden=true;$("trainStop").hidden=false;$("trainClose").hidden=true;
  let done=0,win=0,draw=0;
  const report=(fin)=>{const n=done,base=1/count,rate=n?win/n:0,z=n?(rate-base)/Math.sqrt(base*(1-base)/n):0;let v="";if(fin){v=n<300?"試合数が少ないため判定が不安定です（1000試合以上推奨）。":z>=2?"★のCPUは有意に強いです。":z<=-2?"★のCPUのほうが弱い結果です。":"差は誤差の範囲です。もっと学習するか、試合数を増やしてください。"}
-  $("trainResults").textContent="★"+(unlearnedStar?"未学習CPU":ultraVs?"最強CPU":superMode?"強化CPU":"学習済みCPU")+" 1人 vs "+(ultraVs?"従来の学習済み ":unlearnedStar?"未学習 ":"未学習 ")+(count-1)+"人\n★の勝利："+win+" / "+n+"試合（勝率 "+(rate*100).toFixed(1)+"%／互角なら "+(base*100).toFixed(1)+"%）\n勝者なし："+draw+"試合"+(fin?"\n"+v:"")};
+  $("trainResults").textContent="★"+(strongestVsUnlearned?"最強CPU":unlearnedStar?"未学習CPU":ultraVs?"最強CPU":superMode?"強化CPU":"学習済みCPU")+" 1人 vs "+(strongestVsUnlearned||unlearnedStar?"未学習 ":ultraVs?"従来の学習済み ":"未学習 ")+(count-1)+"人\n★の勝利："+win+" / "+n+"試合（勝率 "+(rate*100).toFixed(1)+"%／互角なら "+(base*100).toFixed(1)+"%）\n勝者なし："+draw+"試合"+(fin?"\n"+v:"")};
  try{MODE="train";host=true;R=null;W=null;MY="";
   for(;done<total&&!TRAIN_STOP;done++){
    const pool=TRAIN_NAMES.slice().sort(()=>Math.random()-.5);
-   const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"vs"+i,1);p.noLearn=!ultraVs;return p});
-   const k=Math.random()*count|0;P[k].noLearn=unlearnedStar&&!ultraVs;P[k].superAI=superMode;P[k].ultra=ultraVs;P[k].star=true;P[k].n="★"+P[k].n;
+   const P=Array.from({length:count},(_,i)=>{const p=mk(pool[i],"vs"+i,1);p.noLearn=strongestVsUnlearned?true:!ultraVs;return p});
+   const k=Math.random()*count|0;P[k].noLearn=strongestVsUnlearned?false:unlearnedStar&&!ultraVs;P[k].superAI=superMode;P[k].ultra=ultraVs||strongestVsUnlearned;P[k].star=true;P[k].n="★"+P[k].n;
    G=newGame(P,50);G.learnActions={};LOGALL.length=0;await loop();
    const w=G.P[G.w];if(!w)draw++;else if(w.star)win++;
    if(done%25===0||done===total-1){$("trainProgress").textContent="強さ検証中："+(done+1)+" / "+total+" 試合";report(false);await new Promise(r=>setTimeout(r,0))}
