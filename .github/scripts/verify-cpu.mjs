@@ -37,7 +37,7 @@ const cases = [
 ];
 const results = [];
 for (const test of cases) {
-  const result = await page.evaluate(async ({ players, games, superMode }) => {
+  const result = await page.evaluate(async ({ players, games, superMode, unlearnedStar }) => {
     await runVersus(games, players, superMode, false, unlearnedStar);
     const text = document.getElementById("trainResults")?.textContent || "";
     const m = text.match(/★の勝利：\s*(\d+)\s*\/\s*(\d+)試合（勝率\s*([\d.]+)%/);
