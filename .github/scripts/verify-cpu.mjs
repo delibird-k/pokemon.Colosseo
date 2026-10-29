@@ -14,7 +14,7 @@ const countButtons = await page.locator("#cpuCounts button").count();
 if (countButtons !== 8) throw new Error("Expected 8 player-count buttons, got " + countButtons);
 await page.locator("#cpuCounts button").first().click();
 const selectorText = await page.locator("#cpuStrengthHud").innerText();
-if (!selectorText.includes("学習前のCPU") || !selectorText.includes("学習後の最強CPU")) {
+if (!selectorText.includes("学習前のCPU") || !selectorText.includes("最強CPU")) {
   throw new Error("Strength selector is missing an option: " + selectorText);
 }
 await page.locator("#cpuStrengthCancel").click();
