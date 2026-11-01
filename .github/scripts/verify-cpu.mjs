@@ -53,7 +53,7 @@ for (const test of cases) {
   console.log(JSON.stringify(results.at(-1)));
   if (test.ultraVs) {
     // 最強CPUは従来型との比較。互角の基準（1 / 人数）を下回らないことを確認する。
-    const minimum = ({ 2: 50, 3: 38, 5: 24, 9: 11 })[test.players];
+    const minimum = ({ 2: 50, 3: 33.3, 5: 20, 9: 11.1 })[test.players];
     if (result.winRatePct < minimum) throw new Error(`${test.players}-player strongest CPU win rate ${result.winRatePct}% is below ${minimum}% baseline`);
   }
   if (result.wins === null || result.games !== test.games) throw new Error("Could not parse completed battle results: " + result.text);
