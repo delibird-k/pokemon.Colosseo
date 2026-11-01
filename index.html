@@ -1092,32 +1092,22 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 .zn .mc-info b{font-size:.76rem;line-height:1.2;overflow-wrap:anywhere}
 .zn .mc-info .mc-desc{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px;font-size:.66rem;line-height:1.25;overflow-wrap:anywhere;color:var(--mu)}
 .zn .mc-info .ty{margin-left:3px}
-/* ナイトモード：カード内の文字と色付き領域のコントラストを確保 */
-body.dark .zn .mc-info,
-.dark .zn .mc-info,
-body.night .zn .mc-info,
-.night .zn .mc-info{color:#f4f7fb!important;text-shadow:0 1px 1px rgba(0,0,0,.4)}
-body.dark .zn .mc-info .mc-desc,
-.dark .zn .mc-info .mc-desc,
-body.night .zn .mc-info .mc-desc,
-.night .zn .mc-info .mc-desc{color:#e3eaf2!important}
-body.dark .zn .mc-info .ty,
-.dark .zn .mc-info .ty,
-body.night .zn .mc-info .ty,
-.night .zn .mc-info .ty{color:#fff!important;text-shadow:0 1px 2px #000}
-body.dark .zn .mc-art,
-.dark .zn .mc-art,
-body.night .zn .mc-art,
-.night .zn .mc-art{background-image:linear-gradient(135deg,#26384c,#172330)!important}
-body.dark .zn .mc.mc-physical .mc-art,
-.dark .zn .mc.mc-physical .mc-art,
-body.night .zn .mc.mc-physical .mc-art,
-.night .zn .mc.mc-physical .mc-art{background-image:linear-gradient(135deg,#a92f3b,#55212b)!important}
-body.dark .zn .mc.mc-special .mc-art,
-.dark .zn .mc.mc-special .mc-art,
-body.night .zn .mc.mc-special .mc-art,
-.night .zn .mc.mc-special .mc-art{background-image:linear-gradient(135deg,#245bb5,#1b315e)!important}
-
+/* ナイトモード：data-theme属性に合わせてカードの視認性を調整 */
+:root[data-theme="dark"] .zn .mc-info,
+@media(prefers-color-scheme:dark){
+ :root:not([data-theme="light"]) .zn .mc-info{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.65)}
+ :root:not([data-theme="light"]) .zn .mc-info .mc-desc{color:#f0f4fa!important}
+ :root:not([data-theme="light"]) .zn .mc-info .ty{color:#fff!important;text-shadow:0 1px 2px #000}
+ :root:not([data-theme="light"]) .zn .mc-art{background-image:linear-gradient(135deg,#26384c,#172330)!important}
+ :root:not([data-theme="light"]) .zn .mc.mc-physical .mc-art{background-image:linear-gradient(135deg,#b93645,#702632)!important}
+ :root:not([data-theme="light"]) .zn .mc.mc-special .mc-art{background-image:linear-gradient(135deg,#3479dc,#244b91)!important}
+}
+:root[data-theme="dark"] .zn .mc-info{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.65)}
+:root[data-theme="dark"] .zn .mc-info .mc-desc{color:#f0f4fa!important}
+:root[data-theme="dark"] .zn .mc-info .ty{color:#fff!important;text-shadow:0 1px 2px #000}
+:root[data-theme="dark"] .zn .mc-art{background-image:linear-gradient(135deg,#26384c,#172330)!important}
+:root[data-theme="dark"] .zn .mc.mc-physical .mc-art{background-image:linear-gradient(135deg,#b93645,#702632)!important}
+:root[data-theme="dark"] .zn .mc.mc-special .mc-art{background-image:linear-gradient(135deg,#3479dc,#244b91)!important}
 </style>
 
 <style>
