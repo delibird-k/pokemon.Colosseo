@@ -1081,10 +1081,12 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 </style>
 
 <style>
-/* 対戦画面の攻撃カードも、元の防御カード（.mc）と同じ寸法にする */
-.mc-attack{flex:1 1 70px;width:auto;min-width:0;max-width:120px;box-sizing:border-box;padding:3px 5px;text-align:center}
-.mc-attack b{white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25}
-.mc-attack .mc-desc{display:block;margin-top:5px;font-size:.72rem;line-height:1.35;white-space:normal;overflow-wrap:anywhere;color:var(--mu)}
+/* 対戦画面の攻撃・防御カードは元の防御カード幅を基準に縦横を統一 */
+.zn .mc{box-sizing:border-box;flex:0 0 120px;width:120px;min-width:120px;max-width:120px;height:130px;min-height:130px;max-height:130px;padding:3px 5px;overflow:hidden}
+.zn .mc .card-mon img{width:76px;height:76px;object-fit:contain}
+.zn .mc-attack{text-align:center}
+.zn .mc-attack b{white-space:normal;overflow-wrap:anywhere;font-size:.82rem;line-height:1.25}
+.zn .mc-attack .mc-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:5px;font-size:.72rem;line-height:1.25;overflow-wrap:anywhere;color:var(--mu)}
 </style>
 
 <style>
