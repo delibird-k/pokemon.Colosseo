@@ -1081,6 +1081,10 @@ $("sing").onclick=()=>{if(CA&&CA.k==="turn"&&S.sent!==CA.n)send(CA,{sing:1})};
 </style>
 
 <style>
+/* 対戦画面で表示する攻撃・防御カードの寸法を統一 */
+.zn .mc{box-sizing:border-box;flex:0 0 190px;width:190px;min-width:190px;max-width:190px;min-height:150px;padding:8px 9px}
+.zn .mc .card-mon img{width:58px;height:58px}
+@media(max-width:520px){.zn .mc{flex-basis:165px;width:165px;min-width:165px;max-width:165px;min-height:140px}.zn .mc .card-mon img{width:58px;height:58px}}
 /* 使用後は技の詳しい説明を表示し、分類・威力・タイプの短縮表示は手札だけにする */
 .mc-attack{flex:0 0 190px;width:190px;min-width:190px;max-width:none;box-sizing:border-box;padding:8px 9px;text-align:center}
 .mc-attack b{white-space:nowrap;overflow-wrap:normal;font-size:.88rem}
