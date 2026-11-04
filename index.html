@@ -179,6 +179,7 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 <label for="endAt" style="display:block;margin:10px 0 4px">終末の時：何行動後に開始？</label><input class="in" id="endAt" type="number" min="1" max="999" value="50" placeholder="行動回数（例：50）">
 <label for="tl" style="display:block;margin:10px 0 4px">持ち時間（対人戦・1回の操作）</label><select class="in" id="tl"><option value="0">なし</option><option value="15">15秒</option><option value="30">30秒</option><option value="45">45秒</option><option value="60">60秒</option></select>
 <div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">ゆびをふるモード</b><div class="sg" style="margin:0"><button class="btn pri" id="fingerOff" type="button">OFF</button><button class="btn" id="fingerOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)"></small></div>
+<div style="margin:10px 0;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--cd)"><b style="display:block;margin-bottom:7px">チャット</b><div class="sg" style="margin:0"><button class="btn" id="chatOff" type="button">OFF</button><button class="btn pri" id="chatOn" type="button">ON</button></div><small style="display:block;margin-top:6px;color:var(--mu)">チャット機能の表示・通知を切り替えます。</small></div>
 <div id="t1"><button class="btn pri w" id="bc">コンピューター戦</button><button class="btn w" id="bn">対人戦（最大9人）</button><button class="btn w" id="openRules">ルールを見る</button><button class="btn w" id="openZukan">カード図鑑</button><button class="btn w" id="themeBtn">表示テーマ：自動</button><div class="vr" style="margin:8px 0"><span>🔊 音量</span><input type="range" id="volT" min="0" max="300" step="5"><b id="volTN"></b></div><button class="btn w" id="refreshBtn">最新版に更新（キャッシュ削除）</button><button class="btn w" id="openLegal">著作権・免責事項</button><p style="font-size:.72rem;color:var(--mu);margin:8px 0 0;line-height:1.5">非営利の個人制作ファンゲームです。広告表示・課金・寄付募集などの収益化は行いません。</p><p style="font-size:.66rem;color:var(--mu);margin:4px 0 0">版：<span id="ver"></span></p></div>
 <div id="tc" hidden><p>何人で対戦する？（自分を含む）</p><div class="sg" id="cpuCounts"></div></div>
 <div id="t2" hidden><input class="in" id="cd" inputmode="numeric" maxlength="6" placeholder="6桁の数字（同じ数字の人と対戦）"><button class="btn pri w" id="bj">入室</button><p id="te"></p></div>
@@ -195,6 +196,9 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 <script>
 const $=id=>document.getElementById(id),sl=ms=>MODE==="train"?Promise.resolve():new Promise(r=>setTimeout(r,ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 let FINGER_MODE=false;try{FINGER_MODE=localStorage.getItem("colosseoFingerMode")==="on"}catch(_){};
+let CHAT_ENABLED=true;try{CHAT_ENABLED=localStorage.getItem("colosseoChatEnabled")!=="off"}catch(_){}
+function setChatEnabled(on){CHAT_ENABLED=!!on;try{localStorage.setItem("colosseoChatEnabled",CHAT_ENABLED?"on":"off")}catch(_){}$("chatOn").classList.toggle("pri",CHAT_ENABLED);$("chatOff").classList.toggle("pri",!CHAT_ENABLED);if(!CHAT_ENABLED){$("chat").hidden=true;$("chatBadge").hidden=true;$("ctoast").hidden=true}if(typeof renderExtras==="function"&&G)renderExtras()}
+$("chatOn").onclick=()=>setChatEnabled(true);$("chatOff").onclick=()=>setChatEnabled(false);setChatEnabled(CHAT_ENABLED);
 const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり",poison:"どく"},KL={p:"物理",s:"特殊"};
 // t: a=攻撃 b=強化 d=防御 h=回復 s=変化 m=商売  k: p物理 s特殊 any両方  d:威力/回復量  b:完全防御 bs:変化技無効 r:軽減量
 const C=[
@@ -1336,7 +1340,7 @@ setInterval(tickTimer,250);
 /* --- チャット／スタンプ --- */
 function addChat(n,t,sys,st=-1){if(!G)return;G.cs=(G.cs||0)+1;G.chat=[...(G.chat||[]),{i:G.cs,n,t,y:sys?1:0,s:st}].slice(-40);pub()}
 function hostChat(ps){if(!G)return;for(const q of ps){if(q.sameTab)continue;const c=q.presence&&q.presence.chat;if(!c||typeof c!=="object"||LASTC[q.peer]===c.s)continue;LASTC[q.peer]=c.s;const pl=G.P.find(x=>x.id===q.peer);if(!pl)continue;const now=Date.now();if(now-(LASTT[q.peer]||0)<700)continue;LASTT[q.peer]=now;const si=Number.isInteger(c.st)&&STAMPS[c.st]?c.st:-1,t=si>=0?"":String(c.t||"").replace(/[\u0000-\u001f]/g,"").slice(0,40).trim();if(si<0&&!t)continue;addChat(pl.on||pl.n,t,0,si)}}
-function sendChat(text,st){if(!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,MODE==="cpu"?80:40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
+function sendChat(text,st){if(!CHAT_ENABLED||!G||(MODE!=="net"&&MODE!=="cpu"))return;text=String(text||"").slice(0,MODE==="cpu"?80:40).trim();if(st==null&&!text)return;const now=Date.now();if(now-(S.ct||0)<700)return;S.ct=now;
  if(host){const me=G.P.find(p=>p.id===MY);addChat(me?me.n:"?",st==null?text:"",0,st==null?-1:st);if(MODE==="cpu")aiReply(st==null?text:STAMPS[st]?.[1]||"",st)}else R.presence({chat:{s:Date.now()+Math.random(),t:text,st:st==null?-1:st}}).catch(()=>{})}
 $("stamps").innerHTML=STAMPS.map((x,i)=>'<button data-i="'+i+'">'+x[1]+'</button>').join("");
 $("stamps").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(null,+b.dataset.i)};
@@ -1351,7 +1355,7 @@ function renderExtras(){
  if(G.sh){const sig=G.sh.join(",");if(S.shs!==sig){S.shs=sig;const on=new Set(G.sh);for(const id of Object.keys(CARD_MON)){CARD_MON[id][2]=on.has(id);applyShinyCard(id)}}}
  if((G.rid||0)!==(S.rid||0)){S.rid=G.rid||0;S.es=0;S.sel=[];S.tg=-1;S.n=0;S.sent=0;S.sur=0;LOGALL.length=0;$("md").hidden=true;$("md").classList.remove("res");$("sh").hidden=true;$("toast").classList.remove("on");$("log").innerHTML=""}
  if(MODE==="net"&&G.bv!==BUILD&&!S.vbw){S.vbw=1;const vb=$("netbar");vb.textContent="⚠ 相手と版が違います。タイトル画面の「最新版に更新」を押してください";vb.hidden=false;setTimeout(()=>{if(vb.textContent.startsWith("⚠ 相手"))vb.hidden=true},9000)}
- const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net;$("chat").classList.toggle("cpu-chat",MODE==="cpu");if(!net&&chatOpen())$("chat").hidden=true;
+ const net=MODE==="net"||MODE==="cpu";$("chatBtn").hidden=!net||!CHAT_ENABLED;$("chat").classList.toggle("cpu-chat",MODE==="cpu");if((!net||!CHAT_ENABLED)&&chatOpen())$("chat").hidden=true;if(!CHAT_ENABLED){$("chatBadge").hidden=true;$("ctoast").hidden=true}
  if(MODE==="cpu"&&G.ph==="play"){const bs=G.P.filter(x=>x.bot);if(!G.as){G.as=1;AIC.nextAmbient=Date.now()+18000+Math.random()*8000;if(bs.length&&Math.random()<.7)aiReact("start",bs[Math.floor(Math.random()*bs.length)],1)}aiAmbient();if(G.endStarted&&!G.ds){G.ds=1;if(bs.length)aiReact("doom",bs[Math.floor(Math.random()*bs.length)],1)}}
  if(G.ph!=="over"){S.os=0;S.aiw=0}else if(MODE==="cpu"&&!S.aiw){S.aiw=1;const wp=G.w>=0&&G.P[G.w];if(wp&&wp.bot)aiReact("win",wp,1)}
  const dn=G.P.filter(p=>p.d).length;if(S.dn==null||dn<S.dn)S.dn=dn;if(dn>S.dn){S.dn=dn;sfx("ko")}
@@ -1360,7 +1364,7 @@ function renderExtras(){
  const me=G.P.find(p=>p.id===MY),my=me?me.n:"",msgs=G.chat||[],last=msgs.length?msgs[msgs.length-1].i:0;
  if(last<(S.cl||0)){S.cl=0;S.cu=0}
  if(last>(S.cl||0)){const nw=msgs.filter(m=>m.i>(S.cl||0));S.cl=last;const other=nw.filter(m=>!m.y&&m.n!==my);
-  if(other.length){sfx("pop");if(!chatOpen()){S.cu=(S.cu||0)+other.length;const m=other[other.length-1],t=$("ctoast");t.textContent=m.n+"："+(m.s>=0&&STAMPS[m.s]?STAMPS[m.s][0]+" "+STAMPS[m.s][1]:m.t);t.hidden=false;clearTimeout(S.ctt);S.ctt=setTimeout(()=>{t.hidden=true},3000)}}}
+  if(other.length&&CHAT_ENABLED){sfx("pop");if(!chatOpen()){S.cu=(S.cu||0)+other.length;const m=other[other.length-1],t=$("ctoast");t.textContent=m.n+"："+(m.s>=0&&STAMPS[m.s]?STAMPS[m.s][0]+" "+STAMPS[m.s][1]:m.t);t.hidden=false;clearTimeout(S.ctt);S.ctt=setTimeout(()=>{t.hidden=true},3000)}}}
  const bd=$("chatBadge");bd.hidden=!(S.cu>0);bd.textContent=S.cu>9?"9+":S.cu||"";
  if(chatOpen()){const l=$("chatList"),at=l.scrollTop+l.clientHeight>=l.scrollHeight-30,h=msgs.map(m=>chatLine(m,my)).join("");if(l.dataset.h!==String(last)){l.innerHTML=h;l.dataset.h=String(last);if(at||true)l.scrollTop=l.scrollHeight}}
 }
