@@ -197,7 +197,7 @@ header{position:relative}#menuBtn{display:none;padding:4px 10px}#hmenu{display:c
 const $=id=>document.getElementById(id),sl=ms=>MODE==="train"?Promise.resolve():new Promise(r=>setTimeout(r,ms)),rd=a=>a[Math.random()*a.length|0],esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 let FINGER_MODE=false;try{FINGER_MODE=localStorage.getItem("colosseoFingerMode")==="on"}catch(_){};
 let CHAT_ENABLED=true;try{CHAT_ENABLED=localStorage.getItem("colosseoChatEnabled")!=="off"}catch(_){}
-function setChatEnabled(on){CHAT_ENABLED=!!on;try{localStorage.setItem("colosseoChatEnabled",CHAT_ENABLED?"on":"off")}catch(_){}$("chatOn").classList.toggle("pri",CHAT_ENABLED);$("chatOff").classList.toggle("pri",!CHAT_ENABLED);if(!CHAT_ENABLED){$("chat").hidden=true;$("chatBadge").hidden=true;$("ctoast").hidden=true}if(typeof renderExtras==="function"&&G)renderExtras()}
+function setChatEnabled(on){CHAT_ENABLED=!!on;try{localStorage.setItem("colosseoChatEnabled",CHAT_ENABLED?"on":"off")}catch(_){}$("chatOn").classList.toggle("pri",CHAT_ENABLED);$("chatOff").classList.toggle("pri",!CHAT_ENABLED);if(!CHAT_ENABLED){$("chat").hidden=true;$("chatBadge").hidden=true;$("ctoast").hidden=true}}
 $("chatOn").onclick=()=>setChatEnabled(true);$("chatOff").onclick=()=>setChatEnabled(false);setChatEnabled(CHAT_ENABLED);
 const AIL={burn:"やけど",paralysis:"まひ",freeze:"こおり",confusion:"こんらん",sleep:"ねむり",poison:"どく"},KL={p:"物理",s:"特殊"};
 // t: a=攻撃 b=強化 d=防御 h=回復 s=変化 m=商売  k: p物理 s特殊 any両方  d:威力/回復量  b:完全防御 bs:変化技無効 r:軽減量
